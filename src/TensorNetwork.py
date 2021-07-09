@@ -3,8 +3,8 @@ import numpy as np
 
 class TensorNetwork:
     """A Tensor-Network object. Used in the field of Quantum Information and Quantum Computation"""
-    def __init__(self, structure_matrix: np.array, tensors: list = None, weights: list = None, spin_dim: int = 2,
-                 virtual_size: int = 3):
+    def __init__(self, structure_matrix: np.array, tensors: list = None, weights: list = None, spin_dim: np.int = 2,
+                 virtual_size: np.int = 3):
         """
         :param structure_matrix: A 2D numpy array of integers > 0, corresponds to the interconnection between the tensor
          of the Tensor Network.
