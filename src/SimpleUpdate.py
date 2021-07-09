@@ -30,11 +30,12 @@ def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: np.float, h
         ti, tj = get_tensors(Ek, tensors, structure_matrix)
 
         # collect edges and remove the Ek edge from both lists
-        iEdgesNidx, jEdgesNidx = get_edges(Ek, structure_matrix)
+        i_edges_dims = get_edges(ti['index'], structure_matrix)
+        j_edges_dims = get_edges(tj['index'], structure_matrix)
 
         # absorb environment (lambda weights) into tensors
-        ti[0] = absorb_weights(ti[0], iEdgesNidx, weights)
-        tj[0] = absorb_weights(tj[0], jEdgesNidx, weights)
+        ti[0] = absorb_weights(ti[0], i_edges_dims, weights)
+        tj[0] = absorb_weights(tj[0], j_edges_dims, weights)
 
         # permuting the indices associated with edge Ek tensors ti, tj with their 1st index
         ti = tensor_dim_permute(ti)
@@ -98,8 +99,8 @@ def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: np.float, h
         tj = tensor_dim_permute(tj)
 
         # Remove bond matrices lambda_m from virtual legs m != Ek to obtain the updated tensors ti~, tj~.
-        ti[0] = absorb_inverse_weights(ti[0], iEdgesNidx, weights)
-        tj[0] = absorb_inverse_weights(tj[0], jEdgesNidx, weights)
+        ti[0] = absorb_inverse_weights(ti[0], i_edges_dims, weights)
+        tj[0] = absorb_inverse_weights(tj[0], j_edges_dims, weights)
 
         # Normalize and save new ti tj and lambda_k
         tensors[ti[1][0]] = ti[0] / normalize_tensor(ti[0])
@@ -116,80 +117,52 @@ def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: np.float, h
 ########################################################################################################################
 
 
-def get_tensors(edge, tensors, smat):
-    """
-    Given an edge collect neighboring tensors and returns their copies.
-    :param edge: edge number {0, 1, ..., m-1}.
-    :param tensors: list of tensors.
-    :param smat: structure matrix (n x m).
-    :return: two lists of Ti Tj tensors, [tensor, [#, 'tensor_number'], [#, 'tensor_index_along_edge']]
-    """
-    tensorNumber = np.nonzero(smat[:, edge])[0]
-    tensorIndexAlongEdge = smat[tensorNumber, edge]
-    Ti = [cp.copy(tensors[tensorNumber[0]]),
-          [tensorNumber[0], 'tensor_number'],
-          [tensorIndexAlongEdge[0], 'tensor_index_along_edge']
-          ]
-    Tj = [cp.copy(tensors[tensorNumber[1]]),
-          [tensorNumber[1], 'tensor_number'],
-          [tensorIndexAlongEdge[1], 'tensor_index_along_edge']
-          ]
-    return Ti, Tj
+def get_tensors(edge, tensors, structure_matrix):
+    which_tensors = np.nonzero(structure_matrix[:, edge])[0]
+    tensor_dim_of_edge = structure_matrix[which_tensors, edge]
+    ti = {'tensor': tensors[which_tensors[0]],
+          'index': which_tensors[0],
+          'dim': tensor_dim_of_edge[0]
+          }
+    tj = {'tensor': tensors[which_tensors[1]],
+          'index': which_tensors[1],
+          'dim': tensor_dim_of_edge[1]
+          }
+    return ti, tj
 
 
-def getConjTensors(edge, tensors, smat):
-    """
-    Given an edge collect neighboring tensors.
-    :param edge: edge number {0, 1, ..., m-1}.
-    :param tensors: list of tensors.
-    :param smat: structure matrix (n x m).
-    :return: two lists of Ti Tj conjugate tensors, [tensor, [#, 'tensor_number'], [#, 'tensor_index_along_edge']]
-    """
-    tensorNumber = np.nonzero(smat[:, edge])[0]
-    tensorIndexAlongEdge = smat[tensorNumber, edge]
-    Ti = [np.conj(cp.copy(tensors[tensorNumber[0]])),
-          [tensorNumber[0], 'tensor_number'],
-          [tensorIndexAlongEdge[0], 'tensor_index_along_edge']
-          ]
-    Tj = [np.conj(cp.copy(tensors[tensorNumber[1]])),
-          [tensorNumber[1], 'tensor_number'],
-          [tensorIndexAlongEdge[1], 'tensor_index_along_edge']
-          ]
-    return Ti, Tj
+# def get_edges(edge, smat):
+#     """
+#     Given an edge, collect neighboring tensors edges and indices
+#     :param edge: edge number {0, 1, ..., m-1}.
+#     :param smat: structure matrix (n x m).
+#     :return: two lists of Ti, Tj edges and associated indices with 'edge' and its index removed.
+#     """
+#     tensorNumber = np.nonzero(smat[:, edge])[0]
+#     iEdgesNidx = [list(np.nonzero(smat[tensorNumber[0], :])[0]),
+#                   list(smat[tensorNumber[0], np.nonzero(smat[tensorNumber[0], :])[0]])
+#                   ]  # [edges, indices]
+#     jEdgesNidx = [list(np.nonzero(smat[tensorNumber[1], :])[0]),
+#                   list(smat[tensorNumber[1], np.nonzero(smat[tensorNumber[1], :])[0]])
+#                   ]  # [edges, indices]
+#     # remove 'edge' and its associated index from both i, j lists.
+#     iEdgesNidx[0].remove(edge)
+#     iEdgesNidx[1].remove(smat[tensorNumber[0], edge])
+#     jEdgesNidx[0].remove(edge)
+#     jEdgesNidx[1].remove(smat[tensorNumber[1], edge])
+#     return iEdgesNidx, jEdgesNidx
 
 
-def get_edges(edge, smat):
+def get_edges(tensor_idx, structure_matrix):
     """
-    Given an edge, collect neighboring tensors edges and indices
-    :param edge: edge number {0, 1, ..., m-1}.
-    :param smat: structure matrix (n x m).
-    :return: two lists of Ti, Tj edges and associated indices with 'edge' and its index removed.
+    Given an index of a tensor, return all of its tensor_edges and associated tensor_dims.
+    :param tensor_idx: the tensor index in the structure matrix
+    :param structure_matrix: structure matrix
+    :return: list of two lists [[tensor_edges], [tensor_dims]].
     """
-    tensorNumber = np.nonzero(smat[:, edge])[0]
-    iEdgesNidx = [list(np.nonzero(smat[tensorNumber[0], :])[0]),
-                  list(smat[tensorNumber[0], np.nonzero(smat[tensorNumber[0], :])[0]])
-                  ]  # [edges, indices]
-    jEdgesNidx = [list(np.nonzero(smat[tensorNumber[1], :])[0]),
-                  list(smat[tensorNumber[1], np.nonzero(smat[tensorNumber[1], :])[0]])
-                  ]  # [edges, indices]
-    # remove 'edge' and its associated index from both i, j lists.
-    iEdgesNidx[0].remove(edge)
-    iEdgesNidx[1].remove(smat[tensorNumber[0], edge])
-    jEdgesNidx[0].remove(edge)
-    jEdgesNidx[1].remove(smat[tensorNumber[1], edge])
-    return iEdgesNidx, jEdgesNidx
-
-
-def getEdges(tensorIndex, smat):
-    """
-    Given an index of a tensor, return all of its edges and associated indices.
-    :param tensorIndex: the tensor index in the structure matrix
-    :param smat: structure matrix
-    :return: list of two lists [[edges], [indices]].
-    """
-    edges = np.nonzero(smat[tensorIndex, :])[0]
-    indices = smat[tensorIndex, edges]
-    return [edges, indices]
+    tensor_edges = np.nonzero(structure_matrix[tensor_idx, :])[0]
+    tensor_dims = structure_matrix[tensor_idx, tensor_edges]
+    return {'edges': tensor_edges, 'dims': tensor_dims}
 
 
 def getAllTensorsEdges(edge, smat):
