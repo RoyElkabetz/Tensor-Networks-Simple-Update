@@ -19,10 +19,14 @@ class TensorNetwork:
         assert structure_matrix.shape[0] == len(tensors)
         assert structure_matrix.shape[1] == len(weights)
 
-        # check there are not loose connections in the network
+        # check connectivity
         n, m = structure_matrix.shape
         for i in range(n):
-            pass
+            # all tensor virtual legs connected
+            assert len(tensors[i].shape) - 1 == np.sum(structure_matrix[i, :] > 0)
+        for j in range(n):
+            # no more than two tensors on the same edge
+            assert np.sum(structure_matrix[:, j] > 0) == 2
 
         # verify each neighboring tensors has identical interaction dimension to their shared weights
         for i in range(n):
