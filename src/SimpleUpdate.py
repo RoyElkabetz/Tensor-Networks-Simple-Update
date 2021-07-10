@@ -64,41 +64,42 @@ def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k
         # Contract the time-evolution gate with ri, rj, and lambda_k to form a theta tensor.
         i_neighbors = len(i_edges_dims['edges']) + 1
         j_neighbors = len(j_edges_dims['edges']) + 1
-        theta = time_evolution(ri, rj, i_neighbors, j_neighbors,  lambda_k, dt, j_ij[ek], h_k, s_i, s_j, s_k)  # (qi, i', j', qj)
+        theta = time_evolution(ri, rj, i_neighbors, j_neighbors,  lambda_k, dt, j_ij[ek], h_k, s_i, s_j, s_k)
+        # theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
 
         # Obtain ri', rj', lambda'_k tensors by applying an SVD to theta
-        R_tild, lambda_k_tild, L_tild = truncation_svd(theta, [0, 1], [2, 3], keepS='yes', maxEigenvalNumber=d_max)
+        ri_tilde, lambda_k_tilde, rj_tilde = truncation_svd(theta, keep_s='yes', d_max=d_max)
 
-        # reshaping R_tild and L_tild back to rank 3 tensor
-        R_tild = np.reshape(R_tild, (qi.shape[0], i_physical_dim, R_tild.shape[1]))  # (qi, i', D')
-        R_tild = np.transpose(R_tild, [1, 2, 0])  # (i', D', qi)
-        L_tild = np.reshape(L_tild, (L_tild.shape[0], j_physical_dim, qj.shape[0]))  # (D', j', qj)
-        L_tild = np.transpose(L_tild, [1, 0, 2])  # (j', D', qj)
+        # reshaping ri_tilde and rj_tilde back to rank 3 tensor
+        ri_tilde = np.reshape(ri_tilde, (qi.shape[0], i_physical_dim, ri_tilde.shape[1]))   # (qi, i'_spin_dim, d_max)
+        ri_tilde = np.transpose(ri_tilde, [1, 2, 0])                                        # (i'_spin_dim, d_max, qi)
+        rj_tilde = np.reshape(rj_tilde, (rj_tilde.shape[0], j_physical_dim, qj.shape[0]))   # (d_max, j'_spin_dim, qj)
+        rj_tilde = np.transpose(rj_tilde, [1, 0, 2])                                        # (j'_spin_dim, d_max, qj)
 
         # Glue back the ri', rj', sub-tensors to qi, qj, respectively, to form updated tensors P'l, P'r.
-        Pl_prime = np.einsum('ijk,kl->ijl', R_tild, qi)
-        Pr_prime = np.einsum('ijk,kl->ijl', L_tild, qj)
+        pi_prime = np.einsum('ijk,kl->ijl', ri_tilde, qi)
+        pl_prime = np.einsum('ijk,kl->ijl', rj_tilde, qj)
 
-        # Reshape back the P`l, P`r to the original rank-(z + 1) tensors ti, tj
-        Ti_new_shape = list(ti[0].shape)
-        Ti_new_shape[1] = len(lambda_k_tild)
-        Tj_new_shape = list(tj[0].shape)
-        Tj_new_shape[1] = len(lambda_k_tild)
-        ti[0] = rank_3_rank_n(Pl_prime, Ti_new_shape)
-        tj[0] = rank_3_rank_n(Pr_prime, Tj_new_shape)
+        # Reshape back the pi_prime, pj_prime to the original rank-(z + 1) tensors ti, tj
+        ti_new_shape = np.array(ti['tensor'].shape)
+        ti_new_shape[1] = len(lambda_k_tilde)
+        tj_new_shape = np.array(tj['tensor'].shape)
+        tj_new_shape[1] = len(lambda_k_tilde)
+        ti['tensor'] = rank_3_rank_n(pi_prime, ti_new_shape)
+        tj['tensor'] = rank_3_rank_n(pl_prime, tj_new_shape)
 
         # permuting back the legs of ti and tj
         ti = tensor_dim_permute(ti)
         tj = tensor_dim_permute(tj)
 
         # Remove bond matrices lambda_m from virtual legs m != ek to obtain the updated tensors ti~, tj~.
-        ti[0] = absorb_inverse_weights(ti[0], i_edges_dims, weights)
-        tj[0] = absorb_inverse_weights(tj[0], j_edges_dims, weights)
+        ti['tensor'] = absorb_inverse_weights(ti['tensor'], i_edges_dims, weights)
+        tj['tensor'] = absorb_inverse_weights(tj['tensor'], j_edges_dims, weights)
 
-        # Normalize and save new ti tj and lambda_k
-        tensors[ti[1][0]] = ti[0] / normalize_tensor(ti[0])
-        tensors[tj[1][0]] = tj[0] / normalize_tensor(tj[0])
-        weights[ek] = lambda_k_tild / np.sum(lambda_k_tild)
+        # Normalize and save new ti, tj and lambda_k
+        tensors[ti['index']] = ti['tensor'] / tensor_norm(ti['tensor'])
+        tensors[tj['index']] = tj['tensor'] / tensor_norm(tj['tensor'])
+        weights[ek] = lambda_k_tilde / np.sum(lambda_k_tilde)
 
     return tensors, weights
 
@@ -132,10 +133,12 @@ def absorb_weights(tensor, edges_dims, weights):
     return tensor
 
 
-def absorb_inverse_weights(tensor, edgesNidx, weights):
-    for i in range(len(edgesNidx[0])):
-        tensor = np.einsum(tensor, list(range(len(tensor.shape))),
-                              weights[int(edgesNidx[0][i])] ** (-1), [int(edgesNidx[1][i])], list(range(len(tensor.shape))))
+def absorb_inverse_weights(tensor, edges_dims, weights):
+    edges = edges_dims['edges']
+    dims = edges_dims['dims']
+    for i, edge in enumerate(edges):
+        tensor = np.einsum(tensor, np.arange(len(tensor.shape)),
+                           np.power(weights[edge], -1), [dims[i]], np.arange(len(tensor.shape)))
     return tensor
 
 
@@ -166,31 +169,31 @@ def rank_2_rank_3(tensor, spin_dim):
     return new_tensor
 
 
-def rank_3_rank_n(tensor, oldShape):
-    newTensor = np.reshape(tensor, oldShape)
-    return newTensor
+def rank_3_rank_n(tensor, old_shape):
+    new_tensor = np.reshape(tensor, old_shape)
+    return new_tensor
 
 
-def truncation_svd(tensor, leftIdx, rightIdx, keepS=None, maxEigenvalNumber=None):
-    shape = np.array(tensor.shape)
-    leftDim = np.prod(shape[leftIdx])
-    rightDim = np.prod(shape[rightIdx])
-    if keepS is not None:
-        U, S, Vh = np.linalg.svd(tensor.reshape(leftDim, rightDim), full_matrices=False)
-        if maxEigenvalNumber is not None:
-            U = U[:, 0:maxEigenvalNumber]
-            S = S[0:maxEigenvalNumber]
-            Vh = Vh[0:maxEigenvalNumber, :]
-        return U, S, Vh
+def truncation_svd(theta, keep_s=None, d_max=None):
+    theta_shape = np.array(theta.shape)
+    i_dim = np.prod(theta_shape[[0, 1]])
+    j_dim = np.prod(theta_shape[[2, 3]])
+    if keep_s is not None:
+        u, s, vh = linalg.svd(theta.reshape(i_dim, j_dim), full_matrices=False)
+        if d_max is not None:
+            u = u[:, 0:d_max]
+            s = s[0:d_max]
+            vh = vh[0:d_max, :]
+        return u, s, vh
     else:
-        U, S, Vh = np.linalg.svd(tensor.reshape(leftDim, rightDim), full_matrices=False)
-        if maxEigenvalNumber is not None:
-            U = U[:, 0:maxEigenvalNumber]
-            S = S[0:maxEigenvalNumber]
-            Vh = Vh[0:maxEigenvalNumber, :]
-        U = np.einsum(U, [0, 1], np.sqrt(S), [1], [0, 1])
-        Vh = np.einsum(np.sqrt(S), [0], Vh, [0, 1], [0, 1])
-    return U, Vh
+        u, s, vh = np.linalg.svd(theta.reshape(i_dim, j_dim), full_matrices=False)
+        if d_max is not None:
+            u = u[:, 0:d_max]
+            s = s[0:d_max]
+            vh = vh[0:d_max, :]
+        u = np.einsum(u, [0, 1], np.sqrt(s), [1], [0, 1])
+        vh = np.einsum(np.sqrt(s), [0], vh, [0, 1], [0, 1])
+    return u, vh
 
 
 def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_i, s_j, s_k):
@@ -218,8 +221,7 @@ def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_
     return theta
 
 
-def normalize_tensor(tensor):
-    tensorConj = np.conj(cp.copy(tensor))
-    idx = list(range(len(tensor.shape)))
-    norm = np.sqrt(np.einsum(tensor, idx, tensorConj, idx))
+def tensor_norm(tensor):
+    idx = np.range(len(tensor.shape))
+    norm = np.sqrt(np.einsum(tensor, idx, np.conj(tensor), idx))
     return norm
