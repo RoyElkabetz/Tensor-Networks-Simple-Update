@@ -4,7 +4,7 @@ from scipy import linalg
 from TensorNetwork import TensorNetwork
 
 
-def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: list, h_k: np.float, s_i: list, s_j: list,
+def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k: np.float, s_i: list, s_j: list,
                   s_k: list, d_max: np.int):
     """
 
@@ -194,17 +194,27 @@ def truncation_svd(tensor, leftIdx, rightIdx, keepS=None, maxEigenvalNumber=None
 
 
 def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_i, s_j, s_k):
-
-    p = s_i[0].shape[0]  # physical bond dimension
-    interaction_hamiltonian = np.zeros((p ** 2, p ** 2), dtype=complex)
+    i_spin_dim = s_i[0].shape[0]
+    j_spin_dim = s_j[0].shape[0]
+    interaction_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+    i_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+    j_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
     for i, _ in enumerate(s_i):
         interaction_hamiltonian += np.kron(s_i[i], s_j[i])
-    hamiltonian = -j_ij * interaction_hamiltonian - 0.25 * h_k * (np.kron(np.eye(p), s_k) + np.kron(s_k, np.eye(p)))  # 0.25 is for square lattice
-    unitaryGate = np.reshape(linalg.expm(-dt * hamiltonian), [p, p, p, p])
-    weightMatrix = np.diag(lambda_k)
-    A = np.einsum(ri, [0, 1, 2], weightMatrix, [1, 3], [0, 3, 2])           # A.shape = (p(i), Weight_Vector, Q1)
-    A = np.einsum(A, [0, 1, 2], rj, [3, 1, 4], [2, 0, 3, 4])                # A.shape = (Q1, p(i), p(j), Q2)
-    theta = np.einsum(A, [0, 1, 2, 3], unitaryGate, [1, 2, 4, 5], [0, 4, 5, 3])  # theta.shape = (Q1, p(i'), p(j'), Q2)
+    for _, s in enumerate(s_k):
+        i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
+        j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
+    hamiltonian = -j_ij * interaction_hamiltonian \
+                  - h_k * (i_neighbors * i_field_hamiltonian + j_neighbors * j_field_hamiltonian)
+    unitary_gate = np.reshape(linalg.expm(-dt * hamiltonian), (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
+    # unitary.shape = (i_spin_dim, j_spin_dim, i'_spin_dim, j'_spin_dim)
+    weight_matrix = np.diag(lambda_k)
+    theta = np.einsum(ri, [0, 1, 2], weight_matrix, [1, 3], [0, 3, 2])
+    # theta.shape = (i_spin_dim, weight_dim, qi)
+    theta = np.einsum(theta, [0, 1, 2], rj, [3, 1, 4], [2, 0, 3, 4])
+    # theta.shape = (qi, i_spin_dim, j_spin_dim, qj)
+    theta = np.einsum(theta, [0, 1, 2, 3], unitary_gate, [1, 2, 4, 5], [0, 4, 5, 3])
+    # theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
     return theta
 
 
