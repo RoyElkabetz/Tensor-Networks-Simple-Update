@@ -6,18 +6,6 @@ from TensorNetwork import TensorNetwork
 
 def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k: np.float, s_i: list, s_j: list,
                   s_k: list, d_max: np.int):
-    """
-
-    :param tensor_network:
-    :param dt:
-    :param j_ij:
-    :param h_k:
-    :param s_i:
-    :param s_j:
-    :param s_k:
-    :param d_max:
-    :return:
-    """
     tensors = cp.deepcopy(tensor_network.tensors)
     weights = cp.deepcopy(tensor_network.weights)
     structure_matrix = tensor_network.structure_matrix
@@ -30,8 +18,8 @@ def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k
         ti, tj = get_tensors(ek, tensors, structure_matrix)
 
         # collect edges and remove the ek edge from both lists
-        i_edges_dims = get_edges(ti['index'], structure_matrix)
-        j_edges_dims = get_edges(tj['index'], structure_matrix)
+        i_edges_dims = get_other_edges(ti['index'], ek, structure_matrix)
+        j_edges_dims = get_other_edges(tj['index'], ek, structure_matrix)
 
         # absorb environment (lambda weights) into tensors
         ti['tensor'] = absorb_weights(ti['tensor'], i_edges_dims, weights)
@@ -101,7 +89,9 @@ def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k
         tensors[tj['index']] = tj['tensor'] / tensor_norm(tj['tensor'])
         weights[ek] = lambda_k_tilde / np.sum(lambda_k_tilde)
 
-    return tensors, weights
+        # update tensor network class
+        tensor_network.tensors = tensors
+        tensor_network.weights = weights
 
 
 ########################################################################################################################
@@ -114,13 +104,14 @@ def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k
 def get_tensors(edge, tensors, structure_matrix):
     which_tensors = np.nonzero(structure_matrix[:, edge])[0]
     tensor_dim_of_edge = structure_matrix[which_tensors, edge]
-    ti = {'tensor': tensors[which_tensors[0]], 'index': which_tensors[0], 'dim': tensor_dim_of_edge[0]}
-    tj = {'tensor': tensors[which_tensors[1]], 'index': which_tensors[1], 'dim': tensor_dim_of_edge[1]}
+    ti = {'tensor': cp.copy(tensors[which_tensors[0]]), 'index': which_tensors[0], 'dim': tensor_dim_of_edge[0]}
+    tj = {'tensor': cp.copy(tensors[which_tensors[1]]), 'index': which_tensors[1], 'dim': tensor_dim_of_edge[1]}
     return ti, tj
 
 
-def get_edges(tensor_idx, structure_matrix):
+def get_other_edges(tensor_idx, edge, structure_matrix):
     tensor_edges = np.nonzero(structure_matrix[tensor_idx, :])[0]
+    tensor_edges = np.delete(tensor_edges, np.where(tensor_edges == edge))
     tensor_dims = structure_matrix[tensor_idx, tensor_edges]
     return {'edges': tensor_edges, 'dims': tensor_dims}
 
@@ -208,7 +199,7 @@ def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_
         i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
         j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
     hamiltonian = -j_ij * interaction_hamiltonian \
-                  - h_k * (i_neighbors * i_field_hamiltonian + j_neighbors * j_field_hamiltonian)
+                  - h_k * (i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)
     unitary_gate = np.reshape(linalg.expm(-dt * hamiltonian), (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
     # unitary.shape = (i_spin_dim, j_spin_dim, i'_spin_dim, j'_spin_dim)
     weight_matrix = np.diag(lambda_k)
@@ -222,6 +213,6 @@ def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_
 
 
 def tensor_norm(tensor):
-    idx = np.range(len(tensor.shape))
+    idx = np.arange(len(tensor.shape))
     norm = np.sqrt(np.einsum(tensor, idx, np.conj(tensor), idx))
     return norm
