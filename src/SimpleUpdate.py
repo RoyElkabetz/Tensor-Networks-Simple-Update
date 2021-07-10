@@ -62,7 +62,9 @@ def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: list, h_k: 
         rj = rank_2_rank_3(rj, j_physical_dim)  # (j, ek, qj)
 
         # Contract the time-evolution gate with ri, rj, and lambda_k to form a theta tensor.
-        theta = time_evolution(ri, rj, lambda_k, ek, dt, j_ij[ek], h_k, s_i, s_j, s_k)  # (qi, i', j', qj)
+        i_neighbors = len(i_edges_dims['edges']) + 1
+        j_neighbors = len(j_edges_dims['edges']) + 1
+        theta = time_evolution(ri, rj, i_neighbors, j_neighbors,  lambda_k, dt, j_ij[ek], h_k, s_i, s_j, s_k)  # (qi, i', j', qj)
 
         # Obtain ri', rj', lambda'_k tensors by applying an SVD to theta
         R_tild, lambda_k_tild, L_tild = truncation_svd(theta, [0, 1], [2, 3], keepS='yes', maxEigenvalNumber=d_max)
@@ -191,7 +193,8 @@ def truncation_svd(tensor, leftIdx, rightIdx, keepS=None, maxEigenvalNumber=None
     return U, Vh
 
 
-def time_evolution(ri, rj, lambda_k, ek, dt, j_ij, h_k, s_i, s_j, s_k):
+def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_i, s_j, s_k):
+
     p = s_i[0].shape[0]  # physical bond dimension
     interaction_hamiltonian = np.zeros((p ** 2, p ** 2), dtype=complex)
     for i, _ in enumerate(s_i):
