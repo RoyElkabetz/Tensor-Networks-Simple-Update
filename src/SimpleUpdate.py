@@ -23,25 +23,25 @@ def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: np.float, h
     structure_matrix = tensor_network.structure_matrix
     n, m = np.shape(structure_matrix)
 
-    for Ek in range(m):
-        lambda_k = weights[Ek]
+    for ek in range(m):
+        lambda_k = weights[ek]
 
-        # Find tensors ti, tj and their corresponding indices connected along edge Ek.
-        ti, tj = get_tensors(Ek, tensors, structure_matrix)
+        # Find tensors ti, tj and their corresponding indices connected along edge ek.
+        ti, tj = get_tensors(ek, tensors, structure_matrix)
 
-        # collect edges and remove the Ek edge from both lists
+        # collect edges and remove the ek edge from both lists
         i_edges_dims = get_edges(ti['index'], structure_matrix)
         j_edges_dims = get_edges(tj['index'], structure_matrix)
 
         # absorb environment (lambda weights) into tensors
-        ti[0] = absorb_weights(ti[0], i_edges_dims, weights)
-        tj[0] = absorb_weights(tj[0], j_edges_dims, weights)
+        ti['tensor'] = absorb_weights(ti['tensor'], i_edges_dims, weights)
+        tj['tensor'] = absorb_weights(tj['tensor'], j_edges_dims, weights)
 
-        # permuting the indices associated with edge Ek tensors ti, tj with their 1st index
+        # permuting the indices associated with edge ek tensors ti, tj with their 1st index
         ti = tensor_dim_permute(ti)
         tj = tensor_dim_permute(tj)
 
-        # Group all virtual indices Em!=Ek to form Pl, Pr MPS tensors
+        # Group all virtual indices Em!=ek to form Pl, Pr MPS tensors
         Pl = rank_n_rank_3(ti[0])
         Pr = rank_n_rank_3(tj[0])
 
@@ -58,14 +58,14 @@ def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: np.float, h
         # reshaping R and L into rank 3 tensors with shape (physical_dim, Ek_dim, Q(1/2).shape[0])
         i_physical_dim = ti[0].shape[0]
         j_physical_dim = tj[0].shape[0]
-        R = rank_2_rank_3(R, i_physical_dim)  # (i, Ek, Q1) (following the dimensions)
-        L = rank_2_rank_3(L, j_physical_dim)  # (j, Ek, Q2)
+        R = rank_2_rank_3(R, i_physical_dim)  # (i, ek, Q1) (following the dimensions)
+        L = rank_2_rank_3(L, j_physical_dim)  # (j, ek, Q2)
 
         # Contract the ITE gate with R, L, and lambda_k to form theta tensor.
         theta = time_evolution(R,
                                L,
                                lambda_k,
-                               Ek,
+                               ek,
                                dt,
                                j_ij,
                                h_k,
@@ -98,14 +98,14 @@ def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: np.float, h
         ti = tensor_dim_permute(ti)
         tj = tensor_dim_permute(tj)
 
-        # Remove bond matrices lambda_m from virtual legs m != Ek to obtain the updated tensors ti~, tj~.
+        # Remove bond matrices lambda_m from virtual legs m != ek to obtain the updated tensors ti~, tj~.
         ti[0] = absorb_inverse_weights(ti[0], i_edges_dims, weights)
         tj[0] = absorb_inverse_weights(tj[0], j_edges_dims, weights)
 
         # Normalize and save new ti tj and lambda_k
         tensors[ti[1][0]] = ti[0] / normalize_tensor(ti[0])
         tensors[tj[1][0]] = tj[0] / normalize_tensor(tj[0])
-        weights[Ek] = lambda_k_tild / np.sum(lambda_k_tild)
+        weights[ek] = lambda_k_tild / np.sum(lambda_k_tild)
 
     return tensors, weights
 
@@ -182,16 +182,11 @@ def getAllTensorsEdges(edge, smat):
     return iEdgesNidx, jEdgesNidx
 
 
-def absorb_weights(tensor, edgesNidx, weights):
-    """
-    Absorb neighboring lambda weights into tensor.
-    :param tensor: tensor
-    :param edgesNidx: list of two lists [[edges], [indices]].
-    :param weights: list of lambda weights.
-    :return: the new tensor list [new_tensor, [#, 'tensor_number'], [#, 'tensor_index_along_edge']]
-    """
-    for i in range(len(edgesNidx[0])):
-        tensor = np.einsum(tensor, list(range(len(tensor.shape))), weights[int(edgesNidx[0][i])], [int(edgesNidx[1][i])], list(range(len(tensor.shape))))
+def absorb_weights(tensor, edges_dims, weights):
+    edges = edges_dims['edges']
+    dims = edges_dims['dims']
+    for i, edge in enumerate(edges):
+        tensor = np.einsum(tensor, np.arange(len(tensor.shape)), weights[edge], [dims[i]], np.arange(len(tensor.shape)))
     return tensor
 
 
