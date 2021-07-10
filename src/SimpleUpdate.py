@@ -120,66 +120,15 @@ def simple_update(tensor_network: TensorNetwork, dt: np.float, j_ij: np.float, h
 def get_tensors(edge, tensors, structure_matrix):
     which_tensors = np.nonzero(structure_matrix[:, edge])[0]
     tensor_dim_of_edge = structure_matrix[which_tensors, edge]
-    ti = {'tensor': tensors[which_tensors[0]],
-          'index': which_tensors[0],
-          'dim': tensor_dim_of_edge[0]
-          }
-    tj = {'tensor': tensors[which_tensors[1]],
-          'index': which_tensors[1],
-          'dim': tensor_dim_of_edge[1]
-          }
+    ti = {'tensor': tensors[which_tensors[0]], 'index': which_tensors[0], 'dim': tensor_dim_of_edge[0]}
+    tj = {'tensor': tensors[which_tensors[1]], 'index': which_tensors[1], 'dim': tensor_dim_of_edge[1]}
     return ti, tj
 
 
-# def get_edges(edge, smat):
-#     """
-#     Given an edge, collect neighboring tensors edges and indices
-#     :param edge: edge number {0, 1, ..., m-1}.
-#     :param smat: structure matrix (n x m).
-#     :return: two lists of Ti, Tj edges and associated indices with 'edge' and its index removed.
-#     """
-#     tensorNumber = np.nonzero(smat[:, edge])[0]
-#     iEdgesNidx = [list(np.nonzero(smat[tensorNumber[0], :])[0]),
-#                   list(smat[tensorNumber[0], np.nonzero(smat[tensorNumber[0], :])[0]])
-#                   ]  # [edges, indices]
-#     jEdgesNidx = [list(np.nonzero(smat[tensorNumber[1], :])[0]),
-#                   list(smat[tensorNumber[1], np.nonzero(smat[tensorNumber[1], :])[0]])
-#                   ]  # [edges, indices]
-#     # remove 'edge' and its associated index from both i, j lists.
-#     iEdgesNidx[0].remove(edge)
-#     iEdgesNidx[1].remove(smat[tensorNumber[0], edge])
-#     jEdgesNidx[0].remove(edge)
-#     jEdgesNidx[1].remove(smat[tensorNumber[1], edge])
-#     return iEdgesNidx, jEdgesNidx
-
-
 def get_edges(tensor_idx, structure_matrix):
-    """
-    Given an index of a tensor, return all of its tensor_edges and associated tensor_dims.
-    :param tensor_idx: the tensor index in the structure matrix
-    :param structure_matrix: structure matrix
-    :return: list of two lists [[tensor_edges], [tensor_dims]].
-    """
     tensor_edges = np.nonzero(structure_matrix[tensor_idx, :])[0]
     tensor_dims = structure_matrix[tensor_idx, tensor_edges]
     return {'edges': tensor_edges, 'dims': tensor_dims}
-
-
-def getAllTensorsEdges(edge, smat):
-    """
-    Given an edge, collect neighboring tensors edges and indices
-    :param edge: edge number {0, 1, ..., m-1}.
-    :param smat: structure matrix (n x m).
-    :return: two lists of Ti, Tj edges and associated indices.
-    """
-    tensorNumber = np.nonzero(smat[:, edge])[0]
-    iEdgesNidx = [list(np.nonzero(smat[tensorNumber[0], :])[0]),
-                  list(smat[tensorNumber[0], np.nonzero(smat[tensorNumber[0], :])[0]])
-                  ]  # [edges, indices]
-    jEdgesNidx = [list(np.nonzero(smat[tensorNumber[1], :])[0]),
-                  list(smat[tensorNumber[1], np.nonzero(smat[tensorNumber[1], :])[0]])
-                  ]  # [edges, indices]
-    return iEdgesNidx, jEdgesNidx
 
 
 def absorb_weights(tensor, edges_dims, weights):
@@ -190,28 +139,7 @@ def absorb_weights(tensor, edges_dims, weights):
     return tensor
 
 
-def absorbSqrtWeights(tensor, edgesNidx, weights):
-    """
-    Absorb square root of neighboring lambda weights into tensor.
-    :param tensor: tensor
-    :param edgesNidx: list of two lists [[edges], [indices]].
-    :param weights: list of lambda weights.
-    :return: the new tensor list [new_tensor, [#, 'tensor_number'], [#, 'tensor_index_along_edge']]
-    """
-    for i in range(len(edgesNidx[0])):
-        tensor = np.einsum(tensor, list(range(len(tensor.shape))), np.sqrt(weights[int(edgesNidx[0][i])]),
-                              [int(edgesNidx[1][i])], list(range(len(tensor.shape))))
-    return tensor
-
-
 def absorb_inverse_weights(tensor, edgesNidx, weights):
-    """
-    Absorb inverse neighboring lambda weights into tensor.
-    :param tensor: tensor
-    :param edgesNidx: list of two lists [[edges], [indices]].
-    :param weights: list of lambda weights.
-    :return: the new tensor list [new_tensor, [#, 'tensor_number'], [#, 'tensor_index_along_edge']]
-    """
     for i in range(len(edgesNidx[0])):
         tensor = np.einsum(tensor, list(range(len(tensor.shape))),
                               weights[int(edgesNidx[0][i])] ** (-1), [int(edgesNidx[1][i])], list(range(len(tensor.shape))))
@@ -219,11 +147,6 @@ def absorb_inverse_weights(tensor, edgesNidx, weights):
 
 
 def tensor_dim_permute(tensor):
-    """
-    Swapping the 'tensor_index_along_edge' index with the 1st index
-    :param tensor: [tensor, [#, 'tensor_number'], [#, 'tensor_index_along_edge']]
-    :return: the list with the permuted tensor [permuted_tensor, [#, 'tensor_number'], [#, 'tensor_index_along_edge']]
-    """
     permutation = np.array(list(range(len(tensor[0].shape))))
     permutation[[1, tensor[2][0]]] = permutation[[tensor[2][0], 1]]
     tensor[0] = np.transpose(tensor[0], permutation)
@@ -231,11 +154,6 @@ def tensor_dim_permute(tensor):
 
 
 def rank_n_rank_3(tensor):
-    """
-    Taking a rank-N tensor (N >= 3) and make it a rank-3 tensor by grouping all indices (2, 3, ..., N - 1).
-    :param tensor: the tensor
-    :return: the reshaped rank-3 tensor.
-    """
     if len(tensor.shape) < 3:
         raise IndexError('Error: 00002')
     shape = np.array(tensor.shape)
@@ -245,14 +163,6 @@ def rank_n_rank_3(tensor):
 
 
 def rank_2_rank_3(tensor, physicalDimension):
-    """
-    Taking a rank-2 tensor and make it a rank-3 tensor by splitting its first dimension. This function is used for
-    extracting back the physical dimension of a reshaped tensor.
-    :param tensor: rank-2 tensor
-    :param physicalDimension: the physical dimension of the tensor.
-    :return: rank-3 new tensor such that:
-             newTensor.shape = (oldTensor.shape[0], oldTensor.shape[0] / physicalDimension, oldTensor.shape[1])
-    """
     if len(tensor.shape) != 2:
         raise IndexError('Error: 00003')
     newTensor = np.reshape(tensor, [physicalDimension, int(tensor.shape[0] / physicalDimension), tensor.shape[1]])
@@ -260,26 +170,11 @@ def rank_2_rank_3(tensor, physicalDimension):
 
 
 def rank_3_rank_n(tensor, oldShape):
-    """
-    Returning a tensor to its original rank-N rank.
-    :param tensor: rank-3 tensor
-    :param oldShape: the tensor's original shape
-    :return: the tensor in its original shape.
-    """
     newTensor = np.reshape(tensor, oldShape)
     return newTensor
 
 
 def truncation_svd(tensor, leftIdx, rightIdx, keepS=None, maxEigenvalNumber=None):
-    """
-    Taking a rank-N tensor reshaping it to rank-2 tensor and preforming an SVD operation with/without truncation.
-    :param tensor: the tensor
-    :param leftIdx: indices to move into 0th index
-    :param rightIdx: indices to move into 1st index
-    :param keepS: if not None: will return U, S, V^(dagger). if None: will return U * sqrt(S), sqrt(S) * V^(dagger)
-    :param maxEigenvalNumber: maximal number of eigenvalues to keep (truncation)
-    :return: U, S, V^(dagger) or U * sqrt(S), sqrt(S) * V^(dagger)
-    """
     shape = np.array(tensor.shape)
     leftDim = np.prod(shape[leftIdx])
     rightDim = np.prod(shape[rightIdx])
@@ -311,22 +206,6 @@ def time_evolution(iTensor,
                    iOperators,
                    jOperators,
                    fieldOperators):
-    """
-    Applying Imaginary Time Evolution (ITE) on a pair of interacting tensors and returning a rank-4 tensor \theta with
-    physical bond dimensions d(i') and d(j') and shape (Q1, d(i'), d(j'), Q2). Q1, Q2 are the dimensions of the QR and
-    LQ matrices. The shape of the unitaryGate should be (d(i), d(j), d(i'), d(j')).
-    :param iTensor: the left tensor
-    :param jTensor: the right tensor
-    :param middleWeightVector: the lambda weight associated with the left and right tensors common edge
-    :param commonEdge: the tensors common edge
-    :param timeStep: the ITE time step
-    :param interactionConst: list of interaction constants J_{ij} (len(List) = # of edges)
-    :param fieldConst: the field constant usually written as h
-    :param iOperators: the operators associated with the i^th tensor in the Hamiltonian
-    :param jOperators: the operators associated with the j^th tensor in the Hamiltonian
-    :param fieldOperators: the operators associated with the field term in the Hamiltonian
-    :return: A rank-4 tensor with shape (Q1, d(i'), d(j'), Q2)
-    """
     d = iOperators[0].shape[0]  # physical bond dimension
     interactionHamiltonian = np.zeros((d ** 2, d ** 2), dtype=complex)
     for i in range(len(iOperators)):
@@ -341,10 +220,6 @@ def time_evolution(iTensor,
 
 
 def normalize_tensor(tensor):
-    """
-    :param tensor: the tensor
-    :return: the norm
-    """
     tensorConj = np.conj(cp.copy(tensor))
     idx = list(range(len(tensor.shape)))
     norm = np.sqrt(np.einsum(tensor, idx, tensorConj, idx))
