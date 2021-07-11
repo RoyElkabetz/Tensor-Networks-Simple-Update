@@ -59,7 +59,7 @@ star = TensorNetwork(structure_matrix=star_structure_matrix, virtual_size=2)
 cube = TensorNetwork(structure_matrix=cube_structure_matrix, virtual_size=2)
 j_ij_mps = [-1.] * len(mps.weights)
 j_ij_peps = [-1.] * len(peps.weights)
-j_ij_star = [-1.] * len(star.weights)
+j_ij_star = [1.] * len(star.weights)
 j_ij_cube = [-1.] * len(cube.weights)
 
 for dt in dts:
