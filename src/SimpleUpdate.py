@@ -256,11 +256,11 @@ def tensor_pair_rdm(common_edge, tensors, weights, structure_matrix):
     ti_idx[0] = -1      # i
     ti_conj_idx = np.arange(len(ti['tensor'].shape))
     ti_conj_idx[ti['dim']] = common_edge_conj_idx[0]
-    ti_conj_idx[0] = -2     # i'
+    ti_conj_idx[0] = -3     # i'
 
     tj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
     tj_idx[tj['dim']] = common_edge_idx[1]
-    tj_idx[0] = -3      # j
+    tj_idx[0] = -2      # j
     tj_conj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
     tj_conj_idx[tj['dim']] = common_edge_conj_idx[1]
     tj_conj_idx[0] = -4     # j'
@@ -268,7 +268,16 @@ def tensor_pair_rdm(common_edge, tensors, weights, structure_matrix):
     # use ncon package for tensors summation
     tensors = [ti['tensor'], np.conj(np.copy(ti['tensor'])), tj['tensor'], np.conj(np.copy(tj['tensor'])), np.diag(common_weight), np.diag(common_weight)]
     indices = [ti_idx, ti_conj_idx, tj_idx, tj_conj_idx, common_edge_idx, common_edge_conj_idx]
-    rdm = ncon.ncon(tensors, indices)       # (i, i', j, j')
-    rdm = np.reshape(rdm, (rdm.shape[0] * rdm.shape[1], rdm.shape[2] * rdm.shape[3]))       # (i, i', j, j')
-    rdm /= np.trace(rdm)
+    rdm = ncon.ncon(tensors, indices)       # (i, j, i', j')
+    rdm /= np.trace(np.reshape(rdm, (rdm.shape[0] * rdm.shape[1], rdm.shape[2] * rdm.shape[3])))
     return rdm
+
+
+def tensor_expectation(tensor_index, tensors, weights, structure_matrix, operator):
+    rdm = tensor_rdm(tensor_index, tensors, weights, structure_matrix)
+    return np.trace(np.matmul(rdm, operator))
+
+
+def tensor_pair_expectation(common_edge, tensors, weights, structure_matrix, operator):
+    rdm = tensor_pair_rdm(common_edge, tensors, weights, structure_matrix)
+    return np.einsum(rdm, [0, 1, 2, 3], operator, [0, 1, 2, 3])
