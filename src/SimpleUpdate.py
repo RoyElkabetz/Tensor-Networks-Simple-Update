@@ -84,9 +84,9 @@ def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k
         tensors[tj['index']] = tj['tensor'] / tensor_norm(tj['tensor'])
         weights[ek] = lambda_k_tilde / np.sum(lambda_k_tilde)
 
-        # update tensor network class
-        tensor_network.tensors = tensors
-        tensor_network.weights = weights
+    # update tensor network class
+    tensor_network.tensors = tensors
+    tensor_network.weights = weights
 
 
 ########################################################################################################################
@@ -201,7 +201,7 @@ def get_hamiltonian(i_neighbors, j_neighbors, j_ij, h_k, s_i, s_j, s_ik, s_jk):
     for _, s in enumerate(s_jk):
         j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
     hamiltonian = -j_ij * interaction_hamiltonian \
-                  - h_k * (i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)
+                  - h_k * (i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
     return hamiltonian
 
 
@@ -293,13 +293,16 @@ def tensor_pair_expectation(common_edge, tensors, weights, structure_matrix, ope
 
 def energy_per_site(tensors, weights, structure_matrix, j_ij, h_k, s_i, s_j, s_ik, s_jk):
     energy = 0
+    i_spin_dim = s_i[0].shape[0]
+    j_spin_dim = s_j[0].shape[0]
     for ek, lambda_k in enumerate(weights):
         ti, tj = get_tensors(ek, tensors, structure_matrix)
         i_edges_dims = get_edges(ti['index'], structure_matrix)
         j_edges_dims = get_edges(tj['index'], structure_matrix)
         i_neighbors = len(i_edges_dims['edges'])
         j_neighbors = len(j_edges_dims['edges'])
-        hamiltonian = get_hamiltonian(i_neighbors, j_neighbors, j_ij, h_k, s_i, s_j, s_ik, s_jk)
+        hamiltonian = get_hamiltonian(i_neighbors, j_neighbors, j_ij[ek], h_k, s_i, s_j, s_ik, s_jk)
+        hamiltonian = np.reshape(hamiltonian, (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
         energy += tensor_pair_expectation(ek, tensors, weights, structure_matrix, hamiltonian)
     energy /= len(tensors)
     return energy
