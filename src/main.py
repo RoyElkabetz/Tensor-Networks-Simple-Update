@@ -34,4 +34,6 @@ s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
 s_k = [pauli_x / 2.]
 d_max = 2
 
-simple_update(tensor_network=mps, dt=dt, j_ij=j_ij, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k, d_max=d_max)
+for _ in range(100):
+    simple_update(tensor_network=mps, dt=dt, j_ij=j_ij, h_k=h_k, s_i=s_i, s_j=s_j, s_ik=s_k, d_max=d_max)
+

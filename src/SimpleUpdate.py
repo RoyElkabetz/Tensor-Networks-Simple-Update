@@ -6,7 +6,7 @@ from TensorNetwork import TensorNetwork
 
 
 def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k: np.float, s_i: list, s_j: list,
-                  s_k: list, d_max: np.int):
+                  s_ik: list, s_jk: list, d_max: np.int):
     tensors = cp.deepcopy(tensor_network.tensors)
     weights = cp.deepcopy(tensor_network.weights)
     structure_matrix = tensor_network.structure_matrix
@@ -47,7 +47,7 @@ def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k
         # Contract the time-evolution gate with ri, rj, and lambda_k to form a theta tensor.
         i_neighbors = len(i_edges_dims['edges']) + 1
         j_neighbors = len(j_edges_dims['edges']) + 1
-        theta = time_evolution(ri, rj, i_neighbors, j_neighbors,  lambda_k, dt, j_ij[ek], h_k, s_i, s_j, s_k)
+        theta = time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij[ek], h_k, s_i, s_j, s_ik, s_jk)
         # theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
 
         # Obtain ri', rj', lambda'_k tensors by applying an SVD to theta
@@ -188,7 +188,7 @@ def truncation_svd(theta, keep_s=None, d_max=None):
     return u, vh
 
 
-def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_i, s_j, s_k):
+def get_hamiltonian(i_neighbors, j_neighbors, j_ij, h_k, s_i, s_j, s_ik, s_jk):
     i_spin_dim = s_i[0].shape[0]
     j_spin_dim = s_j[0].shape[0]
     interaction_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
@@ -196,11 +196,19 @@ def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_
     j_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
     for i, _ in enumerate(s_i):
         interaction_hamiltonian += np.kron(s_i[i], s_j[i])
-    for _, s in enumerate(s_k):
+    for _, s in enumerate(s_ik):
         i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
+    for _, s in enumerate(s_jk):
         j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
     hamiltonian = -j_ij * interaction_hamiltonian \
                   - h_k * (i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)
+    return hamiltonian
+
+
+def time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, dt, j_ij, h_k, s_i, s_j, s_ik, s_jk):
+    i_spin_dim = s_i[0].shape[0]
+    j_spin_dim = s_j[0].shape[0]
+    hamiltonian = get_hamiltonian(i_neighbors, j_neighbors, j_ij, h_k, s_i, s_j, s_ik, s_jk)
     unitary_gate = np.reshape(linalg.expm(-dt * hamiltonian), (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
     # unitary.shape = (i_spin_dim, j_spin_dim, i'_spin_dim, j'_spin_dim)
     weight_matrix = np.diag(lambda_k)
@@ -281,3 +289,17 @@ def tensor_expectation(tensor_index, tensors, weights, structure_matrix, operato
 def tensor_pair_expectation(common_edge, tensors, weights, structure_matrix, operator):
     rdm = tensor_pair_rdm(common_edge, tensors, weights, structure_matrix)
     return np.einsum(rdm, [0, 1, 2, 3], operator, [0, 1, 2, 3])
+
+
+def energy_per_site(tensors, weights, structure_matrix, j_ij, h_k, s_i, s_j, s_ik, s_jk):
+    energy = 0
+    for ek, lambda_k in enumerate(weights):
+        ti, tj = get_tensors(ek, tensors, structure_matrix)
+        i_edges_dims = get_edges(ti['index'], structure_matrix)
+        j_edges_dims = get_edges(tj['index'], structure_matrix)
+        i_neighbors = len(i_edges_dims['edges'])
+        j_neighbors = len(j_edges_dims['edges'])
+        hamiltonian = get_hamiltonian(i_neighbors, j_neighbors, j_ij, h_k, s_i, s_j, s_ik, s_jk)
+        energy += tensor_pair_expectation(ek, tensors, weights, structure_matrix, hamiltonian)
+    energy /= len(tensors)
+    return energy
