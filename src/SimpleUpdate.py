@@ -1,5 +1,6 @@
 import numpy as np
 import copy as cp
+import ncon
 from scipy import linalg
 from TensorNetwork import TensorNetwork
 
@@ -32,12 +33,6 @@ def simple_update(tensor_network: TensorNetwork, dt: np.complex, j_ij: list, h_k
         # Group all virtual indices Em!=ek to form pi, pj MPS tensors
         pi = rank_n_rank_3(ti['tensor'])
         pj = rank_n_rank_3(tj['tensor'])
-
-        # # SVD decomposing of pi, pj to obtain qi, ri and qj, rj sub-tensors, respectively
-        # ri, sr, qi = truncation_svd(pi, [0, 1], [2], keepS='yes')
-        # rj, sl, qj = truncation_svd(pj, [0, 1], [2], keepS='yes')
-        # ri = ri.dot(np.diag(sr))
-        # rj = rj.dot(np.diag(sl))
 
         # RQ decomposition of pi, pj to obtain ri, qi and rj, qj sub-tensors respectively.
         ri, qi = linalg.rq(np.reshape(pi, [pi.shape[0] * pi.shape[1], pi.shape[2]]))
@@ -112,6 +107,12 @@ def get_tensors(edge, tensors, structure_matrix):
 def get_other_edges(tensor_idx, edge, structure_matrix):
     tensor_edges = np.nonzero(structure_matrix[tensor_idx, :])[0]
     tensor_edges = np.delete(tensor_edges, np.where(tensor_edges == edge))
+    tensor_dims = structure_matrix[tensor_idx, tensor_edges]
+    return {'edges': tensor_edges, 'dims': tensor_dims}
+
+
+def get_edges(tensor_idx, structure_matrix):
+    tensor_edges = np.nonzero(structure_matrix[tensor_idx, :])[0]
     tensor_dims = structure_matrix[tensor_idx, tensor_edges]
     return {'edges': tensor_edges, 'dims': tensor_dims}
 
@@ -216,3 +217,58 @@ def tensor_norm(tensor):
     idx = np.arange(len(tensor.shape))
     norm = np.sqrt(np.einsum(tensor, idx, np.conj(tensor), idx))
     return norm
+
+
+########################################################################################################################
+#                                                                                                                      #
+#                                        SIMPLE UPDATE EXPECTATIONS                                                    #
+#                                                                                                                      #
+########################################################################################################################
+
+
+def tensor_rdm(tensor_index, tensors, weights, structure_matrix):
+    edges_dims = get_edges(tensor_index, structure_matrix)
+    tensor = cp.copy(tensors[tensor_index])
+    tensor = absorb_weights(tensor, edges_dims, weights)
+    t_idx = np.arange(len(tensor.shape))
+    t_conj_idx = np.arange(len(tensor.shape))
+    t_conj_idx[0] = len(tensor.shape)
+    rdm_idx = [0, t_conj_idx[0]]
+    rdm = np.einsum(tensor, t_idx, np.conj(tensor), t_conj_idx, rdm_idx)
+    return rdm / np.trace(rdm)
+
+
+def tensor_pair_rdm(common_edge, tensors, weights, structure_matrix):
+    common_weight = weights[common_edge]
+    ti, tj = get_tensors(common_edge, tensors, structure_matrix)
+    i_edges_dims = get_other_edges(ti['index'], common_edge, structure_matrix)
+    j_edges_dims = get_other_edges(tj['index'], common_edge, structure_matrix)
+    ti['tensor'] = absorb_weights(ti['tensor'], i_edges_dims, weights)
+    tj['tensor'] = absorb_weights(tj['tensor'], j_edges_dims, weights)
+
+    # set index lists for ncon tensor summation package
+    t = 1000
+    common_edge_idx = [t, t + 1]
+    common_edge_conj_idx = [t + 2, t + 3]
+
+    ti_idx = np.arange(len(ti['tensor'].shape))
+    ti_idx[ti['dim']] = common_edge_idx[0]
+    ti_idx[0] = -1      # i
+    ti_conj_idx = np.arange(len(ti['tensor'].shape))
+    ti_conj_idx[ti['dim']] = common_edge_conj_idx[0]
+    ti_conj_idx[0] = -2     # i'
+
+    tj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
+    tj_idx[tj['dim']] = common_edge_idx[1]
+    tj_idx[0] = -3      # j
+    tj_conj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
+    tj_conj_idx[tj['dim']] = common_edge_conj_idx[1]
+    tj_conj_idx[0] = -4     # j'
+
+    # use ncon package for tensors summation
+    tensors = [ti['tensor'], np.conj(np.copy(ti['tensor'])), tj['tensor'], np.conj(np.copy(tj['tensor'])), np.diag(common_weight), np.diag(common_weight)]
+    indices = [ti_idx, ti_conj_idx, tj_idx, tj_conj_idx, common_edge_idx, common_edge_conj_idx]
+    rdm = ncon.ncon(tensors, indices)       # (i, i', j, j')
+    rdm = np.reshape(rdm, (rdm.shape[0] * rdm.shape[1], rdm.shape[2] * rdm.shape[3]))       # (i, i', j, j')
+    rdm /= np.trace(rdm)
+    return rdm
