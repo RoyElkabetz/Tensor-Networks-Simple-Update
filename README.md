@@ -1,5 +1,7 @@
 # Tensor-Networks-Simple-Update
 This repo contains an implementation of the Simple-Update Tensor Network algorithm as described in the paper - A universal tensor network algorithm for any infinite lattice by  Saeed S. Jahromi and Roman Orus.
+DOI:	10.1103/PhysRevB.99.195105
+[arXiv link](https://arxiv.org/abs/1808.00680)
 
 ## The Code
 
@@ -16,6 +18,6 @@ The folder [`src`](/src) is he heart of this project, here is a description of e
 
 | #   | Subject                                         | Colab             | Nbviewer               |
 |:----:|------------------------------------------------|:-----------------:|:---------------------:|
-| 1   | Fine-tune T5 into a summarizer with Transfer Learning                   | [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb#scrollTo=x9gTThCjbrzm)        | [![nbviewer](https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.svg)](https://nbviewer.jupyter.org/github/RoyElkabetz/Text-Summarization-with-Deep-Learning/blob/main/notebooks/Text_summarization_using_T5.ipynb)|
+| 1   | univeral_tensor_network_paper_ reconstruction.ipynb                   | [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb#scrollTo=x9gTThCjbrzm)        | [![nbviewer](https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.svg)](https://nbviewer.jupyter.org/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb)|
 
 ## In Progress...
