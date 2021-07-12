@@ -68,8 +68,8 @@ class SimpleUpdate:
                         energy = self.energy_per_site()
                         self.logger['energy'].append(energy)
                         print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
-                              '| energy per-site {:4.6} | time {:4.2} sec'.format(dt, i, self.max_iterations,
-                                                                             error, energy, elapsed))
+                              '| energy per-site {:4.6} | time {:4.2} sec'.format(dt, i, self.max_iterations, error,
+                                                                                  energy, elapsed))
                     else:
                         print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
                               '| time {:4.2} sec'.format(dt, i, self.max_iterations, error, elapsed))
