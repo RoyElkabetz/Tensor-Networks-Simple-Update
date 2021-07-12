@@ -64,27 +64,45 @@ j_ij_cube = [1.] * len(cube.weights)
 
 
 
-for dt in dts:
-    for _ in range(50):
-        su.simple_update(tensor_network=mps, dt=dt, j_ij=j_ij_mps, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k, d_max=d_max)
-tensors = mps.tensors
-weights = mps.weights
-energy_mps = su.energy_per_site(tensors, weights, mps_structure_matrix, j_ij_mps, h_k, s_i, s_j, s_k)
-print(f'mps energy: {energy_mps}')
+mps_su = su.SimpleUpdate(tensor_network=mps, dts=dts, j_ij=j_ij_mps, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k,
+                         d_max=d_max, max_iterations=100, convergence_error=1e-6, log_energy=True)
+mps_su.run()
+energy_mps = mps_su.energy_per_site()
 
-for dt in dts:
-    for _ in range(50):
-        su.simple_update(tensor_network=star, dt=dt, j_ij=j_ij_star, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k, d_max=d_max)
-tensors = star.tensors
-weights = star.weights
-energy_star = su.energy_per_site(tensors, weights, star_structure_matrix, j_ij_star, h_k, s_i, s_j, s_k)
-print(f'star energy: {energy_star}')
+star_su = su.SimpleUpdate(tensor_network=star, dts=dts, j_ij=j_ij_star, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k,
+                          d_max=d_max, max_iterations=100, convergence_error=1e-6, log_energy=True)
+star_su.run()
+energy_star = star_su.energy_per_site()
 
-for dt in dts:
-    for _ in range(50):
-        su.simple_update(tensor_network=cube, dt=dt, j_ij=j_ij_cube, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k, d_max=d_max)
-tensors = cube.tensors
-weights = cube.weights
-energy_cube = su.energy_per_site(tensors, weights, cube_structure_matrix, j_ij_cube, h_k, s_i, s_j, s_k)
-print(f'cube energy: {energy_cube}')
+cube_su = su.SimpleUpdate(tensor_network=cube, dts=dts, j_ij=j_ij_cube, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k,
+                          d_max=d_max, max_iterations=100, convergence_error=1e-6, log_energy=True)
+cube_su.run()
+energy_cube = cube_su.energy_per_site()
+
+
+
+
+# for dt in dts:
+#     for _ in range(50):
+#         su.simple_update(tensor_network=mps, dt=dt, j_ij=j_ij_mps, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k, d_max=d_max)
+# tensors = mps.tensors
+# weights = mps.weights
+# energy_mps = su.energy_per_site(tensors, weights, mps_structure_matrix, j_ij_mps, h_k, s_i, s_j, s_k)
+# print(f'mps energy: {energy_mps}')
+#
+# for dt in dts:
+#     for _ in range(50):
+#         su.simple_update(tensor_network=star, dt=dt, j_ij=j_ij_star, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k, d_max=d_max)
+# tensors = star.tensors
+# weights = star.weights
+# energy_star = su.energy_per_site(tensors, weights, star_structure_matrix, j_ij_star, h_k, s_i, s_j, s_k)
+# print(f'star energy: {energy_star}')
+#
+# for dt in dts:
+#     for _ in range(50):
+#         su.simple_update(tensor_network=cube, dt=dt, j_ij=j_ij_cube, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k, d_max=d_max)
+# tensors = cube.tensors
+# weights = cube.weights
+# energy_cube = su.energy_per_site(tensors, weights, cube_structure_matrix, j_ij_cube, h_k, s_i, s_j, s_k)
+# print(f'cube energy: {energy_cube}')
 

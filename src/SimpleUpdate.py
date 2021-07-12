@@ -15,7 +15,7 @@ class SimpleUpdate:
     """
     def __init__(self, tensor_network: TensorNetwork, j_ij: list, h_k: np.float, s_i: list, s_j: list,
                  s_k: list, dts: list, d_max: np.int = 2, max_iterations: np.int = 1000,
-                 convergence_error: np.float = 1e-6):
+                 convergence_error: np.float = 1e-6, log_energy: np.bool = False):
         """
         The default Hamiltonian implement in this algorithm is (in pseudo Latex)
                             H = J_ij \sum_{<i,j>} S_i \cdot S_j + h_k \sum_{k} S_k
@@ -28,7 +28,9 @@ class SimpleUpdate:
         :param d_max:   The maximal virtual bond dimension allowed in the simulation
         :param dts:      List of time steps for the time evolution (if complex) or imaginary time evolution (if real)
         :param max_iterations:  The maximal number of iteration performed with each time step dt
-        :param convergence_error:  The error between time consecutive weight lists at which the iterative process halts
+        :param convergence_error:  The error between time consecutive weight lists at which the iterative process halts.
+        :param log_energy:  compute and save the energy per site value along the iterative process.
+
         """
         self.tensors = tensor_network.tensors
         self.weights = tensor_network.weights
@@ -44,7 +46,8 @@ class SimpleUpdate:
         self.convergence_error = convergence_error
         self.dt = 0.1
         self.old_weights = None
-        self.logger = {'error': [], 'dt': [], 'iteration': []}
+        self.logger = {'error': [], 'dt': [], 'iteration': [], 'energy': []}
+        self.log_energy = log_energy
 
     def run(self):
         self.simple_update()
@@ -61,17 +64,27 @@ class SimpleUpdate:
                     self.logger['error'].append(error)
                     self.logger['dt'].append(dt)
                     self.logger['iteration'].append(i)
-                    print('| dt {:2.6f} | {:5d}/{:5d} iteration '
-                          '| averaged error {:3.10f} | time {:4.2}'.format(dt, i, self.max_iterations, error, elapsed))
+                    if self.log_energy:
+                        energy = self.energy_per_site()
+                        self.logger['energy'].append(energy)
+                        print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
+                              '| energy per-site {:4.6} | time {:4.2} sec'.format(dt, i, self.max_iterations,
+                                                                             error, energy, elapsed))
+                    else:
+                        print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
+                              '| time {:4.2} sec'.format(dt, i, self.max_iterations, error, elapsed))
                     start_time = time.time()
+                    if error <= self.convergence_error and dt == self.dts[-1]:
+                        print('Simple Update converged. final error is {:4.10f}\n'.format(error))
+                        return
                     if error <= self.convergence_error:
                         break
-        print('Simple Update did not converged. final error is {:4.10f}'.format(error))
+        print('Simple Update did not converged. final error is {:4.10f}\n'.format(error))
 
     def check_convergence(self):
         error = 0
         for i, (old, new) in enumerate(zip(self.old_weights, self.weights)):
-            error += np.sqrt(np.square(old - new))
+            error += np.sqrt(np.sum(np.square(old - new)))
         return error / len(self.weights)
 
     def simple_update(self):
@@ -355,7 +368,7 @@ class SimpleUpdate:
             hamiltonian = np.reshape(hamiltonian, (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
             energy += self.tensor_pair_expectation(ek, hamiltonian)
         energy /= len(self.tensors)
-        return energy
+        return np.real(energy)
 
 ########################################################################################################################
 
