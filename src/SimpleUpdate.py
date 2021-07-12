@@ -1,5 +1,6 @@
 import numpy as np
 import copy as cp
+import time
 import ncon
 from scipy import linalg
 from TensorNetwork import TensorNetwork
@@ -13,19 +14,21 @@ class SimpleUpdate:
     DOI:	10.1103/PhysRevB.99.195105
     """
     def __init__(self, tensor_network: TensorNetwork, j_ij: list, h_k: np.float, s_i: list, s_j: list,
-                 s_k: list, d_max: np.int = 2, dt: np.complex = 0.1, max_iterations: np.int = 1000):
+                 s_k: list, dts: list, d_max: np.int = 2, max_iterations: np.int = 1000,
+                 convergence_error: np.float = 1e-6):
         """
         The default Hamiltonian implement in this algorithm is (in pseudo Latex)
                             H = J_ij \sum_{<i,j>} S_i \cdot S_j + h_k \sum_{k} S_k
         :param tensor_network:  A TensorNetwork class object (see TensorNetwork.py)
         :param j_ij:    A list of interaction coefficients of tensor pairs
-        :param h_k:     The "field" contant coefficient
+        :param h_k:     The "field" constant coefficient
         :param s_i:     A list of the i spin operators for spin pair interaction
         :param s_j:     A list of the j spin operators for spin pair interaction
         :param s_k:     A list of the i spin operators for the Hamiltonian's field term
         :param d_max:   The maximal virtual bond dimension allowed in the simulation
-        :param dt:      The initial time step for the time evolution (if complex) or imaginary time evolution (if real)
+        :param dts:      List of time steps for the time evolution (if complex) or imaginary time evolution (if real)
         :param max_iterations:  The maximal number of iteration performed with each time step dt
+        :param convergence_error:  The error between time consecutive weight lists at which the iterative process halts
         """
         self.tensors = tensor_network.tensors
         self.weights = tensor_network.weights
@@ -36,8 +39,40 @@ class SimpleUpdate:
         self.s_j = s_j
         self.s_k = s_k
         self.d_max = d_max
-        self.dt = dt
+        self.dts = dts
         self.max_iterations = max_iterations
+        self.convergence_error = convergence_error
+        self.dt = 0.1
+        self.old_weights = None
+        self.logger = {'error': [], 'dt': [], 'iteration': []}
+
+    def run(self):
+        self.simple_update()
+        error = None
+        for dt in self.dts:
+            start_time = time.time()
+            self.dt = dt
+            for i in range(self.max_iterations):
+                self.old_weights = cp.deepcopy(self.weights)
+                self.simple_update()
+                if i % 20 == 0 and i > 0:
+                    error = self.check_convergence()
+                    elapsed = time.time() - start_time
+                    self.logger['error'].append(error)
+                    self.logger['dt'].append(dt)
+                    self.logger['iteration'].append(i)
+                    print('| dt {:2.6f} | {:5d}/{:5d} iteration '
+                          '| averaged error {:3.10f} | time {:4.2}'.format(dt, i, self.max_iterations, error, elapsed))
+                    start_time = time.time()
+                    if error <= self.convergence_error:
+                        break
+        print('Simple Update did not converged. final error is {:4.10f}'.format(error))
+
+    def check_convergence(self):
+        error = 0
+        for i, (old, new) in enumerate(zip(self.old_weights, self.weights)):
+            error += np.sqrt(np.square(old - new))
+        return error / len(self.weights)
 
     def simple_update(self):
         """
