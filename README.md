@@ -1,6 +1,8 @@
 # Tensor-Networks-Simple-Update
 This repo contains an implementation of the Simple-Update Tensor Network algorithm as described in the paper - A universal tensor network algorithm for any infinite lattice by  Saeed S. Jahromi and Roman Orus.
+
 DOI:	10.1103/PhysRevB.99.195105
+
 [arXiv link](https://arxiv.org/abs/1808.00680)
 
 ## The Code
