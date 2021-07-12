@@ -3,7 +3,7 @@ This repo contains an implementation of the Simple-Update Tensor Network algorit
 
 DOI:	10.1103/PhysRevB.99.195105
 
-[arXiv link](https://arxiv.org/abs/1808.00680)
+arXiv link to paper - [A universal tensor network algorithm for any infinite lattice](https://arxiv.org/abs/1808.00680)
 
 ## The Code
 
