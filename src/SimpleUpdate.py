@@ -200,8 +200,8 @@ def get_hamiltonian(i_neighbors, j_neighbors, j_ij, h_k, s_i, s_j, s_ik, s_jk):
         i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
     for _, s in enumerate(s_jk):
         j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
-    hamiltonian = -j_ij * interaction_hamiltonian \
-                  - h_k * (i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
+    hamiltonian = j_ij * interaction_hamiltonian \
+                    + h_k * (i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
     return hamiltonian
 
 
