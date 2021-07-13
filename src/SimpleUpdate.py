@@ -15,7 +15,7 @@ class SimpleUpdate:
     """
     def __init__(self, tensor_network: TensorNetwork, j_ij: list, h_k: np.float, s_i: list, s_j: list,
                  s_k: list, dts: list, d_max: np.int = 2, max_iterations: np.int = 1000,
-                 convergence_error: np.float = 1e-6, log_energy: np.bool = False):
+                 convergence_error: np.float = 1e-6, log_energy: np.bool = False, print_process: np.bool = True):
         """
         The default Hamiltonian implement in this algorithm is (in pseudo Latex)
                             H = J_ij \sum_{<i,j>} S_i \cdot S_j + h_k \sum_{k} S_k
@@ -30,6 +30,7 @@ class SimpleUpdate:
         :param max_iterations:  The maximal number of iteration performed with each time step dt
         :param convergence_error:  The error between time consecutive weight lists at which the iterative process halts.
         :param log_energy:  compute and save the energy per site value along the iterative process.
+        :param print_process:  boolean for printing the parameters along iterations
 
         """
         self.tensors = tensor_network.tensors
@@ -48,6 +49,7 @@ class SimpleUpdate:
         self.old_weights = None
         self.logger = {'error': [], 'dt': [], 'iteration': [], 'energy': []}
         self.log_energy = log_energy
+        self.print_process = print_process
 
     def run(self):
         self.simple_update()
@@ -67,12 +69,14 @@ class SimpleUpdate:
                     if self.log_energy:
                         energy = self.energy_per_site()
                         self.logger['energy'].append(energy)
-                        print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
-                              '| energy per-site {:4.6} | time {:4.2} sec'.format(dt, i, self.max_iterations, error,
-                                                                                  energy, elapsed))
+                        if self.print_process:
+                            print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
+                                  '| energy per-site {:4.6} | time {:4.2} sec'.format(dt, i, self.max_iterations, error,
+                                                                                      energy, elapsed))
                     else:
-                        print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
-                              '| time {:4.2} sec'.format(dt, i, self.max_iterations, error, elapsed))
+                        if self.print_process:
+                            print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
+                                  '| time {:4.2} sec'.format(dt, i, self.max_iterations, error, elapsed))
                     start_time = time.time()
                     if error <= self.convergence_error and dt == self.dts[-1]:
                         print('Simple Update converged. final error is {:4.10f}\n'.format(error))
