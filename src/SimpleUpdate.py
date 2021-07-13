@@ -369,3 +369,9 @@ class SimpleUpdate:
             energy += self.tensor_pair_expectation(ek, hamiltonian)
         energy /= len(self.tensors)
         return np.real(energy)
+
+    def expectation_per_site(self, operator):
+        expectaion = 0
+        for tensor_idx, _ in enumerate(self.tensors):
+            expectaion += self.tensor_expectation(tensor_idx, operator)
+        return expectaion / len(self.tensors)
