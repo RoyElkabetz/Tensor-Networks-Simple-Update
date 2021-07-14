@@ -23,7 +23,11 @@ The folder [`src`](/src) is he heart of this project, here is a description of e
 | 1   | Paper results reconstruction                   | [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb#scrollTo=x9gTThCjbrzm)        | [![nbviewer](https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.svg)](https://nbviewer.jupyter.org/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb)|
 
 
-Here are some result of ground-state energy per-site calculated with Simple Update over Chain, Star, PEPS and Cube Tensor Networks
+Below are some result of ground-state energy per-site simulated with the Simple Update algorithm over Antiferromagnetic Heisenberg (AFH) Chain, Star, PEPS and Cube Tensor Networks. The AFH Hamiltonian can be written as
+
+[hamiltonian]("https://www.HostMath.com/Show.aspx?Code=H%20%3D%20J%5Csum_%7B%3Ci%2Cj%3E%7D%20%5Cmathbf%7BS%7D_i%5Ccdot%20%5Cmathbf%7BS%7D_j")
+
+
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/88b9640ad702a74be625b3a0ca0069d6876fc137/assets/Tensor_Networks_diagrams.png" width="" height=""> 
 
