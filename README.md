@@ -27,4 +27,10 @@ Here are some result of ground-state energy per-site calculated with Simple Upda
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/cc715d4b92f4610bdc612dcd68771f624a2357e7/assets/Tensor_Networks_diagrams.png" width="" height="350"> <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/f9dbfc21f0f724469feef5f4ac23448149c29aa3/assets/chain_star_peps_cube.png" width="" height="350">
 
+
+
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/8e87ec1796e62a13c00c77261f04d68d2350443f/assets/Ising_model.png
+" width="" height="">
+
+
 ## In Progress....
