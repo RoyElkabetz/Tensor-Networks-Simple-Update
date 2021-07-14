@@ -378,4 +378,4 @@ class SimpleUpdate:
         expectaion = 0
         for tensor_idx, _ in enumerate(self.tensors):
             expectaion += self.tensor_expectation(tensor_idx, operator)
-        return expectaion / len(self.tensors)
+        return np.real(expectaion) / len(self.tensors)
