@@ -25,7 +25,7 @@ The folder [`src`](/src) is he heart of this project, here is a description of e
 
 Here are some result of ground-state energy per-site calculated with Simple Update over Chain, Star, PEPS and Cube Tensor Networks
 
-<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/cc715d4b92f4610bdc612dcd68771f624a2357e7/assets/Tensor_Networks_diagrams.png" width="" height="350"> <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/f9dbfc21f0f724469feef5f4ac23448149c29aa3/assets/chain_star_peps_cube.png" width="" height="350">
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/cc715d4b92f4610bdc612dcd68771f624a2357e7/assets/Tensor_Networks_diagrams.png" width="" height="350"> <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/88b9640ad702a74be625b3a0ca0069d6876fc137/assets/Tensor_Networks_diagrams.png" width="" height="350">
 
 
 
