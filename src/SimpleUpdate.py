@@ -50,6 +50,7 @@ class SimpleUpdate:
         self.logger = {'error': [], 'dt': [], 'iteration': [], 'energy': []}
         self.log_energy = log_energy
         self.print_process = print_process
+        self.converged = False
 
     def run(self):
         self.simple_update()
@@ -79,11 +80,11 @@ class SimpleUpdate:
                                   '| time {:4.2} sec'.format(dt, i, self.max_iterations, error, elapsed))
                     start_time = time.time()
                     if error <= self.convergence_error and dt == self.dts[-1]:
-                        print('Simple Update converged. final error is {:4.10f}\n'.format(error))
+                        self.converged = True
                         return
                     if error <= self.convergence_error:
                         break
-        print('Simple Update did not converged. final error is {:4.10f}\n'.format(error))
+        print('Simple Update did not converged. final error is {:4.10f}'.format(error))
 
     def check_convergence(self):
         error = 0
