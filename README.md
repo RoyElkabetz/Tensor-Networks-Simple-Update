@@ -22,8 +22,8 @@ The folder [`src`](/src) is he heart of this project, here is a description of e
 |:----:|------------------------------------------------|:-----------------:|:---------------------:|
 | 1   | Paper results reconstruction                   | [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb#scrollTo=x9gTThCjbrzm)        | [![nbviewer](https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.svg)](https://nbviewer.jupyter.org/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb)|
 
-### Simulations
-#### Spin-1/2 Antiferromagnetic Heisenberg (AFH) model
+## Simulations
+### Spin-1/2 Antiferromagnetic Heisenberg (AFH) model
 
 Below are some result of ground-state energy per-site simulated with the Simple Update algorithm over AFH Chain, Star, PEPS and Cube Tensor Networks. The AFH Hamiltonian can be written as
 
@@ -39,8 +39,8 @@ Here are the ground-state energy per-site simulations for the Tensor Networks di
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/5978bb7b014c41a23fed8996999f07ae1ec58edb/assets/chain_star_peps_cube_plots.png" width="1000" height="">
 
-#### Quantum Ising Model on a 2D Spin-1/2 Lattice
-Next is the quantum Ising model simulated on a 2D lattice 
+### Quantum Ising Model on a 2D Spin-1/2 Lattice
+Next is the quantum Ising model simulated on a 2D lattice with a transverse field. Its Hamiltonian is given by
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/8e87ec1796e62a13c00c77261f04d68d2350443f/assets/Ising_model.png" width="1000" height="">
 
