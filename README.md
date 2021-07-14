@@ -37,7 +37,7 @@ The Chain, Star, PEPS and Cube infinite Tensor Networks are illustrated in the n
 
 Here are the ground-state energy per-site simulations for the Tensor Networks diagrams above
 
-<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/16547154b015af67a4dde311f88971d422180ab5/assets/chain_star_peps_cube_plots.png" width="" height="">
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/5978bb7b014c41a23fed8996999f07ae1ec58edb/assets/chain_star_peps_cube_plots.png" width="" height="">
 
 #### Quantum Ising Model on a 2D Spin-1/2 Lattice
 Next is the quantum Ising model simulated on a 2D lattice 
