@@ -25,7 +25,6 @@ The folder [`src`](/src) is he heart of this project, here is a description of e
 
 Below are some result of ground-state energy per-site simulated with the Simple Update algorithm over Antiferromagnetic Heisenberg (AFH) Chain, Star, PEPS and Cube Tensor Networks. The AFH Hamiltonian can be written as
 
-[hamiltonian]("https://www.HostMath.com/Show.aspx?Code=H%20%3D%20J%5Csum_%7B%3Ci%2Cj%3E%7D%20%5Cmathbf%7BS%7D_i%5Ccdot%20%5Cmathbf%7BS%7D_j")
 
 
 
