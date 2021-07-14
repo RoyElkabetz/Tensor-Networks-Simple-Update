@@ -32,7 +32,7 @@ Below are some result of ground-state energy per-site simulated with the Simple 
 In the case of the Star tensor network lattice the AFH Hamiltonian is composite of two part corresponds to different type of edges (see paper in the link above).
 The Chain, Star, PEPS and Cube infinite Tensor Networks are illustrated in the next figure.
 
-<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/88b9640ad702a74be625b3a0ca0069d6876fc137/assets/Tensor_Networks_diagrams.png" width="" height=""> 
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/88b9640ad702a74be625b3a0ca0069d6876fc137/assets/Tensor_Networks_diagrams.png" width="800" height=""> 
 
 
 Here are the ground-state energy per-site simulations for the Tensor Networks diagrams above
