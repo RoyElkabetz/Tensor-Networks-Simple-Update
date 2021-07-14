@@ -25,7 +25,9 @@ The folder [`src`](/src) is he heart of this project, here is a description of e
 
 Below are some result of ground-state energy per-site simulated with the Simple Update algorithm over Antiferromagnetic Heisenberg (AFH) Chain, Star, PEPS and Cube Tensor Networks. The AFH Hamiltonian can be written as
 
-<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/a6fe555d0e211c63ed33d4bff13ceff5fe57bbe9/assets/hamiltonian_eq.png" width="" height="100">
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/a6fe555d0e211c63ed33d4bff13ceff5fe57bbe9/assets/hamiltonian_eq.png" width="" height="60">
+
+In the case of the Star tensor network lattice the AFH Hamiltonian is composite of two part corresponds to different type of edges (see paper in the link above).
 
 
 
