@@ -42,7 +42,10 @@ Here are the ground-state energy per-site simulations for the Tensor Networks di
 ### Quantum Ising Model on a 2D Spin-1/2 Lattice
 Next is the quantum Ising model simulated on a 2D lattice with a transverse field. Its Hamiltonian is given by
 
-<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/8e87ec1796e62a13c00c77261f04d68d2350443f/assets/Ising_model.png" width="1000" height="">
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/2c4d0137d856b282f3ba4bfa0e81ef5a4be67e99/assets/ising_transverse_field.png" width="" height="60">
 
+In the plots below oone can see the simulated x, z magnetization (per-site) along with the simulated energy (per-site). We see that the SU is manage to extract the phase transition of the model around h=3.2.
+
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/8e87ec1796e62a13c00c77261f04d68d2350443f/assets/Ising_model.png" width="1000" height="">
 
 ## In Progress....
