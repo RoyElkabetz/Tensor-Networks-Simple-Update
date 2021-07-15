@@ -48,4 +48,10 @@ In the plots below oone can see the simulated x, z magnetization (per-site) alon
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/8e87ec1796e62a13c00c77261f04d68d2350443f/assets/Ising_model.png" width="1000" height="">
 
+### TODO
+
+- [ ] Add more terms to the Hamiltonian.
+- [ ] Add trivial simple update algorithm for canonical states computation.
+- [ ] Add a simple update flow diagram.
+
 ## In Progress....
