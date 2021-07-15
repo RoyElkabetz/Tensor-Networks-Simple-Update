@@ -278,10 +278,10 @@ class SimpleUpdate:
         i_spin_dim = self.s_i[0].shape[0]
         j_spin_dim = self.s_j[0].shape[0]
         interaction_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-        i_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-        j_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
         for i, _ in enumerate(self.s_i):
             interaction_hamiltonian += np.kron(self.s_i[i], self.s_j[i])
+        i_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+        j_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
         for _, s in enumerate(self.s_k):
             i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
             j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
