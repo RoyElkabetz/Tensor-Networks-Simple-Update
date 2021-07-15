@@ -40,7 +40,7 @@ def peps_square_periodic_boundary_conditions(side: np.int):
         else:
             structure_matrix[i, i - 1] = 2
         if i >= side:
-            structure_matrix[i, i - side + n_tensors] = 3
+            structure_matrix[i, n_tensors - side + i] = 3
         else:
             structure_matrix[i, 2 * n_tensors - side + i] = 3
     return structure_matrix

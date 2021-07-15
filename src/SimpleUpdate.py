@@ -15,7 +15,8 @@ class SimpleUpdate:
     """
     def __init__(self, tensor_network: TensorNetwork, j_ij: list, h_k: np.float, s_i: list, s_j: list,
                  s_k: list, dts: list, d_max: np.int = 2, max_iterations: np.int = 1000,
-                 convergence_error: np.float = 1e-6, log_energy: np.bool = False, print_process: np.bool = True):
+                 convergence_error: np.float = 1e-6, log_energy: np.bool = False, print_process: np.bool = True,
+                 hamiltonian: np.array = None):
         """
         The default Hamiltonian implement in this algorithm is (in pseudo Latex)
                             H = J_ij \sum_{<i,j>} S_i \cdot S_j + h_k \sum_{k} S_k
@@ -31,6 +32,7 @@ class SimpleUpdate:
         :param convergence_error:  The error between time consecutive weight lists at which the iterative process halts.
         :param log_energy:  compute and save the energy per site value along the iterative process.
         :param print_process:  boolean for printing the parameters along iterations
+        :param hamiltonian:  np.array. If not None, this would be the computed hamiltonian on all edges
 
         """
         self.tensors = tensor_network.tensors
@@ -51,6 +53,7 @@ class SimpleUpdate:
         self.log_energy = log_energy
         self.print_process = print_process
         self.converged = False
+        self.hamiltonian = hamiltonian
 
     def run(self):
         self.simple_update()
@@ -270,6 +273,8 @@ class SimpleUpdate:
         return u, vh
 
     def get_hamiltonian(self, i_neighbors, j_neighbors, ek):
+        if self.hamiltonian is not None:
+            return self.hamiltonian
         i_spin_dim = self.s_i[0].shape[0]
         j_spin_dim = self.s_j[0].shape[0]
         interaction_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
@@ -281,8 +286,8 @@ class SimpleUpdate:
             i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
             j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
         hamiltonian = self.j_ij[ek] * interaction_hamiltonian \
-                      + self.h_k * (
-                                  i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
+                      + self.h_k * (i_field_hamiltonian / i_neighbors
+                                    + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
         return hamiltonian
 
     def time_evolution(self, ri, rj, i_neighbors, j_neighbors, lambda_k, ek):
