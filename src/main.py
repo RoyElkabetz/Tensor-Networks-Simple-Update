@@ -4,43 +4,108 @@ import SimpleUpdate as su
 import structure_matrix_generator as stmg
 
 
+# The Tensor Network structure matrix
+triangle_structure_matrix = stmg.infinite_structure_matrix_by_name('triangular')
+print('The triangular 2D lattice structure matrix:')
+print(triangle_structure_matrix)
 
-# prepare simple-update parameters
-pauli_x = np.array([[0, 1],
-                    [1, 0]])
-pauli_y = np.array([[0, -1j],
-                    [1j, 0]])
-pauli_z = np.array([[1, 0],
-                    [0, -1]])
+tri_tn = TensorNetwork(structure_matrix=triangle_structure_matrix,
+                       virtual_size=2)
+
+# spin-1 operators
+sx = np.array([[0., 1, 0],
+               [1, 0, 1],
+               [0, 1, 0]]) / np.sqrt(2)
+sy = np.array([[0., -1j, 0],
+               [1j, 0, -1j],
+               [0, 1j, 0]]) / np.sqrt(2)
+sz = np.array([[1., 0, 0],
+               [0, 0, 0],
+               [0, 0, -1]])
+
+s_i = [sx, sy, sz]
+s_j = [sx, sy, sz]
+s_k = []
+
+# get the spin-spin interaction term
+interaction_term = np.zeros((np.power(sx.shape[0], 2), np.power(sx.shape[0], 2)), dtype=np.complex)
+for s in s_i:
+    interaction_term += np.kron(s, s)
+
+# compute a list of hamiltonians for all angles
+theta = np.linspace(0, 2 * np.pi, 20)
+hamiltonian = []
+for angle in theta:
+    hamiltonian.append(np.cos(angle) * interaction_term + np.sin(angle) * np.power(interaction_term, 2))
+
+# Simple-Update parameters
+d_max_tri = [2]
+error = 1e-6
+max_iterations = 200
+tri_energy = []
+j_ij = [-1.] * len(tri_tn.weights)
 dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
-h_k = 0.
-s_i = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
-s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
-s_k = [pauli_x / 2.]
-d_max = 2
 
-interaction_hamiltonian = np.zeros((2 * 2, 2 * 2), dtype=complex)
-i_field_hamiltonian = np.zeros((2 * 2, 2 * 2), dtype=complex)
-j_field_hamiltonian = np.zeros((2 * 2, 2 * 2), dtype=complex)
-for i, _ in enumerate(s_i):
-    interaction_hamiltonian += np.kron(s_i[i], s_j[i])
-for _, s in enumerate(s_k):
-    i_field_hamiltonian += np.kron(s, np.eye(2))
-    j_field_hamiltonian += np.kron(np.eye(2), s)
-hamiltonian = 1 * interaction_hamiltonian \
-              + h_k * (i_field_hamiltonian / 4
-                            + j_field_hamiltonian / 4)  # (i * j, i' * j')
+# Run
+for d_max in d_max_tri:
+    for i, angle in enumerate(theta):
+        tri_tn = TensorNetwork(structure_matrix=triangle_structure_matrix,
+                               virtual_size=2)
+        tri_su = su.SimpleUpdate(tensor_network=tri_tn,
+                                 dts=dts,
+                                 j_ij=j_ij,
+                                 h_k=0,
+                                 s_i=s_i,
+                                 s_j=s_j,
+                                 s_k=s_k,
+                                 d_max=d_max,
+                                 max_iterations=max_iterations,
+                                 convergence_error=error,
+                                 log_energy=False,
+                                 print_process=False,
+                                 hamiltonian=hamiltonian[i])
+        tri_su.run()
+        energy = tri_su.energy_per_site()
+        print('| D max: {:3d} | Theta: {:2.6f} | Energy: {:3.10f} |'
+              .format(d_max, angle, energy))
+        tri_energy.append(energy)
 
-structure_matrix = stmg.peps_square_periodic_boundary_conditions(side=2)
-print(structure_matrix)
-
-peps = TensorNetwork(structure_matrix=structure_matrix)
-
-peps_su = su.SimpleUpdate(tensor_network=peps, dts=[0.1, 0.01], j_ij=[1.]*len(peps.weights), h_k=0, s_i=s_i, s_j=s_j, s_k=s_k,
-                         d_max=d_max, max_iterations=100, convergence_error=1e-6, log_energy=True, hamiltonian=hamiltonian)
-peps_su.run()
-energy_mps = peps_su.energy_per_site()
-print(energy_mps)
+# # prepare simple-update parameters
+# pauli_x = np.array([[0, 1],
+#                     [1, 0]])
+# pauli_y = np.array([[0, -1j],
+#                     [1j, 0]])
+# pauli_z = np.array([[1, 0],
+#                     [0, -1]])
+# dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
+# h_k = 0.
+# s_i = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
+# s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
+# s_k = [pauli_x / 2.]
+# d_max = 2
+#
+# interaction_hamiltonian = np.zeros((2 * 2, 2 * 2), dtype=complex)
+# i_field_hamiltonian = np.zeros((2 * 2, 2 * 2), dtype=complex)
+# j_field_hamiltonian = np.zeros((2 * 2, 2 * 2), dtype=complex)
+# for i, _ in enumerate(s_i):
+#     interaction_hamiltonian += np.kron(s_i[i], s_j[i])
+# for _, s in enumerate(s_k):
+#     i_field_hamiltonian += np.kron(s, np.eye(2))
+#     j_field_hamiltonian += np.kron(np.eye(2), s)
+# hamiltonian = 1 * interaction_hamiltonian \
+#               + h_k * (i_field_hamiltonian / 4
+#                             + j_field_hamiltonian / 4)  # (i * j, i' * j')
+#
+# structure_matrix = stmg.peps_square_periodic_boundary_conditions(side=2)
+# print(structure_matrix)
+#
+# peps = TensorNetwork(structure_matrix=structure_matrix)
+#
+# peps_su = su.SimpleUpdate(tensor_network=peps, dts=[0.1, 0.01], j_ij=[1.]*len(peps.weights), h_k=0, s_i=s_i, s_j=s_j, s_k=s_k,
+#                          d_max=d_max, max_iterations=100, convergence_error=1e-6, log_energy=True, hamiltonian=hamiltonian)
+# peps_su.run()
+# energy_mps = peps_su.energy_per_site()
+# print(energy_mps)
 
 
 
