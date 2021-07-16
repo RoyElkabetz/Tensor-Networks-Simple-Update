@@ -7,7 +7,7 @@ arXiv link to paper - [A universal tensor network algorithm for any infinite lat
 
 Simple Update (SU) is a Tensor Networks algorithm which is used for finding ground-state Tensor Network representations of gapped local Hamiltonians. It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. Here is a full step-by-step description of the algorithm. 
 
-<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/9dc1be7efc1f2c3da6354562573c07ebda8b54ee/assets/simple_update_algorithm.png" width="1000" height="">
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/00890625f92dea318d2af588de48ba7d7a660fad/assets/simple_update_algorithm.png" width="1000" height="">
 
 ## The Code
 
