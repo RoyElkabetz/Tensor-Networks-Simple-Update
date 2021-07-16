@@ -339,11 +339,11 @@ class SimpleUpdate:
         ti_idx[0] = -1  # i
         ti_conj_idx = np.arange(len(ti['tensor'].shape))
         ti_conj_idx[ti['dim']] = common_edge_conj_idx[0]
-        ti_conj_idx[0] = -2  # i'
+        ti_conj_idx[0] = -3  # i'
 
         tj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
         tj_idx[tj['dim']] = common_edge_idx[1]
-        tj_idx[0] = -3  # j
+        tj_idx[0] = -2  # j
         tj_conj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
         tj_conj_idx[tj['dim']] = common_edge_conj_idx[1]
         tj_conj_idx[0] = -4  # j'
