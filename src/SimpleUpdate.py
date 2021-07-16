@@ -339,11 +339,11 @@ class SimpleUpdate:
         ti_idx[0] = -1  # i
         ti_conj_idx = np.arange(len(ti['tensor'].shape))
         ti_conj_idx[ti['dim']] = common_edge_conj_idx[0]
-        ti_conj_idx[0] = -3  # i'
+        ti_conj_idx[0] = -2  # i'
 
         tj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
         tj_idx[tj['dim']] = common_edge_idx[1]
-        tj_idx[0] = -2  # j
+        tj_idx[0] = -3  # j
         tj_conj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
         tj_conj_idx[tj['dim']] = common_edge_conj_idx[1]
         tj_conj_idx[0] = -4  # j'
@@ -361,7 +361,7 @@ class SimpleUpdate:
         return np.trace(np.matmul(rdm, operator))
 
     def tensor_pair_expectation(self, common_edge, operator):
-        rdm = self.tensor_pair_rdm(common_edge)
+        rdm = self.tensor_pair_rdm(common_edge)   # (i, j, i', j')
         return np.einsum(rdm, [0, 1, 2, 3], operator, [0, 1, 2, 3])
 
     def energy_per_site(self):
