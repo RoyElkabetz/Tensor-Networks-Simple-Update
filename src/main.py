@@ -106,17 +106,17 @@ j_ij_cube = [1.] * len(cube.weights)
 
 
 
-mps_su = su.SimpleUpdate(tensor_network=mps, dts=dts, j_ij=j_ij_mps, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k,
+mps_su = su.SimpleUpdate(tensor_network=mps, dts=dts, j_ij_linear=j_ij_mps, h_k=h_k, s_i_linear=s_i, s_j_linear=s_j, s_k=s_k,
                          d_max=d_max, max_iterations=100, convergence_error=1e-6, log_energy=True)
 mps_su.run()
 energy_mps = mps_su.energy_per_site()
 
-star_su = su.SimpleUpdate(tensor_network=star, dts=dts, j_ij=j_ij_star, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k,
+star_su = su.SimpleUpdate(tensor_network=star, dts=dts, j_ij_linear=j_ij_star, h_k=h_k, s_i_linear=s_i, s_j_linear=s_j, s_k=s_k,
                           d_max=d_max, max_iterations=100, convergence_error=1e-6, log_energy=True)
 star_su.run()
 energy_star = star_su.energy_per_site()
 
-cube_su = su.SimpleUpdate(tensor_network=cube, dts=dts, j_ij=j_ij_cube, h_k=h_k, s_i=s_i, s_j=s_j, s_k=s_k,
+cube_su = su.SimpleUpdate(tensor_network=cube, dts=dts, j_ij_linear=j_ij_cube, h_k=h_k, s_i_linear=s_i, s_j_linear=s_j, s_k=s_k,
                           d_max=d_max, max_iterations=100, convergence_error=1e-6, log_energy=True)
 cube_su.run()
 energy_cube = cube_su.energy_per_site()
