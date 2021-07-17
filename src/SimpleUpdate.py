@@ -278,19 +278,32 @@ class SimpleUpdate:
     def get_hamiltonian(self, i_neighbors, j_neighbors, ek):
         if self.hamiltonian is not None:
             return self.hamiltonian
+        # get physical dimensions
         i_spin_dim = self.s_i_linear[0].shape[0]
         j_spin_dim = self.s_j_linear[0].shape[0]
-        interaction_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+
+        # compute hamiltonian's linear terms
+        interaction_linear_term = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
         for i, _ in enumerate(self.s_i_linear):
-            interaction_hamiltonian += np.kron(self.s_i_linear[i], self.s_j_linear[i])
-        i_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-        j_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+            interaction_linear_term += np.kron(self.s_i_linear[i], self.s_j_linear[i])
+        i_field_term = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+        j_field_term = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
         for _, s in enumerate(self.s_k):
-            i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
-            j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
-        hamiltonian = self.j_ij_linear[ek] * interaction_hamiltonian \
-                      + self.h_k * (i_field_hamiltonian / i_neighbors
-                                    + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
+            i_field_term += np.kron(s, np.eye(j_spin_dim))
+            j_field_term += np.kron(np.eye(i_spin_dim), s)
+
+        # compute hamiltonian's quadratic terms
+        if self.j_ij_quad is not None:
+            interaction_quad_term = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+            for i, _ in enumerate(self.s_i_quad):
+                interaction_quad_term += np.kron(self.s_i_quad[i], self.s_j_quad[i])
+            hamiltonian = self.j_ij_linear[ek] * interaction_linear_term + self.j_ij_quad[ek] * interaction_quad_term \
+                          + self.h_k * (i_field_term / i_neighbors + j_field_term / j_neighbors)  # (i * j, i' * j')
+
+        # in case there are no quadratic terms
+        else:
+            hamiltonian = self.j_ij_linear[ek] * interaction_linear_term \
+                          + self.h_k * (i_field_term / i_neighbors + j_field_term / j_neighbors)  # (i * j, i' * j')
         return hamiltonian
 
     def time_evolution(self, ri, rj, i_neighbors, j_neighbors, lambda_k, ek):
