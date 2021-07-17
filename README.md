@@ -5,8 +5,28 @@ DOI:	10.1103/PhysRevB.99.195105
 
 arXiv link to paper - [A universal tensor network algorithm for any infinite lattice](https://arxiv.org/abs/1808.00680)
 
-## The Code
+Simple Update (SU) is a Tensor Networks algorithm which is used for finding ground-state Tensor Network representations of gapped local Hamiltonians. It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. Here is a full step-by-step illustrated description of the algorithm. 
 
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/00890625f92dea318d2af588de48ba7d7a660fad/assets/simple_update_algorithm.png" width="1000" height="">
+
+**Simple Update steps:**
+- (a)
+- (b)
+- (c)
+- (d)
+- (e)
+- (f)
+- (g)
+- (h)
+- (i)
+- (j)
+- (k)
+- (l)
+- (m)
+- (n)
+
+
+## The Code
 
 
 The folder [`src`](/src) is he heart of this project, here is a description of each file
@@ -52,6 +72,5 @@ In the plots below oone can see the simulated x, z magnetization (per-site) alon
 
 - [ ] Add more terms to the Hamiltonian.
 - [ ] Add trivial simple update algorithm for canonical states computation.
-- [ ] Add a simple update flow diagram.
 
 ## In Progress....
