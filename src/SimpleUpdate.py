@@ -13,18 +13,18 @@ class SimpleUpdate:
      "Universal tensor-network algorithm for any infinite lattice (2019)" - Jahromi Saeed and Orus Roman
     DOI:	10.1103/PhysRevB.99.195105
     """
-    def __init__(self, tensor_network: TensorNetwork, j_ij_linear: list, h_k: np.float, s_i_linear: list, s_j_linear: list,
+    def __init__(self, tensor_network: TensorNetwork, j_ij: list, h_k: np.float, s_i: list, s_j: list,
                  s_k: list, dts: list, d_max: np.int = 2, max_iterations: np.int = 1000,
                  convergence_error: np.float = 1e-6, log_energy: np.bool = False, print_process: np.bool = True,
-                 hamiltonian: np.array = None, j_ij_quad: list = None, s_i_quad: list = None, s_j_quad: list = None):
+                 hamiltonian: np.array = None):
         """
         The default Hamiltonian implement in this algorithm is (in pseudo Latex)
                             H = J_ij \sum_{<i,j>} S_i \cdot S_j + h_k \sum_{k} S_k
         :param tensor_network:  A TensorNetwork class object (see TensorNetwork.py)
-        :param j_ij_linear:    A list of interaction coefficients of tensor pairs
+        :param j_ij:    A list of interaction coefficients of tensor pairs
         :param h_k:     The "field" constant coefficient
-        :param s_i_linear:     A list of the i spin operators for spin pair interaction
-        :param s_j_linear:     A list of the j spin operators for spin pair interaction
+        :param s_i:     A list of the i spin operators for spin pair interaction
+        :param s_j:     A list of the j spin operators for spin pair interaction
         :param s_k:     A list of the i spin operators for the Hamiltonian's field term
         :param d_max:   The maximal virtual bond dimension allowed in the simulation
         :param dts:      List of time steps for the time evolution (if complex) or imaginary time evolution (if real)
@@ -38,12 +38,9 @@ class SimpleUpdate:
         self.tensors = tensor_network.tensors
         self.weights = tensor_network.weights
         self.structure_matrix = tensor_network.structure_matrix
-        self.j_ij_linear = j_ij_linear
-        self.s_i_linear = s_i_linear
-        self.s_j_linear = s_j_linear
-        self.j_ij_quad = j_ij_quad
-        self.s_i_quad = s_i_quad
-        self.s_j_quad = s_j_quad
+        self.j_ij = j_ij
+        self.s_i = s_i
+        self.s_j = s_j
         self.h_k = h_k
         self.s_k = s_k
         self.d_max = d_max
@@ -278,37 +275,24 @@ class SimpleUpdate:
     def get_hamiltonian(self, i_neighbors, j_neighbors, ek):
         if self.hamiltonian is not None:
             return self.hamiltonian
-        # get physical dimensions
-        i_spin_dim = self.s_i_linear[0].shape[0]
-        j_spin_dim = self.s_j_linear[0].shape[0]
-
-        # compute hamiltonian's linear terms
-        interaction_linear_term = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-        for i, _ in enumerate(self.s_i_linear):
-            interaction_linear_term += np.kron(self.s_i_linear[i], self.s_j_linear[i])
-        i_field_term = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-        j_field_term = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+        i_spin_dim = self.s_i[0].shape[0]
+        j_spin_dim = self.s_j[0].shape[0]
+        interaction_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+        for i, _ in enumerate(self.s_i):
+            interaction_hamiltonian += np.kron(self.s_i[i], self.s_j[i])
+        i_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+        j_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
         for _, s in enumerate(self.s_k):
-            i_field_term += np.kron(s, np.eye(j_spin_dim))
-            j_field_term += np.kron(np.eye(i_spin_dim), s)
-
-        # compute hamiltonian's quadratic terms
-        if self.j_ij_quad is not None:
-            interaction_quad_term = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-            for i, _ in enumerate(self.s_i_quad):
-                interaction_quad_term += np.kron(self.s_i_quad[i], self.s_j_quad[i])
-            hamiltonian = self.j_ij_linear[ek] * interaction_linear_term + self.j_ij_quad[ek] * interaction_quad_term \
-                          + self.h_k * (i_field_term / i_neighbors + j_field_term / j_neighbors)  # (i * j, i' * j')
-
-        # in case there are no quadratic terms
-        else:
-            hamiltonian = self.j_ij_linear[ek] * interaction_linear_term \
-                          + self.h_k * (i_field_term / i_neighbors + j_field_term / j_neighbors)  # (i * j, i' * j')
+            i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
+            j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
+        hamiltonian = self.j_ij[ek] * interaction_hamiltonian \
+                      + self.h_k * (i_field_hamiltonian / i_neighbors
+                                    + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
         return hamiltonian
 
     def time_evolution(self, ri, rj, i_neighbors, j_neighbors, lambda_k, ek):
-        i_spin_dim = self.s_i_linear[0].shape[0]
-        j_spin_dim = self.s_j_linear[0].shape[0]
+        i_spin_dim = self.s_i[0].shape[0]
+        j_spin_dim = self.s_j[0].shape[0]
         hamiltonian = self.get_hamiltonian(i_neighbors, j_neighbors, ek)
         unitary_gate = np.reshape(linalg.expm(-self.dt * hamiltonian), (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
         # unitary.shape = (i_spin_dim, j_spin_dim, i'_spin_dim, j'_spin_dim)
@@ -382,8 +366,8 @@ class SimpleUpdate:
 
     def energy_per_site(self):
         energy = 0
-        i_spin_dim = self.s_i_linear[0].shape[0]
-        j_spin_dim = self.s_j_linear[0].shape[0]
+        i_spin_dim = self.s_i[0].shape[0]
+        j_spin_dim = self.s_j[0].shape[0]
         for ek, lambda_k in enumerate(self.weights):
             ti, tj = self.get_tensors(ek)
             i_edges_dims = self.get_edges(ti['index'])
