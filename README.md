@@ -56,5 +56,6 @@ In the plots below oone can see the simulated x, z magnetization (per-site) alon
 
 - [ ] Add more terms to the Hamiltonian.
 - [ ] Add trivial simple update algorithm for canonical states computation.
+- [ ] Add Manim illustration of a simple update run
 
 ## In Progress....
