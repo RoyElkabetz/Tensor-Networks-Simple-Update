@@ -9,22 +9,6 @@ Simple Update (SU) is a Tensor Networks algorithm which is used for finding grou
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/00890625f92dea318d2af588de48ba7d7a660fad/assets/simple_update_algorithm.png" width="1000" height="">
 
-**Simple Update steps:**
-- (a)
-- (b)
-- (c)
-- (d)
-- (e)
-- (f)
-- (g)
-- (h)
-- (i)
-- (j)
-- (k)
-- (l)
-- (m)
-- (n)
-
 
 ## The Code
 
