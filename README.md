@@ -9,22 +9,6 @@ Simple Update (SU) is a Tensor Networks algorithm which is used for finding grou
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/00890625f92dea318d2af588de48ba7d7a660fad/assets/simple_update_algorithm.png" width="1000" height="">
 
-**Simple Update steps:**
-- (a) Picking a pair of interacting tensors and collecting all of their neighboring weight vectors.
-- (b) Absorbing all the weight vectors (except the common weight vector) into the two tensors. 
-- (c) Group all the virtual dimensions (not on the common edge) and reshape both to rank-3 tensors.
-- (d) Perform QR decomposition on both tensors.
-- (e) Compute the time evolution operator.
-- (f) Contract time evolution operator with both triangular martices, ending up with a single rank-4 tensor.
-- (g) Reshape the rank-4 tensor into a matrix.
-- (h) Implement a SVD on the resulted matrix.
-- (i) Truncate the size of SVD matrices according to the input maximal virtual bond dimension.
-- (j) Split dimensions and place along original Q matrices from the QR decomposition
-- (k) Contract with Q matrices.
-- (l) Split back the virtual dimensions to get tensors in the original tensors shape.
-- (m) Absorbing all the inverse weight vectors (except the common weight vector) into the two new tensors. 
-- (n) Update the Tensor Network with the two new tensors.
-
 
 ## The Code
 
