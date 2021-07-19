@@ -35,7 +35,7 @@ The [`src`](/src) folder contains the code of this project
 ### Example: 2D square lattice iPEPS Antiferromagnetic Heisenberg model 
 
 importing the packages
-```ruby
+```python
 from TensorNetwork import TensorNetwork
 import SimpleUpdate as su
 import structure_matrix_generator as stmg
