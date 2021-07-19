@@ -1,7 +1,5 @@
 # Tensor Networks Simple-Update (SU) Algorithm
-> This repo contains an implementation of the Simple-Update Tensor Network algorithm as described in the paper - A universal tensor network algorithm for any infinite lattice by  Saeed S. Jahromi and Roman Orus.
-
-> arXiv link to the paper - [A universal tensor network algorithm for any infinite lattice](https://arxiv.org/abs/1808.00680)
+> This repo contains an implementation of the Simple-Update Tensor Network algorithm as described in the paper - A universal tensor network algorithm for any infinite lattice by Saeed S. Jahromi and Roman Orus [1].
 
 ## Simple Update
 Simple Update (SU) is a Tensor Networks algorithm used for finding ground-state Tensor Network representations of [gapped local Hamiltonians](https://en.wikipedia.org/wiki/Gapped_Hamiltonian). It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. The algorithm is based on an Imaginary Time-Evolution (ITE) scheme, where the ground-state of a given Hamiltonian can be obtained following the next relation
@@ -20,7 +18,7 @@ When performing the ITE scheme, the Tensor Network virtual bond dimension increa
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/00890625f92dea318d2af588de48ba7d7a660fad/assets/simple_update_algorithm.png" width="1000" height="">
 
-For a more comprehensive explanation I'm encouraging the interested reader to check out the above paper, which is very coherent and clear.
+For a more comprehensive explanation I'm encouraging the interested reader to check out [1], which is written great in a very coherent and clear language.
 ## The Code
 
 
@@ -144,13 +142,20 @@ In the plots below one can see the simulated x, z magnetization (per-site) along
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/8e87ec1796e62a13c00c77261f04d68d2350443f/assets/Ising_model.png" width="1000" height="">
 
-### Spin-1 Simulation of a Bilinear-Biquadratic Heisenberg model on a triangular 2D lattice
+### Spin-1 Simulation of a Bilinear-Biquadratic Heisenberg model on a star 2D lattice
+
+The BLBQ Hamiltonian is given by the next equation
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/3f780a601ef5d776583df0aaba834fddb65c0b01/assets/BLBQ_hamiltonian.png" width="300" height="">
+notice that for 0 radian angle, this model coincides with the original AFH model. The energy, magnetization and Q-norm as a function of the angle for different bond dimension are plotted below. We can see that the simple-update algorithm is having a hard time to trace all the phase transitions of this model. Although, we notice that for larger bond dimensions it seems like it captures the general behavior of the model. For a comprehensive explanation and results (for triangular lattice see Ref [2])
+
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/3f780a601ef5d776583df0aaba834fddb65c0b01/assets/BLBQ_model_simulation_star.png" width="1000" height="">
+
+## References
+- [[1]](https://arxiv.org/abs/1808.00680) Saeed S. Jahromi, and Roman Orus "A universal tensor network algorithm for any infinite lattice" (2019)
+- [[2]](https://arxiv.org/abs/1805.00354) Ido Niesen, Philippe Corboz "A ground state study of the spin-1 bilinear-biquadratic Heisenberg model on the triangular lattice using tensor networks" (2018)
 
 
-### TODO
+## Contact
 
-- [ ] Add more terms to the Hamiltonian.
-- [ ] Add trivial simple update algorithm for canonical states computation.
-- [ ] Add Manim illustration of a simple update run
+Roy Elkabetz - [elkabetzroy@gmail.com](mailto:elkabetzroy@gmail.com)
 
-## In Progress....
