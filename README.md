@@ -7,7 +7,9 @@ Simple Update (SU) is a Tensor Networks algorithm used for finding ground-state 
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/ecb7aaf79fadf3fcb1a95a01d8866a740ab97797/assets/imaginary_time_evolution_ground_state.png" width="" height="80">
 
-Then, in order to actually use the time evolution method in Tensor Networks we need to break down the time evolution operator into local terms. We do that using the [Suzuki-Trotter expansion](https://en.wikipedia.org/wiki/Time-evolving_block_decimation#The_Suzuki%E2%80%93Trotter_expansion) Specifically for Projected Entangled Pair States (PEPS) Tensor Networks, each local term is performed on a single pair of tensors. 
+Then, in order to actually use the time evolution method in Tensor Networks we need to break down the time evolution operator into local terms. We do that using the [Suzuki-Trotter expansion](https://en.wikipedia.org/wiki/Time-evolving_block_decimation#The_Suzuki%E2%80%93Trotter_expansion). Specifically for Projected Entangled Pair States (PEPS) Tensor Networks, each local term is operating on a single pair of tensors. The approximation of breaking the time evolution operator is as follows
+
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/75243644b7df135e982fef5cb977f477ef10946c/assets/imaginary_time_evolution_operator.png" width="" height="80">
 
 
 Here is a full step-by-step illustrated description of the algorithm. 
