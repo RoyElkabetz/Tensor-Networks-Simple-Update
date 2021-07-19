@@ -20,7 +20,7 @@ When performing the ITE scheme, the Tensor Network virtual bond dimension increa
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/00890625f92dea318d2af588de48ba7d7a660fad/assets/simple_update_algorithm.png" width="1000" height="">
 
-
+For a more comprehensive explanation I'm encouraging the interested reader to check out the above paper, which is very coherent and clear.
 ## The Code
 
 
