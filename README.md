@@ -125,13 +125,13 @@ Below are some result of ground-state energy per-site simulated with the Simple 
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/a6fe555d0e211c63ed33d4bff13ceff5fe57bbe9/assets/hamiltonian_eq.png" width="" height="60">
 
-In the case of the Star tensor network lattice the AFH Hamiltonian is composite of two part corresponds to different type of edges (see paper in the link above).
+In the case of the Star tensor network lattice the AFH Hamiltonian is composite of two parts which corresponds to different type of edges (see paper in the link above).
 The Chain, Star, PEPS and Cube infinite Tensor Networks are illustrated in the next figure.
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/88b9640ad702a74be625b3a0ca0069d6876fc137/assets/Tensor_Networks_diagrams.png" width="1000" height=""> 
 
 
-Here are the ground-state energy per-site simulations for the Tensor Networks diagrams above
+Here are the ground-state energy per-site vs inverse virtual bond-dimension simulations for the Tensor Networks diagrams above
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/5978bb7b014c41a23fed8996999f07ae1ec58edb/assets/chain_star_peps_cube_plots.png" width="1000" height="">
 
@@ -140,9 +140,12 @@ Next is the quantum Ising model simulated on a 2D lattice with a transverse fiel
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/2c4d0137d856b282f3ba4bfa0e81ef5a4be67e99/assets/ising_transverse_field.png" width="" height="100">
 
-In the plots below oone can see the simulated x, z magnetization (per-site) along with the simulated energy (per-site). We see that the SU is manage to extract the phase transition of the model around h=3.2.
+In the plots below one can see the simulated x, z magnetization (per-site) along with the simulated energy (per-site). We see that the SU is able to extract the phase transition of the model around h=3.2.
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/8e87ec1796e62a13c00c77261f04d68d2350443f/assets/Ising_model.png" width="1000" height="">
+
+### Spin-1 Simulation of a Bilinear-Biquadratic Heisenberg model on a triangular 2D lattice
+
 
 ### TODO
 
