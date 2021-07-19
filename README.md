@@ -24,12 +24,22 @@ When performing the ITE scheme, the Tensor Network virtual bond dimension increa
 ## The Code
 
 
-The folder [`src`](/src) is he heart of this project, here is a description of each file
+The [`src`](/src) folder contains the code of this project
 
 | #   | file                                         | Subject             | 
 |:----:|------------------------------------------------|:-----------------:|
-| 1   | `TensorNetwork.py`                   | This is a Tensor Network class object which tracks the tensors, weights and their connectivity| 
-| 2   | `SimpleUpdate.py`         | This is a Tensor Network Simple Update algorithm class which get as an input a TensorNetwork object and perform a simple update run on it. | 
+| 1   | `TensorNetwork.py`                   | a Tensor Network class object which tracks the tensors, weights and their connectivity| 
+| 2   | `SimpleUpdate.py`         | a Tensor Network Simple-Update algorithm class which get as an input a `TensorNetwork` object and perform a simple-update run on it using imaginary-time-evolution. | 
+| 3  | `structure_matrix_generator.py`         | This file containes a dictionary of common iPEPS structure matrices and also some functions for 2D square and rectangular lattices structure matrices (**still in progress**)
+
+### Example: 2D square lattice iPEPS Antiferromagnetic Heisenberg model 
+
+importing the packages
+```ruby
+from TensorNetwork import TensorNetwork
+import SimpleUpdate as su
+import structure_matrix_generator as stmg
+```
 
 ### List of Notebooks
 
