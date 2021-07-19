@@ -30,7 +30,7 @@ The [`src`](/src) folder contains the code of this project
 | 2   | `SimpleUpdate.py`         | a Tensor Network Simple-Update algorithm class which get as an input a `TensorNetwork` object and perform a simple-update run on it using imaginary-time-evolution. | 
 | 3  | `structure_matrix_generator.py`         | This file containes a dictionary of common iPEPS structure matrices and also some functions for 2D square and rectangular lattices structure matrices (**still in progress**)
 
-### Example: Spin 1/2 2D star lattice iPEPS Antiferromagnetic Heisenberg model simulation
+### Example 1: Spin 1/2 2D star lattice iPEPS Antiferromagnetic Heisenberg model simulation
 
 Importing files
 ```python
@@ -105,7 +105,10 @@ star_su.tensor_expectation(tensor_index=tensor, operator=pauli_z / 2)
 star_su.tensor_pair_expectation(common_edge=edge, operator=tensor_pair_operator)
 ```
 
-There are more fully-written examples in the appended notebooks.
+### Example 2: The Trivial Simple-Update Algorithm
+The trivial SU algorithm, is equivalent to the SU algorithm without the ITE and truncation steps; it only consists of consecutive SVD steps on each edge (the same as contracting ITE gate with zero time-step), and its fixed point corresponds to a canonical representation of the Tensor Network we started with. A Tensor Network canonical representation is directly connected to the Schmidt Decomposition where for Tensor Networks with no loops (tree like topology) each weight vector in the canonical representation corresponds to the Schmidt values of partitioning the network into two distinct networks along that edge. When the Tensor Network has loops, it is no longer possible to partition the network along a single edge. Therefore, the weight vecors become some general approximation of the tensors environments.
+
+There are more fully-written examples in the [`notebooks`](/notebooks) folder.
 
 ### List of Notebooks
 
