@@ -111,9 +111,10 @@ There are more fully-written examples in the appended notebooks.
 
 ### List of Notebooks
 
-| #   | Subject                                         | Colab             | Nbviewer               |
+| #   | Name         | Subject                                         | Colab             | Nbviewer               |
 |:----:|------------------------------------------------|:-----------------:|:---------------------:|
-| 1   | Paper results reconstruction                   | [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb#scrollTo=x9gTThCjbrzm)        | [![nbviewer](https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.svg)](https://nbviewer.jupyter.org/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/univeral_tensor_network_paper__reconstruction.ipynb)|
+| 1   | ipeps_energy_simulations | Computing ground-state energies of iPEPS Tensor Networks   | [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/notebooks/ipeps_energy_simulations.ipynb)        | [![nbviewer](https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.svg)](https://nbviewer.jupyter.org/github/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/notebooks/ipeps_energy_simulations.ipynb)|
+
 
 ## Simulations
 ### Spin-1/2 Antiferromagnetic Heisenberg (AFH) model
