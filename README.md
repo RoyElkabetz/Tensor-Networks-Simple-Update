@@ -166,7 +166,9 @@ In the plots below one can see the simulated x, z magnetization (per-site) along
 ### Spin-1 Simulation of a Bilinear-Biquadratic Heisenberg model on a star 2D lattice
 
 The BLBQ Hamiltonian is given by the next equation
+
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/3f780a601ef5d776583df0aaba834fddb65c0b01/assets/BLBQ_hamiltonian.png" width="300" height="">
+
 notice that for 0 radian angle, this model coincides with the original AFH model. The energy, magnetization and Q-norm as a function of the angle for different bond dimension are plotted below. We can see that the simple-update algorithm is having a hard time to trace all the phase transitions of this model. Although, we notice that for larger bond dimensions it seems like it captures the general behavior of the model. For a comprehensive explanation and results (for triangular lattice see Ref [2])
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/3f780a601ef5d776583df0aaba834fddb65c0b01/assets/BLBQ_model_simulation_star.png" width="1000" height="">
