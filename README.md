@@ -32,14 +32,42 @@ The [`src`](/src) folder contains the code of this project
 | 2   | `SimpleUpdate.py`         | a Tensor Network Simple-Update algorithm class which get as an input a `TensorNetwork` object and perform a simple-update run on it using imaginary-time-evolution. | 
 | 3  | `structure_matrix_generator.py`         | This file containes a dictionary of common iPEPS structure matrices and also some functions for 2D square and rectangular lattices structure matrices (**still in progress**)
 
-### Example: 2D square lattice iPEPS Antiferromagnetic Heisenberg model 
+### Example: Spin 1/2 2D star lattice iPEPS Antiferromagnetic Heisenberg model simulation
 
-importing the packages
+Importing files
 ```python
 from TensorNetwork import TensorNetwork
 import SimpleUpdate as su
 import structure_matrix_generator as stmg
 ```
+Get the iPEPS star structure matrix
+
+```python
+smat = stmg.infinite_structure_matrix_by_name('star')
+```
+
+Initialize a random Tensor Network with virtual bond dimension of size 2 and physical spin dimension also of size 2
+```python
+tri_tn = TensorNetwork(structure_matrix=smat, virtual_size=2, spin_dim=2)
+```
+
+Then, set the spin 1/2 operators and the simple update class parameters 
+```python
+pauli_x = np.array([[0, 1],
+                     [1, 0]])
+pauli_y = np.array([[0, -1j],
+                     [1j, 0]])
+pauli_z = np.array([[1, 0],
+                     [0, -1]])
+dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
+h_k = 0.
+s_i = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
+s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
+s_k = [pauli_x / 2.]
+d_max = 2
+```
+
+
 
 ### List of Notebooks
 
