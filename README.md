@@ -36,6 +36,7 @@ The [`src`](/src) folder contains the code of this project
 
 Importing files
 ```python
+import numpy as np
 from TensorNetwork import TensorNetwork
 import SimpleUpdate as su
 import structure_matrix_generator as stmg
@@ -82,9 +83,31 @@ star_su = su.SimpleUpdate(tensor_network=tensornet,
                           max_iterations=200, 
                           convergence_error=1e-6, 
                           log_energy=False,
-                          print_process=False,
-                          )
+                          print_process=False)
 ```
+
+and run the algorithm
+```python
+star_su.run()
+```
+
+It is also possible to compute single and double site expectation values like energy, magnetizatoin etc
+```python
+energy_per_site = star_su.energy_per_site()
+z_magnetization_per_site = star_su.expectation_per_site(operator=pauli_z / 2)
+```
+or manually calculating single and double site reduced-density matrices and expectations using the next few functions
+```python
+tensor = 0
+edge = 1
+tensor_pair_operator = np.reshape(np.kron(pauli_z / 2, pauli_z / 2), (2, 2, 2, 2))
+star_su.tensor_rdm(tensor_index=tensor)
+star_su.tensor_pair_rdm(common_edge=edge)
+star_su.tensor_expectation(tensor_index=tensor, operator=pauli_z / 2)
+star_su.tensor_pair_expectation(common_edge=edge, operator=tensor_pair_operator)
+```
+
+There are more fully-written examples in the appended notebooks.
 
 ### List of Notebooks
 
