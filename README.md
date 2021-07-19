@@ -174,10 +174,10 @@ notice that for 0 radian angle, this model coincides with the original AFH model
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/3f780a601ef5d776583df0aaba834fddb65c0b01/assets/BLBQ_model_simulation_star.png" width="1000" height="">
 
 ## References
-- [[1]](https://arxiv.org/abs/1808.00680) Saeed S. Jahromi, and Roman Orus "A universal tensor network algorithm for any infinite lattice" (2019)
-- [[2]](https://arxiv.org/abs/1805.00354) Ido Niesen, Philippe Corboz "A ground state study of the spin-1 bilinear-biquadratic Heisenberg model on the triangular lattice using tensor networks" (2018)
-- [[3]](https://journals.aps.org/prresearch/abstract/10.1103/PhysRevResearch.3.023073) Roy Alkabetz and Itai Arad "Tensor networks contraction and the belief propagation algorithm" (2020)
-- [[4]](https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/0f7341e175c7f1fdd6723855749800927d37ebc8/theory/MSc_Thesis_Roy_Elkabetz.pdf) Roy Elkabetz "Using the Belief Propagation algorithm for finding Tensor Networks approximations of many-body ground states" (2020)
+- [[1]](https://arxiv.org/abs/1808.00680) Saeed S. Jahromi, and Roman Orus - "A universal tensor network algorithm for any infinite lattice" (2019)
+- [[2]](https://arxiv.org/abs/1805.00354) Ido Niesen, Philippe Corboz - "A ground state study of the spin-1 bilinear-biquadratic Heisenberg model on the triangular lattice using tensor networks" (2018)
+- [[3]](https://journals.aps.org/prresearch/abstract/10.1103/PhysRevResearch.3.023073) Roy Alkabetz and Itai Arad - "Tensor networks contraction and the belief propagation algorithm" (2020)
+- [[4]](https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/0f7341e175c7f1fdd6723855749800927d37ebc8/theory/MSc_Thesis_Roy_Elkabetz.pdf) Roy Elkabetz - "Using the Belief Propagation algorithm for finding Tensor Networks approximations of many-body ground states" (2020)
 
 
 ## Contact
