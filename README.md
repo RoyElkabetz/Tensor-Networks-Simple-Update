@@ -106,7 +106,25 @@ star_su.tensor_pair_expectation(common_edge=edge, operator=tensor_pair_operator)
 ```
 
 ### Example 2: The Trivial Simple-Update Algorithm
-The trivial SU algorithm, is equivalent to the SU algorithm without the ITE and truncation steps; it only consists of consecutive SVD steps on each edge (the same as contracting ITE gate with zero time-step), and its fixed point corresponds to a canonical representation of the Tensor Network we started with. A Tensor Network canonical representation is directly connected to the Schmidt Decomposition where for Tensor Networks with no loops (tree like topology) each weight vector in the canonical representation corresponds to the Schmidt values of partitioning the network into two distinct networks along that edge. When the Tensor Network has loops, it is no longer possible to partition the network along a single edge. Therefore, the weight vecors become some general approximation of the tensors environments.
+The trivial SU algorithm is equivalent to the SU algorithm without the ITE and truncation steps; it only consists of consecutive SVD steps on each edge (the same as contracting ITE gate with zero time-step), and its fixed point corresponds to a canonical representation of the Tensor Network we started with. A Tensor Network canonical representation is directly connected to the Schmidt Decomposition where for Tensor Networks with no loops (tree-like topology) each weight vector in the canonical representation corresponds to the Schmidt values of partitioning the network into two distinct networks along that edge. When the Tensor Network has loops, it is no longer possible to partition the network along a single edge. Therefore, the weight vectors become some general approximation of the tensors environments in the network. A very interesting property of the trivial simple update algorithm is that it is identical to the [Belief Propagation (BP)](https://en.wikipedia.org/wiki/Belief_propagation) algorithm which is a very famous algorithm in the world of Probabilistic Graphical Models (PGM) where it is used for solving inference problems. For a full description about the duality of the two algorithms see [3].
+
+In order to implement the trivial-SU algorithm we can initialize the simple update class with zero time step as follows
+```python
+su.SimpleUpdate(tensor_network=tensornet, 
+                dts=[0], 
+                j_ij=j_ij, 
+                h_k=0, 
+                s_i=s, 
+                s_j=s, 
+                s_k=s_k, 
+                d_max=d_max, 
+                max_iterations=1000, 
+                convergence_error=1e-6, 
+                log_energy=False,
+                print_process=False)
+```
+then the algorithm will run 1000 iteration or until the averaged L2 norm between consecutive weight vectors will be smaller then 1e-6.
+
 
 There are more fully-written examples in the [`notebooks`](/notebooks) folder.
 
