@@ -3,8 +3,11 @@ This repo contains an implementation of the Simple-Update Tensor Network algorit
 
 arXiv link to the paper - [A universal tensor network algorithm for any infinite lattice](https://arxiv.org/abs/1808.00680)
 
-Simple Update (SU) is a Tensor Networks algorithm used for finding ground-state Tensor Network representations of gapped local Hamiltonians. It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. The algorithm is using an imaginary time evolution scheme, where
+Simple Update (SU) is a Tensor Networks algorithm used for finding ground-state Tensor Network representations of gapped local Hamiltonians. It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. The algorithm is based on an imaginary time evolution scheme, where the ground-state of a given Hamiltonian can be computed using the next relation
 
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/ecb7aaf79fadf3fcb1a95a01d8866a740ab97797/assets/imaginary_time_evolution_ground_state.png" width="" height="80">
+
+Then, in order to actually use the time evolution method in Tensor Networks we need to break down the time evolution operator into local terms. We do that using the [Suzuki-Trotter expansion](https://en.wikipedia.org/wiki/Time-evolving_block_decimation#The_Suzuki%E2%80%93Trotter_expansion) Specifically for Projected Entangled Pair States (PEPS) Tensor Networks, each local term is performed on a single pair of tensors. 
 
 
 Here is a full step-by-step illustrated description of the algorithm. 
