@@ -1,11 +1,13 @@
 # Tensor Networks Simple-Update
 This repo contains an implementation of the Simple-Update Tensor Network algorithm as described in the paper - A universal tensor network algorithm for any infinite lattice by  Saeed S. Jahromi and Roman Orus.
 
-DOI:	10.1103/PhysRevB.99.195105
+arXiv link to the paper - [A universal tensor network algorithm for any infinite lattice](https://arxiv.org/abs/1808.00680)
 
-arXiv link to paper - [A universal tensor network algorithm for any infinite lattice](https://arxiv.org/abs/1808.00680)
+Simple Update (SU) is a Tensor Networks algorithm used for finding ground-state Tensor Network representations of gapped local Hamiltonians. It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. The algorithm is using an imaginary time evolution scheme, where
 
-Simple Update (SU) is a Tensor Networks algorithm which is used for finding ground-state Tensor Network representations of gapped local Hamiltonians. It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. Here is a full step-by-step illustrated description of the algorithm. 
+
+
+Here is a full step-by-step illustrated description of the algorithm. 
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/00890625f92dea318d2af588de48ba7d7a660fad/assets/simple_update_algorithm.png" width="1000" height="">
 
