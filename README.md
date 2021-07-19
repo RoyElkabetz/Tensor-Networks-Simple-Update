@@ -48,26 +48,43 @@ smat = stmg.infinite_structure_matrix_by_name('star')
 
 Initialize a random Tensor Network with virtual bond dimension of size 2 and physical spin dimension also of size 2
 ```python
-tri_tn = TensorNetwork(structure_matrix=smat, virtual_size=2, spin_dim=2)
+tensornet = TensorNetwork(structure_matrix=smat, virtual_size=2, spin_dim=2)
 ```
 
 Then, set the spin 1/2 operators and the simple update class parameters 
 ```python
+# pauli matrices
 pauli_x = np.array([[0, 1],
-                     [1, 0]])
+                    [1, 0]])
 pauli_y = np.array([[0, -1j],
-                     [1j, 0]])
-pauli_z = np.array([[1, 0],
-                     [0, -1]])
+                    [1j, 0]])
+pauli_z = np.array([[1., 0],
+                    [0, -1]])
+# su parameters                    
 dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
+s = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
+j_ij = [1., 1., 1., 1., 1., 1.]
 h_k = 0.
-s_i = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
-s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
-s_k = [pauli_x / 2.]
+s_k = []
 d_max = 2
 ```
 
-
+Initialize the simple update class
+```python
+star_su = su.SimpleUpdate(tensor_network=tensornet, 
+                          dts=dts, 
+                          j_ij=j_ij, 
+                          h_k=0, 
+                          s_i=s, 
+                          s_j=s, 
+                          s_k=s_k, 
+                          d_max=d_max, 
+                          max_iterations=200, 
+                          convergence_error=1e-6, 
+                          log_energy=False,
+                          print_process=False,
+                          )
+```
 
 ### List of Notebooks
 
