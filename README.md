@@ -1,17 +1,22 @@
-# Tensor Networks Simple-Update
+# Tensor Networks Simple-Update (SU) Algorithm
 > This repo contains an implementation of the Simple-Update Tensor Network algorithm as described in the paper - A universal tensor network algorithm for any infinite lattice by  Saeed S. Jahromi and Roman Orus.
-arXiv link to the paper - [A universal tensor network algorithm for any infinite lattice](https://arxiv.org/abs/1808.00680)
 
-Simple Update (SU) is a Tensor Networks algorithm used for finding ground-state Tensor Network representations of gapped local Hamiltonians. It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. The algorithm is based on an imaginary time evolution scheme, where the ground-state of a given Hamiltonian can be computed using the next relation
+> arXiv link to the paper - [A universal tensor network algorithm for any infinite lattice](https://arxiv.org/abs/1808.00680)
+
+## Simple Update
+Simple Update (SU) is a Tensor Networks algorithm used for finding ground-state Tensor Network representations of [gapped local Hamiltonians](https://en.wikipedia.org/wiki/Gapped_Hamiltonian). It is the most efficient and the least accurate Tensor Networks algorithm. However, it is able to capture many interesting non-trivial phenomena in nD quantum spin-lattice physics. The algorithm is based on an Imaginary Time-Evolution (ITE) scheme, where the ground-state of a given Hamiltonian can be obtained following the next relation
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/ecb7aaf79fadf3fcb1a95a01d8866a740ab97797/assets/imaginary_time_evolution_ground_state.png" width="300" height="">
 
-Then, in order to actually use the time evolution method in Tensor Networks we need to break down the time evolution operator into local terms. We do that using the [Suzuki-Trotter expansion](https://en.wikipedia.org/wiki/Time-evolving_block_decimation#The_Suzuki%E2%80%93Trotter_expansion). Specifically for Projected Entangled Pair States (PEPS) Tensor Networks, each local term is operating on a single pair of tensors. The approximation of breaking the time evolution operator is as follows
+In order to actually use the time-evolution method in Tensor Networks we need to break down the time-evolution operator into local terms. We do that with the [Suzuki-Trotter expansion](https://en.wikipedia.org/wiki/Time-evolving_block_decimation#The_Suzuki%E2%80%93Trotter_expansion). Specifically for Projected Entangled Pair States (PEPS) Tensor Networks, each local term will be operating on a single pair of tensors. The Suzuki-Trotter approximation steps of breaking the time evolution operator is as follows
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/75243644b7df135e982fef5cb977f477ef10946c/assets/imaginary_time_evolution_operator.png" width="300" height="">
 
+where finally
 
-Here is a full step-by-step illustrated description of the algorithm. 
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/4b0b3dde85654d82c69542a49f1e86c156d4c140/assets/ITE_local_gate.png" width="300" height="">
+
+When performing the ITE scheme, the Tensor Network virtual bond dimension increases, therefore after every few time steps we need to truncate it so the number of parameters in the tensor network state would stay bounded. This truncation step is implemented via a [Singular Value Decomposition (SVD)](https://en.wikipedia.org/wiki/Singular_value_decomposition) step. A full step-by-step illustrated description of the algorithm is depicted below. 
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/00890625f92dea318d2af588de48ba7d7a660fad/assets/simple_update_algorithm.png" width="1000" height="">
 
