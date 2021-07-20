@@ -1,7 +1,14 @@
+"""
+This module contains functions for structure matrix generation. Still in progress, may have some bugs !
+"""
+
 import numpy as np
 
 
 def infinite_structure_matrix_by_name(name: str):
+    """
+    A dictionary of iPEPS structure matrices as written in the paper "A universal tensor network algorithm for any infinite lattice".
+    """
     structure_matrix = {'chain': np.array([[1, 2],
                                            [1, 2]]),
 
@@ -40,6 +47,11 @@ def infinite_structure_matrix_by_name(name: str):
 
 
 def peps_square_periodic_boundary_conditions(side: np.int):
+    """
+    returns a structure matrix of a square lattice tensor network with periodic boundary conditions of shape (side, side).
+    The total nmber of tensors in the network would be side^2.
+    : param side The hight and width values.
+    """
     n_tensors = np.int(np.square(side))
     structure_matrix = np.zeros((n_tensors, 2 * n_tensors), dtype=np.int)
     for i in range(n_tensors):
@@ -56,7 +68,13 @@ def peps_square_periodic_boundary_conditions(side: np.int):
     return structure_matrix
 
 
-def peps_rectangular_open_boundary_conditions(height, width):
+def peps_rectangular_open_boundary_conditions(height: np.int, width: np.int):
+    """
+    returns a structure matrix of a rectangular lattice tensor network with open (non-periodic) boundary conditions of shape  (height x width).
+    The total nmber of tensors in the network would be hight x width.
+    : param hight The hight of the tensor network.
+    : param width The width of the tensor network.
+    """
     # edge = (node_a i, node_a j, node_a l, node_b i, node_b j, node_b l)
     edge_list = []
     for i in range(height):
