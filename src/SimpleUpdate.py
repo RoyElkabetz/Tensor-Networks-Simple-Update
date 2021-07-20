@@ -9,7 +9,7 @@ from TensorNetwork import TensorNetwork
 class SimpleUpdate:
     """
     This class is an implementation of the well known Tensor Network algorithm Simple Update. This implementation
-    follows the steps from the paper:
+    follows the steps as described the paper:
      "Universal tensor-network algorithm for any infinite lattice (2019)" - Jahromi Saeed and Orus Roman
     DOI:	10.1103/PhysRevB.99.195105
     """
@@ -21,20 +21,21 @@ class SimpleUpdate:
         The default Hamiltonian implement in this algorithm is (in pseudo Latex)
                             H = J_ij \sum_{<i,j>} S_i \cdot S_j + h_k \sum_{k} S_k
         :param tensor_network:  A TensorNetwork class object (see TensorNetwork.py)
-        :param j_ij:    A list of interaction coefficients of tensor pairs
+        :param j_ij:    A list of interaction coefficients of tensor pairs. The j_ij indices corfresponds to the indices of the TensorNetwork.weights list.
         :param h_k:     The "field" constant coefficient
-        :param s_i:     A list of the i spin operators for spin pair interaction
-        :param s_j:     A list of the j spin operators for spin pair interaction
-        :param s_k:     A list of the i spin operators for the Hamiltonian's field term
-        :param d_max:   The maximal virtual bond dimension allowed in the simulation
-        :param dts:      List of time steps for the time evolution (if complex) or imaginary time evolution (if real)
-        :param max_iterations:  The maximal number of iteration performed with each time step dt
-        :param convergence_error:  The error between time consecutive weight lists at which the iterative process halts.
+        :param s_i:     A list of the i spin operators for spin pair interaction. s_i[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
+        :param s_j:     A list of the j spin operators for spin pair interaction. s_j[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
+        :param s_k:     A list of the i spin operators for the Hamiltonian's field term. s_k[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
+        :param d_max:   The maximal virtual bond dimension allowed in the simulation. Used in the truncation step after time-evolution.
+        :param dts:      List of time steps for the imaginary time evolution (if real) or real time evolution (if complex)
+        :param max_iterations:  The maximal number of iteration performed with each time step dts[n]
+        :param convergence_error:  The error between time consecutive weight vector lists at which the iterative process halts.
         :param log_energy:  compute and save the energy per site value along the iterative process.
         :param print_process:  boolean for printing the parameters along iterations
-        :param hamiltonian:  np.array. If not None, this would be the computed hamiltonian on all edges
-
+        :param hamiltonian:  np.array. If not None, the class will ignore the j_ij, s_i, s_j, h_k, s_k variables and self.hamiltonian would be the 
+        computed hamiltonian on all edges. hamiltonian.shape = (TensorNetwork.spin_dim ** 2, TensorNetwork.spin_dim ** 2)
         """
+        
         self.tensors = tensor_network.tensors
         self.weights = tensor_network.weights
         self.structure_matrix = tensor_network.structure_matrix
@@ -365,6 +366,9 @@ class SimpleUpdate:
         return np.einsum(rdm, [0, 1, 2, 3], operator, [0, 1, 2, 3])
 
     def energy_per_site(self):
+        """
+        returns the averged energy per-site of the given Tensor Network.
+        """
         energy = 0
         i_spin_dim = self.s_i[0].shape[0]
         j_spin_dim = self.s_j[0].shape[0]
@@ -381,6 +385,10 @@ class SimpleUpdate:
         return np.real(energy)
 
     def pair_expectation_per_site(self, operator):
+        """
+        returns the averged per-site expectation value of the tensor-pair operator parameter.
+        :param operator An np.array of shape (TensorNetwork.spin_dim, TensorNetwork.spin_dim, TensorNetwork.spin_dim, TensorNetwork.spin_dim) 
+        """
         expectation = 0
         for ek, _ in enumerate(self.weights):
             expectation += self.tensor_pair_expectation(ek, operator)
@@ -388,6 +396,10 @@ class SimpleUpdate:
         return np.real(expectation)
 
     def expectation_per_site(self, operator):
+        """
+        returns the averged per-site expectation value of the operator parameter.
+        :param operator An np.array of shape (TensorNetwork.spin_dim, TensorNetwork.spin_dim) 
+        """
         expectaion = 0
         for tensor_idx, _ in enumerate(self.tensors):
             expectaion += self.tensor_expectation(tensor_idx, operator)
