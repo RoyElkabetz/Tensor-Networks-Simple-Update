@@ -51,7 +51,15 @@ class SimpleUpdate:
         self.convergence_error = convergence_error
         self.dt = 0.1
         self.old_weights = None
-        self.logger = {'error': [], 'dt': [], 'iteration': [], 'energy': []}
+        self.logger = {'error': [],
+                       'dt': [],
+                       'iteration': [],
+                       'energy': [],
+                       'j_ij': j_ij,
+                       'h_k': h_k,
+                       'd_max': d_max,
+                       'max_iterations': max_iterations,
+                       'convergence_error': convergence_error}
         self.log_energy = log_energy
         self.print_process = print_process
         self.converged = False
