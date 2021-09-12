@@ -1,8 +1,11 @@
+import sys
+sys.path.insert(1, "/Users/royelkabetz/Git/Tensor-Networks-Simple-Update/src")
+
 import numpy as np
 import matplotlib.pyplot as plt
-from src.TensorNetwork import TensorNetwork
-import src.SimpleUpdate as su
-import src.structure_matrix_generator as smg
+from TensorNetwork import TensorNetwork
+import SimpleUpdate as su
+import structure_matrix_generator as smg
 
 
 np.random.seed(216)

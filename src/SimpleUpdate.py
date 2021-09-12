@@ -1,9 +1,9 @@
 import numpy as np
 import copy as cp
 import time
-import src.ncon as ncon
+import ncon as ncon
 from scipy import linalg
-from src.TensorNetwork import TensorNetwork
+from TensorNetwork import TensorNetwork
 
 
 class SimpleUpdate:
