@@ -1,2 +1,2 @@
-new/
+# ignore the tmp folder which is used for saving networks
 tmp/
