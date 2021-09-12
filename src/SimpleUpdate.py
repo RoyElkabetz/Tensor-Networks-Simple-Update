@@ -1,9 +1,9 @@
 import numpy as np
 import copy as cp
 import time
-import ncon
+import src.ncon as ncon
 from scipy import linalg
-from TensorNetwork import TensorNetwork
+from src.TensorNetwork import TensorNetwork
 
 
 class SimpleUpdate:
@@ -35,10 +35,11 @@ class SimpleUpdate:
         :param hamiltonian:  np.array. If not None, the class will ignore the j_ij, s_i, s_j, h_k, s_k variables and self.hamiltonian would be the 
         computed hamiltonian on all edges. hamiltonian.shape = (TensorNetwork.spin_dim ** 2, TensorNetwork.spin_dim ** 2)
         """
-        
+
         self.tensors = tensor_network.tensors
         self.weights = tensor_network.weights
         self.structure_matrix = tensor_network.structure_matrix
+        self.tensor_network = tensor_network
         self.j_ij = j_ij
         self.s_i = s_i
         self.s_j = s_j
@@ -58,14 +59,14 @@ class SimpleUpdate:
 
     def run(self):
         self.simple_update()
-        error = None
+        error = np.inf
         for dt in self.dts:
             start_time = time.time()
             self.dt = dt
             for i in range(self.max_iterations):
                 self.old_weights = cp.deepcopy(self.weights)
                 self.simple_update()
-                if i % 20 == 0 and i > 0:
+                if i % 2 == 0 and i > 0:
                     error = self.check_convergence()
                     elapsed = time.time() - start_time
                     self.logger['error'].append(error)
@@ -75,19 +76,21 @@ class SimpleUpdate:
                         energy = self.energy_per_site()
                         self.logger['energy'].append(energy)
                         if self.print_process:
-                            print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
-                                  '| energy per-site {:4.6} | time {:4.2} sec'.format(dt, i, self.max_iterations, error,
-                                                                                      energy, elapsed))
+                            print('| dt {:2.6f} | {:5d}/{:5d} iteration | convergence error {:3.10f} '
+                                  '| energy per-site {:4.10} | time {:4.2} sec'.format(dt, i, self.max_iterations, error,
+                                                                                      np.round(energy, 10), elapsed))
                     else:
                         if self.print_process:
-                            print('| dt {:2.6f} | {:5d}/{:5d} iteration | averaged error {:3.10f} '
+                            print('| dt {:2.6f} | {:5d}/{:5d} iteration | convergence error {:3.10f} '
                                   '| time {:4.2} sec'.format(dt, i, self.max_iterations, error, elapsed))
                     start_time = time.time()
                     if error <= self.convergence_error and dt == self.dts[-1]:
                         self.converged = True
+                        self.tensor_network.su_logger = self.logger
                         return
                     if error <= self.convergence_error:
                         break
+        self.tensor_network.su_logger = self.logger
         print('Simple Update did not converged. final error is {:4.10f}'.format(error))
 
     def check_convergence(self):
@@ -210,6 +213,14 @@ class SimpleUpdate:
         dims = edges_dims['dims']
         for i, edge in enumerate(edges):
             tensor = np.einsum(tensor, np.arange(len(tensor.shape)), self.weights[edge], [dims[i]],
+                               np.arange(len(tensor.shape)))
+        return tensor
+
+    def absorb_sqrt_weights(self, tensor, edges_dims):
+        edges = edges_dims['edges']
+        dims = edges_dims['dims']
+        for i, edge in enumerate(edges):
+            tensor = np.einsum(tensor, np.arange(len(tensor.shape)), np.sqrt(self.weights[edge]), [dims[i]],
                                np.arange(len(tensor.shape)))
         return tensor
 
@@ -400,7 +411,18 @@ class SimpleUpdate:
         returns the averged per-site expectation value of the operator parameter.
         :param operator An np.array of shape (TensorNetwork.spin_dim, TensorNetwork.spin_dim) 
         """
-        expectaion = 0
+        expectation = 0
         for tensor_idx, _ in enumerate(self.tensors):
-            expectaion += self.tensor_expectation(tensor_idx, operator)
-        return np.real(expectaion) / len(self.tensors)
+            expectation += self.tensor_expectation(tensor_idx, operator)
+        return np.real(expectation) / len(self.tensors)
+
+    def absorb_all_weights(self):
+        n, m = self.structure_matrix.shape
+        for tensor_idx in range(n):
+            tensor = self.tensors[tensor_idx]
+            edges_dims = self.get_edges(tensor_idx=tensor_idx)
+            tensor = self.absorb_sqrt_weights(tensor=tensor, edges_dims=edges_dims)
+            self.tensors[tensor_idx] = tensor
+
+
+
