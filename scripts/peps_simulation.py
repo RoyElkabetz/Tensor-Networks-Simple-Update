@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, "src")
+sys.path.insert(1, "../src")
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -54,34 +54,35 @@ h_k = 0.
 
 energies = []
 
-
-
-# Run
+# Run Simple Update
 for d_max in d_max_:
-    filename = 'AFH_' + str(n) + 'x' + str(n) + '_obc_' + 'D_' + str(d_max)
-    AFH_TN = TensorNetwork(structure_matrix=structure_matrix, virtual_dim=2)
+    # create Tensor Network name for saving
+    network_name = 'AFH_' + str(n) + 'x' + str(n) + '_obc_' + 'D_' + str(d_max)
+
+    # create the Tensor Network object
+    AFH_TN = TensorNetwork(structure_matrix=structure_matrix, virtual_dim=2, network_name=network_name)
+
+    # create the Simple Update environment
     AFH_TN_su = su.SimpleUpdate(tensor_network=AFH_TN,
-                                 dts=dts,
-                                 j_ij=j_ij,
-                                 h_k=h_k,
-                                 s_i=s_i,
-                                 s_j=s_j,
-                                 s_k=s_k,
-                                 d_max=d_max,
-                                 max_iterations=max_iterations,
-                                 convergence_error=error,
-                                 log_energy=True,
-                                 print_process=True)
+                                dts=dts,
+                                j_ij=j_ij,
+                                h_k=h_k,
+                                s_i=s_i,
+                                s_j=s_j,
+                                s_k=s_k,
+                                d_max=d_max,
+                                max_iterations=max_iterations,
+                                convergence_error=error,
+                                log_energy=True,
+                                print_process=True)
+
+    # run Simple Update algorithm over the Tensor Network state
     AFH_TN_su.run()
+
+    # compute the energy per-site observable
     energy = AFH_TN_su.energy_per_site()
     print(f'| D max: {d_max} | Energy: {energy}\n')
     energies.append(energy)
 
-    # absorb all weight vectors into tensors
-    AFH_TN_su.absorb_all_weights()
-
     # save the tensor network
-    AFH_TN.save_network(filename=filename)
-
-# load the tensor network
-# AFH_TN = TensorNetwork(load_network=True, network_name='AFH_6x6_obc_d_4')
+    AFH_TN.save_network()

@@ -6,7 +6,7 @@ from os.path import join
 class TensorNetwork:
     """A Tensor-Network object. Used in the field of Quantum Information and Quantum Computation"""
     def __init__(self, structure_matrix: np.array = None, tensors: list = None, weights: list = None,
-                 spin_dim: np.int = 2, virtual_dim: np.int = 3, path='tmp/networks', load_network=False,
+                 spin_dim: np.int = 2, virtual_dim: np.int = 3, dir_path='tmp/networks', load_network=False,
                  network_name=None):
         """
         :param structure_matrix: A 2D numpy array of integers > 0, corresponds to the interconnection between the tensor
@@ -21,13 +21,13 @@ class TensorNetwork:
         random tensors.
         :param virtual_dim: Relevant only if tensors==None and weights==None. Then, virtual_dim is the size of all
         the generated weights.
-        :param path: dictionary path for loading and saving networks
+        :param dir_path: dictionary path for loading and saving networks
         :param load_network: if True, load a network from path/network_name
         :param network_name: name of network to load (only in load_network == True)
         """
         if load_network and network_name is not None:
             self.network_name = network_name
-            self.path = path
+            self.dir_path = dir_path
             self.load_network()
         else:
             assert structure_matrix is not None, 'You should give a structure matrix as an argument input.'
@@ -114,7 +114,7 @@ class TensorNetwork:
             self.tensors = tensors
             self.weights = weights
             self.structure_matrix = structure_matrix
-            self.path = path
+            self.dir_path = dir_path
             self.network_name = network_name
             self.su_logger = None
             self.state_dict = None
@@ -124,7 +124,7 @@ class TensorNetwork:
             'tensors': self.tensors,
             'weights': self.weights,
             'structure_matrix': self.structure_matrix,
-            'path': self.path,
+            'path': self.dir_path,
             'spin_dim': self.spin_dim,
             'virtual_size': self.virtual_dim,
             'network_name': self.network_name,
@@ -135,7 +135,7 @@ class TensorNetwork:
         self.tensors = self.state_dict['tensors']
         self.weights = self.state_dict['weights']
         self.structure_matrix = self.state_dict['structure_matrix']
-        self.path = self.state_dict['path']
+        self.dir_path = self.state_dict['path']
         self.spin_dim = self.state_dict['spin_dim']
         self.virtual_dim = self.state_dict['virtual_size']
         self.network_name = self.state_dict['network_name']
@@ -146,11 +146,11 @@ class TensorNetwork:
         self.create_state_dict()
         if self.network_name is None:
             self.network_name = filename
-        with open(join(self.path, self.network_name + '.pkl'), 'wb') as outfile:
+        with open(join(self.dir_path, self.network_name + '.pkl'), 'wb') as outfile:
             pickle.dump(self.state_dict, outfile, pickle.DEFAULT_PROTOCOL)
 
     def load_network(self):
         print('loading network...')
-        with open(join(self.path, self.network_name + '.pkl'), 'rb') as infile:
+        with open(join(self.dir_path, self.network_name + '.pkl'), 'rb') as infile:
             self.state_dict = pickle.load(infile)
             self.unpack_state_dict()
