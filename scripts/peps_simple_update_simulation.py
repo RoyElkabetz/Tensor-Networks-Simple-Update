@@ -60,7 +60,10 @@ for d_max in d_max_:
     network_name = 'AFH_' + str(n) + 'x' + str(n) + '_obc_' + 'D_' + str(d_max)
 
     # create the Tensor Network object
-    AFH_TN = TensorNetwork(structure_matrix=structure_matrix, virtual_dim=2, network_name=network_name)
+    AFH_TN = TensorNetwork(structure_matrix=structure_matrix,
+                           virtual_dim=2,
+                           network_name=network_name,
+                           dir_path='../tmp/networks')
 
     # create the Simple Update environment
     AFH_TN_su = su.SimpleUpdate(tensor_network=AFH_TN,

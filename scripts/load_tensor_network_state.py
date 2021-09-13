@@ -29,4 +29,4 @@ s_k = [pauli_x / 2.]
 # set Simple Update algorithm environment
 AFH_TN_su = su.SimpleUpdate(tensor_network=AFH_TN, dts=[], j_ij=j_ij, h_k=0., s_i=s_i, s_j=s_j, s_k=s_k)
 energy = AFH_TN_su.energy_per_site()
-print(f'The energy per-site is: {energy}')
+print(f'The Tensor Network energy per-site (according to the AFH Hamiltonian) is: {energy}')
