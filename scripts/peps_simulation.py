@@ -44,7 +44,7 @@ d_max_ = [4]
 error = 1e-7
 
 # maximal number of SU iterations
-max_iterations = 20
+max_iterations = 30
 
 # time intervals for the ITE
 dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
@@ -55,8 +55,10 @@ h_k = 0.
 energies = []
 
 
+
 # Run
 for d_max in d_max_:
+    filename = 'AFH_' + str(n) + 'x' + str(n) + '_obc_' + 'D_' + str(d_max)
     AFH_TN = TensorNetwork(structure_matrix=structure_matrix, virtual_dim=2)
     AFH_TN_su = su.SimpleUpdate(tensor_network=AFH_TN,
                                  dts=dts,
@@ -75,11 +77,11 @@ for d_max in d_max_:
     print(f'| D max: {d_max} | Energy: {energy}\n')
     energies.append(energy)
 
-# absorb all weight vectors into tensors
-AFH_TN_su.absorb_all_weights()
+    # absorb all weight vectors into tensors
+    AFH_TN_su.absorb_all_weights()
 
-# save the tensor network
-AFH_TN.save_network('AFH_6x6_obc_d_4')
+    # save the tensor network
+    AFH_TN.save_network(filename=filename)
 
 # load the tensor network
 # AFH_TN = TensorNetwork(load_network=True, network_name='AFH_6x6_obc_d_4')
