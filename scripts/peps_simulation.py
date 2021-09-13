@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, "/Users/royelkabetz/Git/Tensor-Networks-Simple-Update/src")
+sys.path.insert(1, "src")
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,8 +14,8 @@ plt.rcParams.update({'font.size': 16,
                      "figure.facecolor": 'white',
                      "axes.facecolor": 'white',
                      "savefig.facecolor": 'white',
-                     'savefig.edgecolor' : 'white',
-                     'figure.edgecolor' : 'white'})
+                     'savefig.edgecolor': 'white',
+                     'figure.edgecolor': 'white'})
 
 
 # Pauli matrices
@@ -30,21 +30,21 @@ s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
 s_k = [pauli_x / 2.]
 
 # The Tensor Network structure matrix
-n = 4
+n = 12
 structure_matrix = smg.peps_rectangular_open_boundary_conditions(n, n)
 print(f'There are {structure_matrix.shape[1]} edges, and {structure_matrix.shape[0]} tensors')
 
-# generate uniformly random Jij (interaction-weights) sampled from (-0.5, 0.5)
-j_ij = np.random.random(structure_matrix.shape[1]) - 0.5
+# AFH Hamiltonian interaction parameters
+j_ij = [1.] * structure_matrix.shape[1]
 
 # maximal bond dimension
-d_max_ = [2]
+d_max_ = [4]
 
 # convergence error between consecutive lambda weights vectors
-error = 1e-6
+error = 1e-7
 
 # maximal number of SU iterations
-max_iterations = 10
+max_iterations = 20
 
 # time intervals for the ITE
 dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
@@ -57,29 +57,29 @@ energies = []
 
 # Run
 for d_max in d_max_:
-    random_peps = TensorNetwork(structure_matrix=structure_matrix, virtual_dim=2)
-    random_peps_su = su.SimpleUpdate(tensor_network=random_peps,
-                                     dts=dts,
-                                     j_ij=j_ij,
-                                     h_k=h_k,
-                                     s_i=s_i,
-                                     s_j=s_j,
-                                     s_k=s_k,
-                                     d_max=d_max,
-                                     max_iterations=max_iterations,
-                                     convergence_error=error,
-                                     log_energy=True,
-                                     print_process=True)
-    random_peps_su.run()
-    energy = random_peps_su.energy_per_site()
+    AFH_TN = TensorNetwork(structure_matrix=structure_matrix, virtual_dim=2)
+    AFH_TN_su = su.SimpleUpdate(tensor_network=AFH_TN,
+                                 dts=dts,
+                                 j_ij=j_ij,
+                                 h_k=h_k,
+                                 s_i=s_i,
+                                 s_j=s_j,
+                                 s_k=s_k,
+                                 d_max=d_max,
+                                 max_iterations=max_iterations,
+                                 convergence_error=error,
+                                 log_energy=True,
+                                 print_process=True)
+    AFH_TN_su.run()
+    energy = AFH_TN_su.energy_per_site()
     print(f'| D max: {d_max} | Energy: {energy}\n')
     energies.append(energy)
 
 # absorb all weight vectors into tensors
-random_peps_su.absorb_all_weights()
+AFH_TN_su.absorb_all_weights()
 
 # save the tensor network
-random_peps.save_network('random_peps1')
+AFH_TN.save_network('AFH_6x6_obc_d_4')
 
 # load the tensor network
-# random_peps1 = TensorNetwork(load_network=True, network_name='random_peps1')
+# AFH_TN = TensorNetwork(load_network=True, network_name='AFH_6x6_obc_d_4')

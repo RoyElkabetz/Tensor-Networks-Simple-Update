@@ -68,6 +68,7 @@ class SimpleUpdate:
     def run(self):
         self.simple_update()
         error = np.inf
+        total_time = 0
         for dt in self.dts:
             start_time = time.time()
             self.dt = dt
@@ -77,6 +78,7 @@ class SimpleUpdate:
                 if i % 2 == 0 and i > 0:
                     error = self.check_convergence()
                     elapsed = time.time() - start_time
+                    total_time += elapsed
                     self.logger['error'].append(error)
                     self.logger['dt'].append(dt)
                     self.logger['iteration'].append(i)
@@ -84,13 +86,18 @@ class SimpleUpdate:
                         energy = self.energy_per_site()
                         self.logger['energy'].append(energy)
                         if self.print_process:
-                            print('| dt {:2.6f} | {:5d}/{:5d} iteration | convergence error {:3.10f} '
-                                  '| energy per-site {:4.10} | time {:4.2} sec'.format(dt, i, self.max_iterations, error,
-                                                                                      np.round(energy, 10), elapsed))
+                            print('| D max: {:3d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
+                                  '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.0f} sec | total time '
+                                  '{:7.2f} min' .format(self.d_max, dt, i, self.max_iterations, error,
+                                                       np.round(energy, 10), elapsed, total_time // 60 +
+                                                       (total_time % 60) / 60))
                     else:
                         if self.print_process:
-                            print('| dt {:2.6f} | {:5d}/{:5d} iteration | convergence error {:3.10f} '
-                                  '| time {:4.2} sec'.format(dt, i, self.max_iterations, error, elapsed))
+                            print('| D max: {:3d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
+                                  '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.0f} sec | total time '
+                                  '{:7.2f} min'.format(self.d_max, dt, i, self.max_iterations, error,
+                                                      np.round(energy, 10), elapsed, total_time // 60 +
+                                                      (total_time % 60) / 60))
                     start_time = time.time()
                     if error <= self.convergence_error and dt == self.dts[-1]:
                         self.converged = True
@@ -425,6 +432,10 @@ class SimpleUpdate:
         return np.real(expectation) / len(self.tensors)
 
     def absorb_all_weights(self):
+        """
+        absorb the Tensor Network all lambda weights into their neighboring tensors.
+        :param None
+        """
         n, m = self.structure_matrix.shape
         for tensor_idx in range(n):
             tensor = self.tensors[tensor_idx]
