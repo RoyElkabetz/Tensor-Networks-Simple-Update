@@ -10,14 +10,6 @@ import structure_matrix_generator as smg
 
 np.random.seed(216)
 
-plt.rcParams.update({'font.size': 16,
-                     "figure.facecolor": 'white',
-                     "axes.facecolor": 'white',
-                     "savefig.facecolor": 'white',
-                     'savefig.edgecolor': 'white',
-                     'figure.edgecolor': 'white'})
-
-
 # Pauli matrices
 pauli_x = np.array([[0, 1],
                     [1, 0]])
@@ -30,7 +22,7 @@ s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
 s_k = [pauli_x / 2.]
 
 # The Tensor Network structure matrix
-n = 12
+n = 4
 structure_matrix = smg.peps_rectangular_open_boundary_conditions(n, n)
 print(f'There are {structure_matrix.shape[1]} edges, and {structure_matrix.shape[0]} tensors')
 
@@ -41,10 +33,10 @@ j_ij = [1.] * structure_matrix.shape[1]
 d_max_ = [4]
 
 # convergence error between consecutive lambda weights vectors
-error = 1e-7
+error = 1e-8
 
 # maximal number of SU iterations
-max_iterations = 30
+max_iterations = 200
 
 # time intervals for the ITE
 dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
@@ -86,6 +78,9 @@ for d_max in d_max_:
     energy = AFH_TN_su.energy_per_site()
     print(f'| D max: {d_max} | Energy: {energy}\n')
     energies.append(energy)
+
+    # plot su convergence / energy curve
+    AFH_TN_su.plot_convergence_curve()
 
     # save the tensor network
     AFH_TN.save_network()

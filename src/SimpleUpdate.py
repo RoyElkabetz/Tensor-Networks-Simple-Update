@@ -1,8 +1,10 @@
 import numpy as np
 import copy as cp
+import matplotlib.pyplot as plt
 import time
 import ncon as ncon
 from scipy import linalg
+from os.path import join
 from TensorNetwork import TensorNetwork
 
 
@@ -69,10 +71,12 @@ class SimpleUpdate:
         self.simple_update()
         error = np.inf
         total_time = 0
+        su_step = 0
         for dt in self.dts:
             start_time = time.time()
             self.dt = dt
             for i in range(self.max_iterations):
+                su_step += 1
                 self.old_weights = cp.deepcopy(self.weights)
                 self.simple_update()
                 if i % 2 == 0 and i > 0:
@@ -81,20 +85,20 @@ class SimpleUpdate:
                     total_time += elapsed
                     self.logger['error'].append(error)
                     self.logger['dt'].append(dt)
-                    self.logger['iteration'].append(i)
+                    self.logger['iteration'].append(su_step)
                     if self.log_energy:
                         energy = self.energy_per_site()
                         self.logger['energy'].append(energy)
                         if self.print_process:
                             print('| D max: {:3d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
-                                  '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.0f} sec | total time '
+                                  '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | total time '
                                   '{:7.2f} min' .format(self.d_max, dt, i, self.max_iterations, error,
                                                        np.round(energy, 10), elapsed, total_time // 60 +
                                                        (total_time % 60) / 60))
                     else:
                         if self.print_process:
                             print('| D max: {:3d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
-                                  '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.0f} sec | total time '
+                                  '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | total time '
                                   '{:7.2f} min'.format(self.d_max, dt, i, self.max_iterations, error,
                                                       np.round(energy, 10), elapsed, total_time // 60 +
                                                       (total_time % 60) / 60))
@@ -442,6 +446,51 @@ class SimpleUpdate:
             edges_dims = self.get_edges(tensor_idx=tensor_idx)
             tensor = self.absorb_sqrt_weights(tensor=tensor, edges_dims=edges_dims)
             self.tensors[tensor_idx] = tensor
+
+    def plot_convergence_curve(self, figname='su_simulation_plot'):
+        #plt.rcParams.update({'font.size': 12})
+
+        error = self.logger['error']
+        energy = self.logger['energy']
+        dt = self.logger['dt']
+        iteration = self.logger['iteration']
+
+        fig = plt.figure()
+        ax = fig.add_subplot(211, label='1')
+        ax2 = fig.add_subplot(211, label='2', frame_on=False)
+        ax3 = fig.add_subplot(212)
+
+        if self.tensor_network.network_name is not None:
+            ax.set_title(self.tensor_network.network_name)
+        ax.plot(iteration, error, color='C0')
+        ax.set_yscale('log')
+        ax.set_xlabel('Iteration', color='C0')
+        ax.set_ylabel('Convergence error', color='C0')
+        ax.tick_params(axis='x', color='C0')
+        ax.tick_params(axis='y', color='C0')
+
+        ax2.plot(iteration, energy, color='C1')
+        ax2.axes.get_xaxis().set_visible(False)
+        ax2.yaxis.tick_right()
+        ax2.set_ylabel('Energy (per-site)', color='C1')
+        ax2.yaxis.set_label_position('right')
+        ax2.tick_params(axis='y', color='C1')
+        argmin_energy = np.argmin(energy)
+        ax2.plot(iteration[argmin_energy], energy[argmin_energy], 'o', color='red',
+                 label=r'$E_0 = $' + str(np.round(energy[argmin_energy], 6)))
+        ax2.legend()
+
+        ax3.plot(iteration, dt, '.')
+        ax3.set_yscale('log')
+        ax3.set_xlabel('Iteration')
+        ax3.set_ylabel('dt (ITE interval)')
+
+        if self.tensor_network.network_name is not None:
+            plt.savefig(join(self.tensor_network.dir_path, self.tensor_network.network_name) + '.png')
+        else:
+            plt.savefig(join(self.tensor_network.dir_path, figname) + '.png')
+
+        plt.show()
 
 
 
