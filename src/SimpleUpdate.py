@@ -447,15 +447,15 @@ class SimpleUpdate:
             tensor = self.absorb_sqrt_weights(tensor=tensor, edges_dims=edges_dims)
             self.tensors[tensor_idx] = tensor
 
-    def plot_convergence_curve(self, figname='su_simulation_plot'):
-        #plt.rcParams.update({'font.size': 12})
+    def plot_convergence_curve(self, figname='su_simulation_plot', figsize=(17, 10), round=7):
+        plt.rcParams.update({'font.size': 18})
 
         error = self.logger['error']
         energy = self.logger['energy']
         dt = self.logger['dt']
         iteration = self.logger['iteration']
 
-        fig = plt.figure()
+        fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(211, label='1')
         ax2 = fig.add_subplot(211, label='2', frame_on=False)
         ax3 = fig.add_subplot(212)
@@ -464,7 +464,7 @@ class SimpleUpdate:
             ax.set_title(self.tensor_network.network_name)
         ax.plot(iteration, error, color='C0')
         ax.set_yscale('log')
-        ax.set_xlabel('Iteration', color='C0')
+        ax.set_xlabel('Iteration')
         ax.set_ylabel('Convergence error', color='C0')
         ax.tick_params(axis='x', color='C0')
         ax.tick_params(axis='y', color='C0')
@@ -477,7 +477,7 @@ class SimpleUpdate:
         ax2.tick_params(axis='y', color='C1')
         argmin_energy = np.argmin(energy)
         ax2.plot(iteration[argmin_energy], energy[argmin_energy], 'o', color='red',
-                 label=r'$E_0 = $' + str(np.round(energy[argmin_energy], 6)))
+                 label=r'$E_0 = $' + str(np.round(energy[argmin_energy], round)))
         ax2.legend()
 
         ax3.plot(iteration, dt, '.')
