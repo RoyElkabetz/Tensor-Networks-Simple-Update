@@ -22,15 +22,16 @@ s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
 s_k = [pauli_x / 2.]
 
 # The Tensor Network structure matrix
-n = 4
-structure_matrix = smg.peps_rectangular_open_boundary_conditions(n, n)
+n = 2
+# structure_matrix = smg.peps_rectangular_open_boundary_conditions(n, n)
+structure_matrix = smg.infinite_structure_matrix_by_name('peps')
 print(f'There are {structure_matrix.shape[1]} edges, and {structure_matrix.shape[0]} tensors')
 
 # AFH Hamiltonian interaction parameters
 j_ij = [1.] * structure_matrix.shape[1]
 
 # maximal bond dimension
-d_max_ = [4]
+d_max_ = [6]
 
 # convergence error between consecutive lambda weights vectors
 error = 1e-8
@@ -49,7 +50,7 @@ energies = []
 # Run Simple Update
 for d_max in d_max_:
     # create Tensor Network name for saving
-    network_name = 'AFH_' + str(n) + 'x' + str(n) + '_obc_' + 'D_' + str(d_max)
+    network_name = 'AFH_' + str(n) + 'x' + str(n) + '_pbc_' + 'D_' + str(d_max)
 
     # create the Tensor Network object
     AFH_TN = TensorNetwork(structure_matrix=structure_matrix,
