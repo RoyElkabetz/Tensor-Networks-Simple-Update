@@ -24,7 +24,7 @@ s_k = [pauli_x / 2.]
 # The Tensor Network structure matrix
 n = 4
 # structure_matrix = smg.peps_rectangular_open_boundary_conditions(n, n)
-structure_matrix = smg.peps_square_periodic_boundary_conditions(n)
+structure_matrix = smg.square_peps_pbc(n)
 # structure_matrix = smg.infinite_structure_matrix_by_name('peps')
 print(f'There are {structure_matrix.shape[1]} edges, and {structure_matrix.shape[0]} tensors')
 

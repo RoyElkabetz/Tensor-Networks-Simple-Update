@@ -42,7 +42,7 @@ import structure_matrix_generator as stmg
 Get the iPEPS star structure matrix
 
 ```python
-smat = stmg.infinite_structure_matrix_by_name('star')
+smat = stmg.infinite_structure_matrix_dict('star')
 ```
 
 Initialize a random Tensor Network with virtual bond dimension of size 2 and physical spin dimension also of size 2
