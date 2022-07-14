@@ -1,17 +1,16 @@
+from tensor_network import TensorNetwork
+from scipy import linalg
+from utils import l2
+import ncon as ncon
 import numpy as np
 import copy as cp
-import matplotlib.pyplot as plt
 import time
-import ncon as ncon
-from scipy import linalg
-from os.path import join
-from tensor_network import TensorNetwork
 
 
 class SimpleUpdate:
     """
-    This class is an implementation of the well known Tensor Network algorithm Simple Update. This implementation
-    follows the steps as described the paper:
+    This class is an implementation of the well known Tensor Network algorithm 'Simple Update'. This implementation
+    follows the algorithm steps as described in the paper:
      "Universal tensor-network algorithm for any infinite lattice (2019)" - Jahromi Saeed and Orus Roman
     DOI:	10.1103/PhysRevB.99.195105
     """
@@ -38,10 +37,13 @@ class SimpleUpdate:
         computed hamiltonian on all edges. hamiltonian.shape = (TensorNetwork.spin_dim ** 2, TensorNetwork.spin_dim ** 2)
         """
 
+        # Unpacking the tensor network
         self.tensors = tensor_network.tensors
         self.weights = tensor_network.weights
         self.structure_matrix = tensor_network.structure_matrix
         self.tensor_network = tensor_network
+
+        # Simple Update variables
         self.j_ij = j_ij
         self.s_i = s_i
         self.s_j = s_j
@@ -53,6 +55,9 @@ class SimpleUpdate:
         self.convergence_error = convergence_error
         self.dt = 0.1
         self.old_weights = None
+        self.hamiltonian = hamiltonian
+
+        # Utility variables
         self.logger = {'error': [],
                        'dt': [],
                        'iteration': [],
@@ -65,7 +70,6 @@ class SimpleUpdate:
         self.log_energy = log_energy
         self.print_process = print_process
         self.converged = False
-        self.hamiltonian = hamiltonian
 
     def run(self):
         self.simple_update()
@@ -80,7 +84,7 @@ class SimpleUpdate:
                 self.old_weights = cp.deepcopy(self.weights)
                 self.simple_update()
                 if i % 2 == 0 and i > 0:
-                    error = self.check_convergence()
+                    error = self.compute_convergence_error()
                     elapsed = time.time() - start_time
                     total_time += elapsed
                     self.logger['error'].append(error)
@@ -112,11 +116,17 @@ class SimpleUpdate:
         self.tensor_network.su_logger = self.logger
         print('Simple Update did not converged. final error is {:4.10f}'.format(error))
 
-    def check_convergence(self):
-        error = 0
+    def compute_convergence_error(self):
+        """
+        Computes the convergence error between consecutive weight vectors. Computes the maximal Euclidean distance
+        between consecutive weight vectors.
+                                        max_{i}(L2(lambda_{i}^{t+1} - lambda_{i}^{t}))
+        :return: max(error)
+        """
+        error = []
         for i, (old, new) in enumerate(zip(self.old_weights, self.weights)):
-            error += np.sqrt(np.sum(np.square(old - new)))
-        return error / len(self.weights)
+            error.append(l2(old, new))
+        return np.max(error)
 
     def simple_update(self):
         """
@@ -447,50 +457,6 @@ class SimpleUpdate:
             tensor = self.absorb_sqrt_weights(tensor=tensor, edges_dims=edges_dims)
             self.tensors[tensor_idx] = tensor
 
-    def plot_convergence_curve(self, figname='su_simulation_plot', figsize=(17, 10), round=7):
-        plt.rcParams.update({'font.size': 18})
-
-        error = self.logger['error']
-        energy = self.logger['energy']
-        dt = self.logger['dt']
-        iteration = self.logger['iteration']
-
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(211, label='1')
-        ax2 = fig.add_subplot(211, label='2', frame_on=False)
-        ax3 = fig.add_subplot(212)
-
-        if self.tensor_network.network_name is not None:
-            ax.set_title(self.tensor_network.network_name)
-        ax.plot(iteration, error, color='C0')
-        ax.set_yscale('log')
-        ax.set_xlabel('Iteration')
-        ax.set_ylabel('Convergence error', color='C0')
-        ax.tick_params(axis='x', color='C0')
-        ax.tick_params(axis='y', color='C0')
-
-        ax2.plot(iteration, energy, color='C1')
-        ax2.axes.get_xaxis().set_visible(False)
-        ax2.yaxis.tick_right()
-        ax2.set_ylabel('Energy (per-site)', color='C1')
-        ax2.yaxis.set_label_position('right')
-        ax2.tick_params(axis='y', color='C1')
-        argmin_energy = np.argmin(energy)
-        ax2.plot(iteration[argmin_energy], energy[argmin_energy], 'o', color='red',
-                 label=r'$E_0 = $' + str(np.round(energy[argmin_energy], round)))
-        ax2.legend()
-
-        ax3.plot(iteration, dt, '.')
-        ax3.set_yscale('log')
-        ax3.set_xlabel('Iteration')
-        ax3.set_ylabel('dt (ITE interval)')
-
-        if self.tensor_network.network_name is not None:
-            plt.savefig(join(self.tensor_network.dir_path, self.tensor_network.network_name) + '.png')
-        else:
-            plt.savefig(join(self.tensor_network.dir_path, figname) + '.png')
-
-        plt.show()
 
 
 
