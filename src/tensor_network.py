@@ -179,4 +179,4 @@ def main():
 
 
 if __name__ == '__main__':
-    tn = main()
+    tensor_network = main()
