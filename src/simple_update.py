@@ -5,7 +5,7 @@ import time
 import ncon as ncon
 from scipy import linalg
 from os.path import join
-from TensorNetwork import TensorNetwork
+from tensor_network import TensorNetwork
 
 
 class SimpleUpdate:
@@ -22,7 +22,7 @@ class SimpleUpdate:
         """
         The default Hamiltonian implement in this algorithm is (in pseudo Latex)
                             H = J_ij \sum_{<i,j>} S_i \cdot S_j + h_k \sum_{k} S_k
-        :param tensor_network:  A TensorNetwork class object (see TensorNetwork.py)
+        :param tensor_network:  A TensorNetwork class object (see tensor_network.py)
         :param j_ij:    A list of interaction coefficients of tensor pairs. The j_ij indices corfresponds to the indices of the TensorNetwork.weights list.
         :param h_k:     The "field" constant coefficient
         :param s_i:     A list of the i spin operators for spin pair interaction. s_i[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)

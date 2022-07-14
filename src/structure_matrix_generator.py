@@ -100,3 +100,6 @@ def peps_rectangular_open_boundary_conditions(height: np.int, width: np.int):
     return structure_matrix
 
 
+if __name__ == '__main__':
+    peps_rectangular_open_boundary_conditions(3, 4)
+

@@ -22,25 +22,26 @@ s_j = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
 s_k = [pauli_x / 2.]
 
 # The Tensor Network structure matrix
-n = 2
+n = 4
 # structure_matrix = smg.peps_rectangular_open_boundary_conditions(n, n)
-structure_matrix = smg.infinite_structure_matrix_by_name('peps')
+structure_matrix = smg.peps_square_periodic_boundary_conditions(n)
+# structure_matrix = smg.infinite_structure_matrix_by_name('peps')
 print(f'There are {structure_matrix.shape[1]} edges, and {structure_matrix.shape[0]} tensors')
 
 # AFH Hamiltonian interaction parameters
 j_ij = [1.] * structure_matrix.shape[1]
 
 # maximal bond dimension
-d_max_ = [6]
+d_max_ = [3]
 
 # convergence error between consecutive lambda weights vectors
-error = 1e-8
+error = 1e-6
 
 # maximal number of SU iterations
-max_iterations = 200
+max_iterations = 20
 
 # time intervals for the ITE
-dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
+dts = [0.01, 0.01, 0.001, 0.0001, 0.00001]
 
 # magnetic field weight (if 0, there is no magnetic field)
 h_k = 0.
