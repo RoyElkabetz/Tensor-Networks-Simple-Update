@@ -138,18 +138,20 @@ class SimpleUpdate:
         structure_matrix = self.structure_matrix
         n, m = np.shape(structure_matrix)
 
+        # Iterate over all the tensor network edges (weights)
         for ek in range(m):
+
             # get the edge weight vector.
             lambda_k = weights[ek]
 
             # get the ek tensor neighbors ti, tj and their corresponding indices connected along edge ek.
             ti, tj = self.get_tensors(ek)
 
-            # collect ti, tj edges and dimensions and remove the ek edge and its dimension.
+            # collect (ti, tj)'s edges and dimensions without the ek common edge and its dimension.
             i_edges_dims = self.get_other_edges(ti['index'], ek)
             j_edges_dims = self.get_other_edges(tj['index'], ek)
 
-            # absorb environment (lambda weights) into tensors.
+            # absorb the environment's (lambda weights) into tensors.
             ti['tensor'] = self.absorb_weights(ti['tensor'], i_edges_dims)
             tj['tensor'] = self.absorb_weights(tj['tensor'], j_edges_dims)
 
@@ -165,7 +167,7 @@ class SimpleUpdate:
             ri, qi = linalg.rq(np.reshape(pi, [pi.shape[0] * pi.shape[1], pi.shape[2]]))
             rj, qj = linalg.rq(np.reshape(pj, [pj.shape[0] * pj.shape[1], pj.shape[2]]))
 
-            # reshaping ri and rj into rank 3 tensors with shape (spin_dim, ek_dim, q_(right/left).shape[0]).
+            # reshape ri and rj into rank 3 tensors with shape (spin_dim, ek_dim, q_(right/left).shape[0]).
             i_physical_dim = ti['tensor'].shape[0]
             j_physical_dim = tj['tensor'].shape[0]
             ri = self.rank_2_rank_3(ri, i_physical_dim)  # (i, ek, qi)
@@ -175,26 +177,22 @@ class SimpleUpdate:
             i_neighbors = len(i_edges_dims['edges']) + 1
             j_neighbors = len(j_edges_dims['edges']) + 1
             theta = self.time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, ek)
-            # theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
+            # notice that: theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
 
-            # obtain ri', rj', lambda'_k tensors by applying an SVD to theta.
+            # obtain ri', rj' and lambda'_k tensors by applying an SVD to theta.
             ri_tilde, lambda_k_tilde, rj_tilde = self.truncation_svd(theta, keep_s='yes')
 
             # reshaping ri_tilde and rj_tilde back to rank 3 tensor.
-            ri_tilde = np.reshape(ri_tilde, (qi.shape[0], i_physical_dim, ri_tilde.shape[1]))
-            # (qi, i'_spin_dim, d_max)
-            ri_tilde = np.transpose(ri_tilde, [1, 2, 0])
-            # (i'_spin_dim, d_max, qi)
-            rj_tilde = np.reshape(rj_tilde, (rj_tilde.shape[0], j_physical_dim, qj.shape[0]))
-            # (d_max, j'_spin_dim, qj)
-            rj_tilde = np.transpose(rj_tilde, [1, 0, 2])
-            # (j'_spin_dim, d_max, qj)
+            ri_tilde = np.reshape(ri_tilde, (qi.shape[0], i_physical_dim, ri_tilde.shape[1]))  # (qi,i'_spin_dim,d_max)
+            ri_tilde = np.transpose(ri_tilde, [1, 2, 0])                                       # (i'_spin_dim,d_max,qi)
+            rj_tilde = np.reshape(rj_tilde, (rj_tilde.shape[0], j_physical_dim, qj.shape[0]))  # (d_max,j'_spin_dim,qj)
+            rj_tilde = np.transpose(rj_tilde, [1, 0, 2])                                       # (j'_spin_dim,d_max,qj)
 
-            # glue back the ri', rj', sub-tensors to qi, qj, respectively, to form updated tensors p'i, p'j.
+            # compose back the ri', rj', sub-tensors to qi, qj, respectively, to form updated tensors p'i, p'j.
             pi_prime = np.einsum('ijk,kl->ijl', ri_tilde, qi)
             pl_prime = np.einsum('ijk,kl->ijl', rj_tilde, qj)
 
-            # reshape pi_prime and pj_prime to the original rank-(z + 1) tensors ti, tj.
+            # reshape pi_prime and pj_prime to rank-(z + 1) shape like the original tensors ti, tj.
             ti_new_shape = np.array(ti['tensor'].shape)
             ti_new_shape[1] = len(lambda_k_tilde)
             tj_new_shape = np.array(tj['tensor'].shape)
@@ -216,6 +214,11 @@ class SimpleUpdate:
             weights[ek] = lambda_k_tilde / np.sum(lambda_k_tilde)
 
     def get_tensors(self, edge):
+        """
+        Get tensors along an edge
+        :param edge: A tensor network edge index
+        :return: two tensor dictionaries
+        """
         which_tensors = np.nonzero(self.structure_matrix[:, edge])[0]
         tensor_dim_of_edge = self.structure_matrix[which_tensors, edge]
         ti = {'tensor': cp.copy(self.tensors[which_tensors[0]]),
@@ -226,18 +229,35 @@ class SimpleUpdate:
               'dim': tensor_dim_of_edge[1]}
         return ti, tj
 
-    def get_other_edges(self, tensor_idx, edge):
+    def get_other_edges(self, tensor_idx, edge_to_delete):
+        """
+        Gets all the legs/edges of a tensor without the edge 'edge_to_delete'
+        :param tensor_idx: the tensor index
+        :param edge_to_delete: the edge index
+        :return: dictionary of edges and dimensions
+        """
         tensor_edges = np.nonzero(self.structure_matrix[tensor_idx, :])[0]
-        tensor_edges = np.delete(tensor_edges, np.where(tensor_edges == edge))
+        tensor_edges = np.delete(tensor_edges, np.where(tensor_edges == edge_to_delete))
         tensor_dims = self.structure_matrix[tensor_idx, tensor_edges]
         return {'edges': tensor_edges, 'dims': tensor_dims}
 
     def get_edges(self, tensor_idx):
+        """
+        Gets all edges and dimension of a tensor
+        :param tensor_idx: the tensor index
+        :return: dictionary of edges and dimensions
+        """
         tensor_edges = np.nonzero(self.structure_matrix[tensor_idx, :])[0]
         tensor_dims = self.structure_matrix[tensor_idx, tensor_edges]
         return {'edges': tensor_edges, 'dims': tensor_dims}
 
     def absorb_weights(self, tensor, edges_dims):
+        """
+        Absorb all local weights into a tensor
+        :param tensor: the tensor
+        :param edges_dims: an edge-dimension dict
+        :return: the new tensor
+        """
         edges = edges_dims['edges']
         dims = edges_dims['dims']
         for i, edge in enumerate(edges):
@@ -246,6 +266,12 @@ class SimpleUpdate:
         return tensor
 
     def absorb_sqrt_weights(self, tensor, edges_dims):
+        """
+        Absorb all local sqrt(weights) into a tensor
+        :param tensor: the tensor
+        :param edges_dims: an edge-dimension dict
+        :return: the new tensor
+        """
         edges = edges_dims['edges']
         dims = edges_dims['dims']
         for i, edge in enumerate(edges):
@@ -253,7 +279,27 @@ class SimpleUpdate:
                                np.arange(len(tensor.shape)))
         return tensor
 
+    def absorb_sqrt_inverse_weights(self, tensor, edges_dims):
+        """
+        Absorb all local sqrt(weights)^(-1) into a tensor
+        :param tensor: the tensor
+        :param edges_dims: an edge-dimension dict
+        :return: the new tensor
+        """
+        edges = edges_dims['edges']
+        dims = edges_dims['dims']
+        for i, edge in enumerate(edges):
+            tensor = np.einsum(tensor, np.arange(len(tensor.shape)), np.power(np.sqrt(self.weights[edge]), -1),
+                               [dims[i]], np.arange(len(tensor.shape)))
+        return tensor
+
     def absorb_inverse_weights(self, tensor, edges_dims):
+        """
+        Absorb all local inverse weights (weight^-1) into a tensor
+        :param tensor: the tensor
+        :param edges_dims: an edge-dimension dict
+        :return: the new tensor
+        """
         edges = edges_dims['edges']
         dims = edges_dims['dims']
         for i, edge in enumerate(edges):
@@ -261,16 +307,25 @@ class SimpleUpdate:
                                np.power(self.weights[edge], -1), [dims[i]], np.arange(len(tensor.shape)))
         return tensor
 
-    def tensor_dim_permute(self, tensor):
+    @staticmethod
+    def tensor_dim_permute(tensor):
+        """
+        Permute the dimension of a tensor such that the dimension in tensor['dim'] become the 1^st dimension
+        :param tensor: a tensor dictionary (like the get_tensors function returns)
+        :return: the permuted tensor
+        """
         permutation = np.arange(len(tensor['tensor'].shape))
         permutation[[1, tensor['dim']]] = permutation[[tensor['dim'], 1]]
         tensor['tensor'] = np.transpose(tensor['tensor'], permutation)
         return tensor
 
-    def rank_n_rank_3(self, tensor):
+    @staticmethod
+    def rank_n_rank_3(tensor):
         """
-        Turn array of shape (d1, d2, d3, ..., dn) to array of shape (d1, d2, d3 * ...* dn).
+        Turn an array of shape (d1, d2, d3, ..., dn) to array of shape (d1, d2, d3 * ...* dn).
         If array shape is (d1, d2), the new shape would be (d1, d2, 1).
+        :param tensor: a tensor network tensor
+        :return:
         """
         shape = np.array(tensor.shape)
         new_shape = [shape[0], shape[1]]
@@ -279,90 +334,166 @@ class SimpleUpdate:
         elif len(shape) == 2:
             new_shape.append(1)
         else:
-            raise ValueError
+            raise ValueError(f'Tensor has to have a number of dimension >= 2, instead has {len(shape)} dimensions.')
         new_tensor = np.reshape(tensor, new_shape)
         return new_tensor
 
-    def rank_2_rank_3(self, tensor, spin_dim):
+    @staticmethod
+    def rank_2_rank_3(tensor, spin_dim):
+        """
+        Reshape a rank 2 into a rank 3 tensor
+        :param tensor: a rank 2 tensor
+        :param spin_dim: the tensor's spin dimension (index)
+        :return: a rank 3 tensor
+        """
         new_tensor = np.reshape(tensor, [spin_dim, tensor.shape[0] // spin_dim, tensor.shape[1]])
         return new_tensor
 
-    def rank_3_rank_n(self, tensor, old_shape):
+    @staticmethod
+    def rank_3_rank_n(tensor, old_shape):
+        """
+        Reshape a rank 3 into a rank n tensor
+        :param tensor: a rank 3 tensor
+        :param old_shape: the tensor's original shape
+        :return: a rank n tensor
+        """
         new_tensor = np.reshape(tensor, old_shape)
         return new_tensor
 
     def truncation_svd(self, theta, keep_s=None):
-        d_max = self.d_max
+        """
+        Perform SVD over the theta tensor (with rank-4) and truncate the eigenvalues with index larger than D_max
+        :param theta: a rank-4 tensor
+        :param keep_s: If None, absorb the eigenvalues of s into U,V, else return U and V with s
+        :return: the SVD matrices: U, S, Vh
+        """
         theta_shape = np.array(theta.shape)
         i_dim = np.prod(theta_shape[[0, 1]])
         j_dim = np.prod(theta_shape[[2, 3]])
         if keep_s is not None:
             u, s, vh = linalg.svd(theta.reshape(i_dim, j_dim), full_matrices=False)
-            if d_max is not None:
-                u = u[:, 0:d_max]
-                s = s[0:d_max]
-                vh = vh[0:d_max, :]
+            if self.d_max is not None:
+                u = u[:, 0:self.d_max]
+                s = s[0:self.d_max]
+                vh = vh[0:self.d_max, :]
             return u, s, vh
         else:
             u, s, vh = np.linalg.svd(theta.reshape(i_dim, j_dim), full_matrices=False)
-            if d_max is not None:
-                u = u[:, 0:d_max]
-                s = s[0:d_max]
-                vh = vh[0:d_max, :]
+            if self.d_max is not None:
+                u = u[:, 0:self.d_max]
+                s = s[0:self.d_max]
+                vh = vh[0:self.d_max, :]
             u = np.einsum(u, [0, 1], np.sqrt(s), [1], [0, 1])
             vh = np.einsum(np.sqrt(s), [0], vh, [0, 1], [0, 1])
         return u, vh
 
     def get_hamiltonian(self, i_neighbors, j_neighbors, ek):
+        """
+        Computes the Hamiltonian for the Imaginary Time Evolution (ITE) step
+        :param i_neighbors: the number of tensor neighbors to tensor_i
+        :param j_neighbors: the number of tensor neighbors to tensor_j
+        :param ek: the t_i, t_j common edge index
+        :return: A Hamiltonian matrix
+        """
+        # If a local Hamiltonian was given, use it
         if self.hamiltonian is not None:
             return self.hamiltonian
-        i_spin_dim = self.s_i[0].shape[0]
-        j_spin_dim = self.s_j[0].shape[0]
-        interaction_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-        for i, _ in enumerate(self.s_i):
-            interaction_hamiltonian += np.kron(self.s_i[i], self.s_j[i])
-        i_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-        j_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
-        for _, s in enumerate(self.s_k):
-            i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
-            j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
-        hamiltonian = self.j_ij[ek] * interaction_hamiltonian \
-                      + self.h_k * (i_field_hamiltonian / i_neighbors
-                                    + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
-        return hamiltonian
+        # Create the local Hamiltonian from spin operators and Jij, hi constants
+        else:
+            i_spin_dim = self.s_i[0].shape[0]
+            j_spin_dim = self.s_j[0].shape[0]
+            interaction_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+
+            # Create the s_i x s_j spin operator (rank-4 tensor) -- (2-body interaction operator)
+            for i, _ in enumerate(self.s_i):
+                interaction_hamiltonian += np.kron(self.s_i[i], self.s_j[i])
+
+            # reshape into a matrix
+            i_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+            j_field_hamiltonian = np.zeros((i_spin_dim * j_spin_dim, i_spin_dim * j_spin_dim), dtype=complex)
+
+            # Create the s_k spin operator (rank-4 tensor) -- (field operator)
+            for _, s in enumerate(self.s_k):
+                i_field_hamiltonian += np.kron(s, np.eye(j_spin_dim))
+                j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
+
+            # Construct the Hamiltonian (normalize the field operators according to the number of neighbors)
+            hamiltonian = self.j_ij[ek] * interaction_hamiltonian + self.h_k * \
+                         (i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
+            return hamiltonian
 
     def time_evolution(self, ri, rj, i_neighbors, j_neighbors, lambda_k, ek):
+        """
+        Perform a 2-body Imaginary Time Evolution (ITE)
+        :param ri: tensor_i
+        :param rj: tensor_j
+        :param i_neighbors: the number of tensor neighbors to tensor_i
+        :param j_neighbors: the number of tensor neighbors to tensor_j
+        :param lambda_k: the common weight vector of i and j
+        :param ek: the index of the common edge (and weight vector)
+        :return: a theta tensor (rank-4 tensor)
+        """
         i_spin_dim = self.s_i[0].shape[0]
         j_spin_dim = self.s_j[0].shape[0]
         hamiltonian = self.get_hamiltonian(i_neighbors, j_neighbors, ek)
         unitary_gate = np.reshape(linalg.expm(-self.dt * hamiltonian), (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
-        # unitary.shape = (i_spin_dim, j_spin_dim, i'_spin_dim, j'_spin_dim)
+        # notice: unitary.shape = (i_spin_dim, j_spin_dim, i'_spin_dim, j'_spin_dim)
+
         weight_matrix = np.diag(lambda_k)
         theta = np.einsum(ri, [0, 1, 2], weight_matrix, [1, 3], [0, 3, 2])
-        # theta.shape = (i_spin_dim, weight_dim, qi)
+        # notice: theta.shape = (i_spin_dim, weight_dim, qi)
+
         theta = np.einsum(theta, [0, 1, 2], rj, [3, 1, 4], [2, 0, 3, 4])
-        # theta.shape = (qi, i_spin_dim, j_spin_dim, qj)
+        # notice: theta.shape = (qi, i_spin_dim, j_spin_dim, qj)
+
         theta = np.einsum(theta, [0, 1, 2, 3], unitary_gate, [1, 2, 4, 5], [0, 4, 5, 3])
-        # theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
+        # notice: theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
         return theta
 
     def tensor_norm(self, tensor):
+        """
+        Computes the L2 norm of a tensor
+        :param tensor: a tensor
+        :return: a tensor L2 norm
+        """
         idx = np.arange(len(tensor.shape))
         norm = np.sqrt(np.einsum(tensor, idx, np.conj(tensor), idx))
         return norm
 
     def tensor_rdm(self, tensor_index):
+        """
+        Computes the Reduced Density Matrix (RDM) of a tensor
+        :param tensor_index: the index of the tensor in the Tensor Network
+        :return: a single-body RDM
+        """
+        # get the tensor's edges
         edges_dims = self.get_edges(tensor_index)
+
+        # get a copy of the tensor
         tensor = cp.copy(self.tensors[tensor_index])
+
+        # absorb the tensor's local weights
         tensor = self.absorb_weights(tensor, edges_dims)
+
+        # collect the indices for contraction
         t_idx = np.arange(len(tensor.shape))
         t_conj_idx = np.arange(len(tensor.shape))
         t_conj_idx[0] = len(tensor.shape)
+
+        # collect spin indices to leave open
         rdm_idx = [0, t_conj_idx[0]]
+
+        # get rdm
         rdm = np.einsum(tensor, t_idx, np.conj(tensor), t_conj_idx, rdm_idx)
         return rdm / np.trace(rdm)
 
     def tensor_pair_rdm(self, common_edge):
+        """
+        Computes the Reduced Density Matrix (RDM) of two adjacent tensors using the 'ncon' python package
+        :param common_edge: the tensors common edge
+        :return: a 2-body RDM (a rank-4 tensor)
+        """
+        # collect the tensors along the given edge and absorb their weights
         common_weight = self.weights[common_edge]
         ti, tj = self.get_tensors(common_edge)
         i_edges_dims = self.get_other_edges(ti['index'], common_edge)
@@ -370,7 +501,7 @@ class SimpleUpdate:
         ti['tensor'] = self.absorb_weights(ti['tensor'], i_edges_dims)
         tj['tensor'] = self.absorb_weights(tj['tensor'], j_edges_dims)
 
-        # set index lists for ncon tensor summation package
+        # set indices lists for ncon tensor contraction package
         t = 1000
         common_edge_idx = [t, t + 1]
         common_edge_conj_idx = [t + 2, t + 3]
@@ -389,29 +520,46 @@ class SimpleUpdate:
         tj_conj_idx[tj['dim']] = common_edge_conj_idx[1]
         tj_conj_idx[0] = -4  # j'
 
-        # use ncon package for tensors summation
+        # use ncon package for contraction
         tensors_list = [ti['tensor'], np.conj(np.copy(ti['tensor'])), tj['tensor'], np.conj(np.copy(tj['tensor'])),
                    np.diag(common_weight), np.diag(common_weight)]
         indices_list = [ti_idx, ti_conj_idx, tj_idx, tj_conj_idx, common_edge_idx, common_edge_conj_idx]
         rdm = ncon.ncon(tensors_list, indices_list)  # (i, j, i', j')
+
+        # reshape and normalize
         rdm /= np.trace(np.reshape(rdm, (rdm.shape[0] * rdm.shape[1], rdm.shape[2] * rdm.shape[3])))
         return rdm
 
     def tensor_expectation(self, tensor_index, operator):
+        """
+        Computes the expectation value of a tensor with an operator
+        :param tensor_index: the tensor index as in the Tensor Network
+        :param operator: the operator to compute its expectation
+        :return: the operator expectation value
+        """
         rdm = self.tensor_rdm(tensor_index)
         return np.trace(np.matmul(rdm, operator))
 
     def tensor_pair_expectation(self, common_edge, operator):
+        """
+        Computes the two-body expectation value of two tensor along a given common edge
+        :param common_edge: the tensors' common edge
+        :param operator: the operator (as a rank 4 matrix)
+        :return: a two-body expectation value
+        """
         rdm = self.tensor_pair_rdm(common_edge)   # (i, j, i', j')
         return np.einsum(rdm, [0, 1, 2, 3], operator, [0, 1, 2, 3])
 
     def energy_per_site(self):
         """
-        returns the averged energy per-site of the given Tensor Network.
+        Computes the 'Energy per-site' of the given Tensor Network.
+        :return: the energy per-site value
         """
         energy = 0
         i_spin_dim = self.s_i[0].shape[0]
         j_spin_dim = self.s_j[0].shape[0]
+
+        # iterate over all the Tensor Network edges
         for ek, lambda_k in enumerate(self.weights):
             ti, tj = self.get_tensors(ek)
             i_edges_dims = self.get_edges(ti['index'])
@@ -421,24 +569,29 @@ class SimpleUpdate:
             hamiltonian = self.get_hamiltonian(i_neighbors, j_neighbors, ek)
             hamiltonian = np.reshape(hamiltonian, (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
             energy += self.tensor_pair_expectation(ek, hamiltonian)
+
+        # normalize total energy to per-site energy
         energy /= len(self.tensors)
         return np.real(energy)
 
     def pair_expectation_per_site(self, operator):
         """
-        returns the averged per-site expectation value of the tensor-pair operator parameter.
-        :param operator An np.array of shape (TensorNetwork.spin_dim, TensorNetwork.spin_dim, TensorNetwork.spin_dim, TensorNetwork.spin_dim) 
+        Computes the two-body per-site expectation value of an operator. Same as energy_per_site for a
+        general operator.
+        :param operator: a rank-4 tensor
+        :return: two-body expectation per site
         """
         expectation = 0
         for ek, _ in enumerate(self.weights):
             expectation += self.tensor_pair_expectation(ek, operator)
-        expectation /= len(self.tensors)
-        return np.real(expectation)
+        return np.real(expectation) / len(self.tensors)
 
     def expectation_per_site(self, operator):
         """
-        returns the averged per-site expectation value of the operator parameter.
-        :param operator An np.array of shape (TensorNetwork.spin_dim, TensorNetwork.spin_dim) 
+        Computes the single-body per-site expectation value of an operator, i.e. can be used to compute the
+        Tensor Network's per-site magnetization.
+        :param operator: a rank-4 tensor
+        :return: two-body expectation per site
         """
         expectation = 0
         for tensor_idx, _ in enumerate(self.tensors):
@@ -447,14 +600,26 @@ class SimpleUpdate:
 
     def absorb_all_weights(self):
         """
-        absorb the Tensor Network all lambda weights into their neighboring tensors.
-        :param None
+        Absorbs all the sqrt(weights) into their neighboring tensors.
+        :return: None
         """
         n, m = self.structure_matrix.shape
         for tensor_idx in range(n):
             tensor = self.tensors[tensor_idx]
             edges_dims = self.get_edges(tensor_idx=tensor_idx)
             tensor = self.absorb_sqrt_weights(tensor=tensor, edges_dims=edges_dims)
+            self.tensors[tensor_idx] = tensor
+
+    def absorb_all_inverse_weights(self):
+        """
+        Absorbs all the sqrt(weights)^(-1) into their neighboring tensors.
+        :return: None
+        """
+        n, m = self.structure_matrix.shape
+        for tensor_idx in range(n):
+            tensor = self.tensors[tensor_idx]
+            edges_dims = self.get_edges(tensor_idx=tensor_idx)
+            tensor = self.absorb_sqrt_inverse_weights(tensor=tensor, edges_dims=edges_dims)
             self.tensors[tensor_idx] = tensor
 
 
