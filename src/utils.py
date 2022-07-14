@@ -1,33 +1,32 @@
-from simple_update import SimpleUpdate
 import matplotlib.pyplot as plt
 from os.path import join
 import numpy as np
 
 
-def plot_convergence_curve(simple_update: SimpleUpdate, figname='su_simulation_plot', figure_size=(17, 10),
+def plot_convergence_curve(simple_update_object, figure_name='su_simulation_plot', figure_size=(17, 10),
                            floating_point_error=7):
     """
     Plot the convergence curve and energy of a simple update experiment
-    :param simple_update:
-    :param figname:
-    :param figure_size:
-    :param floating_point_error:
-    :return:
+    :param simple_update_object: a SimpleUpdate class object
+    :param figure_name: name of figure for saving
+    :param figure_size: size of figure (x, y)
+    :param floating_point_error: the allowed error in energy
+    :return: None
     """
     plt.rcParams.update({'font.size': 18})
 
-    error = simple_update.logger['error']
-    energy = simple_update.logger['energy']
-    dt = simple_update.logger['dt']
-    iteration = simple_update.logger['iteration']
+    error = simple_update_object.logger['error']
+    energy = simple_update_object.logger['energy']
+    dt = simple_update_object.logger['dt']
+    iteration = simple_update_object.logger['iteration']
 
     fig = plt.figure(figsize=figure_size)
     ax = fig.add_subplot(211, label='1')
     ax2 = fig.add_subplot(211, label='2', frame_on=False)
     ax3 = fig.add_subplot(212)
 
-    if simple_update.tensor_network.network_name is not None:
-        ax.set_title(simple_update.tensor_network.network_name)
+    if simple_update_object.tensor_network.network_name is not None:
+        ax.set_title(simple_update_object.tensor_network.network_name)
     ax.plot(iteration, error, color='C0')
     ax.set_yscale('log')
     ax.set_xlabel('Iteration')
@@ -51,10 +50,10 @@ def plot_convergence_curve(simple_update: SimpleUpdate, figname='su_simulation_p
     ax3.set_xlabel('Iteration')
     ax3.set_ylabel('dt (ITE interval)')
 
-    if simple_update.tensor_network.network_name is not None:
-        plt.savefig(join(simple_update.tensor_network.dir_path, simple_update.tensor_network.network_name) + '.png')
+    if simple_update_object.tensor_network.network_name is not None:
+        plt.savefig(join(simple_update_object.tensor_network.dir_path, simple_update_object.tensor_network.network_name) + '.png')
     else:
-        plt.savefig(join(simple_update.tensor_network.dir_path, figname) + '.png')
+        plt.savefig(join(simple_update_object.tensor_network.dir_path, figure_name) + '.png')
 
     plt.show()
 
