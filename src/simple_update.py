@@ -19,22 +19,29 @@ class SimpleUpdate:
                  convergence_error: np.float = 1e-6, log_energy: np.bool = False, print_process: np.bool = True,
                  hamiltonian: np.array = None):
         """
-        The default Hamiltonian implement in this algorithm is (in pseudo Latex)
-                            H = J_ij \sum_{<i,j>} S_i \cdot S_j + h_k \sum_{k} S_k
-        :param tensor_network:  A TensorNetwork class object (see tensor_network.py)
-        :param j_ij:    A list of interaction coefficients of tensor pairs. The j_ij indices corfresponds to the indices of the TensorNetwork.weights list.
-        :param h_k:     The "field" constant coefficient
-        :param s_i:     A list of the i spin operators for spin pair interaction. s_i[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
-        :param s_j:     A list of the j spin operators for spin pair interaction. s_j[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
-        :param s_k:     A list of the i spin operators for the Hamiltonian's field term. s_k[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
-        :param d_max:   The maximal virtual bond dimension allowed in the simulation. Used in the truncation step after time-evolution.
-        :param dts:      List of time steps for the imaginary time evolution (if real) or real time evolution (if complex)
-        :param max_iterations:  The maximal number of iteration performed with each time step dts[n]
-        :param convergence_error:  The error between time consecutive weight vector lists at which the iterative process halts.
-        :param log_energy:  compute and save the energy per site value along the iterative process.
-        :param print_process:  boolean for printing the parameters along iterations
-        :param hamiltonian:  np.array. If not None, the class will ignore the j_ij, s_i, s_j, h_k, s_k variables and self.hamiltonian would be the 
-        computed hamiltonian on all edges. hamiltonian.shape = (TensorNetwork.spin_dim ** 2, TensorNetwork.spin_dim ** 2)
+        The default Hamiltonian (H) implement in this algorithm is given by
+                                        H = J_ij sum_{<i,j>} S_i * S_j + h_k sum_{k} S_k
+        :param tensor_network: A TensorNetwork class object (see tensor_network.py)
+        :param j_ij: A list of tensor pairs interaction coefficients. The j_ij indices corresponds to the indices of
+                    the TensorNetwork.weights list.
+        :param h_k: The "field" constant coefficient
+        :param s_i: A list of the i spin operators for spin pair interaction.
+                    s_i[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
+        :param s_j: A list of the j spin operators for spin pair interaction.
+                    s_j[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
+        :param s_k: A list of the i spin operators for the Hamiltonian's field term.
+                    s_k[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
+        :param d_max: The maximal virtual bond dimension allowed in the simple update experiment.
+                      Used in the truncation step after time-evolution.
+        :param dts: List of time steps for the Imaginary Time Evolution (if real) or real time evolution (if complex).
+        :param max_iterations: The maximal number of iteration performed with each time step dts[i]
+        :param convergence_error: The maximal error allowed between time consecutive weight vectors.
+                                 for smaller maximal error between weight vectors the update process for dts[i] halts.
+        :param log_energy: Boolean for compute and save the energy per site value along the iterative process.
+        :param print_process: Boolean for printing the parameters along iterations.
+        :param hamiltonian: np.array. If not None, the class will ignore the j_ij, s_i, s_j, h_k, s_k variables
+                            and will use self.hamiltonian to update all edges.
+                            hamiltonian.shape = (TensorNetwork.spin_dim ** 2, TensorNetwork.spin_dim ** 2)
         """
 
         # Unpacking the tensor network
@@ -72,49 +79,69 @@ class SimpleUpdate:
         self.converged = False
 
     def run(self):
-        self.simple_update()
+        """
+        Run a full Simple Update experiment
+        :return: None
+        """
         error = np.inf
         total_time = 0
-        su_step = 0
+        simple_update_step = 0
+
+        # iterate over all dt time constants
         for dt in self.dts:
             start_time = time.time()
             self.dt = dt
+
+            # run until max_iterations
             for i in range(self.max_iterations):
-                su_step += 1
+                simple_update_step += 1
+
+                # copy old weight vectors
                 self.old_weights = cp.deepcopy(self.weights)
+
+                # run a single simple update sweep
                 self.simple_update()
+
+                # check for convergence criteria, log and print to screen
                 if i % 2 == 0 and i > 0:
                     error = self.compute_convergence_error()
                     elapsed = time.time() - start_time
                     total_time += elapsed
+                    energy = self.energy_per_site()
                     self.logger['error'].append(error)
                     self.logger['dt'].append(dt)
-                    self.logger['iteration'].append(su_step)
+                    self.logger['iteration'].append(simple_update_step)
                     if self.log_energy:
-                        energy = self.energy_per_site()
                         self.logger['energy'].append(energy)
                         if self.print_process:
                             print('| D max: {:3d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
                                   '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | total time '
                                   '{:7.2f} min' .format(self.d_max, dt, i, self.max_iterations, error,
-                                                       np.round(energy, 10), elapsed, total_time // 60 +
-                                                       (total_time % 60) / 60))
+                                                        np.round(energy, 10), elapsed, total_time // 60 +
+                                                        (total_time % 60) / 60))
                     else:
                         if self.print_process:
                             print('| D max: {:3d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
                                   '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | total time '
                                   '{:7.2f} min'.format(self.d_max, dt, i, self.max_iterations, error,
-                                                      np.round(energy, 10), elapsed, total_time // 60 +
-                                                      (total_time % 60) / 60))
+                                                       np.round(energy, 10), elapsed, total_time // 60 +
+                                                       (total_time % 60) / 60))
                     start_time = time.time()
+
+                    # check for convergence criteria after performing ITE with all dts
                     if error <= self.convergence_error and dt == self.dts[-1]:
                         self.converged = True
                         self.tensor_network.su_logger = self.logger
+                        print('==> Simple Update converged. final error is {:4.10f} < {:4.10f}.'.format(
+                            error, self.convergence_error))
                         return
+
+                    # check convergence for the current dt
                     if error <= self.convergence_error:
                         break
         self.tensor_network.su_logger = self.logger
-        print('Simple Update did not converged. final error is {:4.10f}'.format(error))
+        print('==> Simple Update did not converged. final error is {:4.10f} > {:4.10f}.'.format(
+            error, self.convergence_error))
 
     def compute_convergence_error(self):
         """
@@ -418,8 +445,8 @@ class SimpleUpdate:
                 j_field_hamiltonian += np.kron(np.eye(i_spin_dim), s)
 
             # Construct the Hamiltonian (normalize the field operators according to the number of neighbors)
-            hamiltonian = self.j_ij[ek] * interaction_hamiltonian + self.h_k * \
-                         (i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
+            hamiltonian = self.j_ij[ek] * interaction_hamiltonian + self.h_k * (
+                    i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
             return hamiltonian
 
     def time_evolution(self, ri, rj, i_neighbors, j_neighbors, lambda_k, ek):
@@ -450,7 +477,8 @@ class SimpleUpdate:
         # notice: theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
         return theta
 
-    def tensor_norm(self, tensor):
+    @staticmethod
+    def tensor_norm(tensor):
         """
         Computes the L2 norm of a tensor
         :param tensor: a tensor
@@ -521,8 +549,8 @@ class SimpleUpdate:
         tj_conj_idx[0] = -4  # j'
 
         # use ncon package for contraction
-        tensors_list = [ti['tensor'], np.conj(np.copy(ti['tensor'])), tj['tensor'], np.conj(np.copy(tj['tensor'])),
-                   np.diag(common_weight), np.diag(common_weight)]
+        tensors_list = [ti['tensor'], np.conj(np.copy(ti['tensor'])), tj['tensor'], np.conj(
+            np.copy(tj['tensor'])), np.diag(common_weight), np.diag(common_weight)]
         indices_list = [ti_idx, ti_conj_idx, tj_idx, tj_conj_idx, common_edge_idx, common_edge_conj_idx]
         rdm = ncon.ncon(tensors_list, indices_list)  # (i, j, i', j')
 
@@ -621,7 +649,3 @@ class SimpleUpdate:
             edges_dims = self.get_edges(tensor_idx=tensor_idx)
             tensor = self.absorb_sqrt_inverse_weights(tensor=tensor, edges_dims=edges_dims)
             self.tensors[tensor_idx] = tensor
-
-
-
-
