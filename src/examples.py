@@ -132,5 +132,5 @@ def afh_peps_ground_state_experiment(size=4, bc='obc', save_network=False):
 
 
 if __name__ == '__main__':
-    # load_a_tensor_network_state()
-    afh_peps_ground_state_experiment()
+    load_a_tensor_network_state()
+    # afh_peps_ground_state_experiment()

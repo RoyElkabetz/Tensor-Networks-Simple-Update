@@ -14,9 +14,9 @@ class SimpleUpdate:
      "Universal tensor-network algorithm for any infinite lattice (2019)" - Jahromi Saeed and Orus Roman
     DOI:	10.1103/PhysRevB.99.195105
     """
-    def __init__(self, tensor_network: TensorNetwork, j_ij: list, h_k: np.float, s_i: list, s_j: list,
-                 s_k: list, dts: list, d_max: np.int = 2, max_iterations: np.int = 1000,
-                 convergence_error: np.float = 1e-6, log_energy: np.bool = False, print_process: np.bool = True,
+    def __init__(self, tensor_network: TensorNetwork, j_ij: list, h_k: float, s_i: list, s_j: list,
+                 s_k: list, dts: list, d_max: int = 2, max_iterations: int = 1000,
+                 convergence_error: float = 1e-6, log_energy: bool = False, print_process: bool = True,
                  hamiltonian: np.array = None):
         """
         The default Hamiltonian (H) implement in this algorithm is given by

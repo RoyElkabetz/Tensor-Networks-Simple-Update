@@ -6,7 +6,7 @@ import os
 class TensorNetwork:
     """A Tensor-Network object. Used in the field of Quantum Information and Quantum Computation"""
     def __init__(self, structure_matrix: np.array = None, tensors: list = None, weights: list = None,
-                 spin_dim: np.int = 2, virtual_dim: np.int = 3, dir_path='../tmp/networks',
+                 spin_dim: int = 2, virtual_dim: int = 3, dir_path='../tmp/networks',
                  network_name='tensor_network'):
         """
         :param structure_matrix: A 2D numpy array of integers > 0, corresponds to the interconnections between tensors
