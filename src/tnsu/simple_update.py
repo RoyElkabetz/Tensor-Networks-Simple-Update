@@ -1,7 +1,7 @@
-from tensor_network import TensorNetwork
+from tnsu.tensor_network import TensorNetwork
 from scipy import linalg
-from utils import l2
-import ncon as ncon
+from tnsu.utils import l2
+import tnsu.ncon as ncon
 import numpy as np
 import copy as cp
 import time
@@ -114,16 +114,16 @@ class SimpleUpdate:
                     if self.log_energy:
                         self.logger['energy'].append(energy)
                         if self.print_process:
-                            print('| D max: {:3d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
-                                  '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | total time '
-                                  '{:7.2f} min' .format(self.d_max, dt, i, self.max_iterations, error,
+                            print('| D max: {:2d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
+                                  '{:13.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | tot time:'
+                                  '{:7.1f} min' .format(self.d_max, dt, i, self.max_iterations, error,
                                                         np.round(energy, 10), elapsed, total_time // 60 +
                                                         (total_time % 60) / 60))
                     else:
                         if self.print_process:
-                            print('| D max: {:3d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
-                                  '{:14.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | total time '
-                                  '{:7.2f} min'.format(self.d_max, dt, i, self.max_iterations, error,
+                            print('| D max: {:2d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
+                                  '{:13.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | tot time:'
+                                  '{:7.1f} min'.format(self.d_max, dt, i, self.max_iterations, error,
                                                        np.round(energy, 10), elapsed, total_time // 60 +
                                                        (total_time % 60) / 60))
                     start_time = time.time()

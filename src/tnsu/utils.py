@@ -4,7 +4,7 @@ import numpy as np
 
 
 def plot_convergence_curve(simple_update_object, figure_name='su_simulation_plot', figure_size=(17, 10),
-                           floating_point_error=7):
+                           floating_point_error=7, save_figure: bool = False):
     """
     Plot the convergence curve and energy of a simple update experiment
     :param simple_update_object: a SimpleUpdate class object
@@ -50,10 +50,12 @@ def plot_convergence_curve(simple_update_object, figure_name='su_simulation_plot
     ax3.set_xlabel('Iteration')
     ax3.set_ylabel('dt (ITE interval)')
 
-    if simple_update_object.tensor_network.network_name is not None:
-        plt.savefig(join(simple_update_object.tensor_network.dir_path, simple_update_object.tensor_network.network_name) + '.png')
-    else:
-        plt.savefig(join(simple_update_object.tensor_network.dir_path, figure_name) + '.png')
+    if save_figure:
+        if simple_update_object.tensor_network.network_name is not None:
+            plt.savefig(join(simple_update_object.tensor_network.dir_path,
+                             simple_update_object.tensor_network.network_name) + '.png')
+        else:
+            plt.savefig(join(simple_update_object.tensor_network.dir_path, figure_name) + '.png')
 
     plt.show()
 

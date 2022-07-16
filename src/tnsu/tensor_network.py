@@ -6,7 +6,7 @@ import os
 class TensorNetwork:
     """A Tensor-Network object. Used in the field of Quantum Information and Quantum Computation"""
     def __init__(self, structure_matrix: np.array = None, tensors: list = None, weights: list = None,
-                 spin_dim: int = 2, virtual_dim: int = 3, dir_path='../tmp/networks',
+                 spin_dim: int = 2, virtual_dim: int = 3, dir_path='./networks',
                  network_name='tensor_network'):
         """
         :param structure_matrix: A 2D numpy array of integers > 0, corresponds to the interconnections between tensors
@@ -151,6 +151,8 @@ class TensorNetwork:
         self.create_state_dict()
         if self.network_name is None:
             self.network_name = filename
+        if not os.path.exists(self.dir_path):
+            os.makedirs(self.dir_path)
         with open(os.path.join(self.dir_path, self.network_name + '.pkl'), 'wb') as outfile:
             pickle.dump(self.state_dict, outfile, pickle.DEFAULT_PROTOCOL)
 
@@ -165,18 +167,3 @@ class TensorNetwork:
         except Exception as error:
             print(f'There was an error in loading the tensor network from path:\n {path_to_network}\n'
                   f'with the next exception:\n {error}.')
-
-
-def main():
-    """
-    Loading a network from memory
-    :return: None
-    """
-    tn = TensorNetwork()
-    tn.load_network(network_full_path='../tmp/networks/AFH_10x10_obc_D_4.pkl')
-
-    return tn
-
-
-if __name__ == '__main__':
-    tensor_network = main()

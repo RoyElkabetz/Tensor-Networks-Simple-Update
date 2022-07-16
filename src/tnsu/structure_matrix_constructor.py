@@ -108,7 +108,3 @@ def rectangular_peps_obc(height: np.int, width: np.int):
         structure_matrix[i, np.nonzero(structure_matrix[i, :])[0]] = new_row
     return structure_matrix
 
-
-if __name__ == '__main__':
-    print(square_peps_pbc(4))
-
