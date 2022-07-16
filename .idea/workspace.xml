@@ -2,43 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="16159978-3878-4136-842a-69de9b0aab68" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/tnsu/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/examples.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/ncon.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/networks/AFH_10x10_obc_D_4.pkl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/networks/AFH_10x10_obc_D_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/networks/AFH_20x20_obc_D_4.pkl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/networks/AFH_20x20_obc_D_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/networks/AFH_20x20_pbc_D_4.pkl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/networks/AFH_20x20_pbc_D_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/simple_update.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/structure_matrix_constructor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/tensor_network.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/tnsu/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/tensor_networks_simple_update.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/setup.cfg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/examples.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ncon.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/networks/AFH_10x10_obc_D_4.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/networks/AFH_10x10_obc_D_4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/networks/AFH_20x20_obc_D_4.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/networks/AFH_20x20_obc_D_4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/networks/AFH_20x20_pbc_D_4.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/networks/AFH_20x20_pbc_D_4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/networks/AFH_4x4_pbc_D_3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/simple_update.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/structure_matrix_constructor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tensor_network.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -379,7 +343,7 @@
       <workItem from="1657922903233" duration="47000" />
       <workItem from="1657922974697" duration="81000" />
       <workItem from="1657923122525" duration="47000" />
-      <workItem from="1657923248639" duration="11941000" />
+      <workItem from="1657923248639" duration="12306000" />
     </task>
     <servers />
   </component>
