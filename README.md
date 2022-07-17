@@ -218,7 +218,8 @@ Roy Elkabetz - [elkabetzroy@gmail.com](mailto:elkabetzroy@gmail.com)
 ## Citation
 
 To cite this repository in academic works or any other purpose, please use the following BibTeX citation:
-```@software{tnsu,
+```Latex
+@software{tnsu,
     author = {Elkabetz, Roy},
     title = {{tnsu: A python package for Tensor Networks Simple-Update simulations}},
     url = {https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update},
