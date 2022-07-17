@@ -223,7 +223,7 @@ To cite this repository in academic works or any other purpose, please use the f
     author = {Elkabetz, Roy},
     title = {{tnsu: A python package for Tensor Networks Simple-Update simulations}},
     url = {https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update},
-    version = {1.0.0},
+    version = {1.0.1},
     year = {2022}
 }
 ```
