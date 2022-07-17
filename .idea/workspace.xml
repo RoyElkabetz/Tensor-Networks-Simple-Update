@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e1dc6d16-191a-469b-b70c-ac0397f7bbbc" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/tensor_networks_simple_update.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/tensor_networks_simple_update.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="e1dc6d16-191a-469b-b70c-ac0397f7bbbc" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,7 +31,7 @@
       <option name="presentableId" value="Default" />
       <updated>1658080557618</updated>
       <workItem from="1658080563777" duration="172000" />
-      <workItem from="1658080742057" duration="503000" />
+      <workItem from="1658080742057" duration="640000" />
     </task>
     <servers />
   </component>
