@@ -10,6 +10,11 @@ __pycache__/
 # C extensions
 *.so
 
+notebooks/Tensor-Networks-Simple-Update/
+tmp/networks/*.pkl
+tmp/networks/*.png
+
+
 # Distribution / packaging
 .Python
 build/

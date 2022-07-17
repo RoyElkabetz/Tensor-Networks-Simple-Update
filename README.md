@@ -159,7 +159,7 @@ then, the algorithm will run 1000 iteration or until the maximal L2 distance bet
 There are more fully-written examples in the [`notebooks`](/notebooks) folder.
 
 ### List of Notebooks
-The notebooks are currently in progress...
+The notebooks below are not part of the package, they can be found in the `tnsu` github repository under `/notebooks`. You can run them locally with jupyter notebook or in google colab (which is preferable in case you don't want to burn your laptop's mother-board :) )
 
 | #   | file            | Subject                                         | Colab             | Nbviewer               |
 |:----:|:--------------:|:------------------------------------------------:|:-----------------:|:---------------------:|
@@ -223,7 +223,7 @@ To cite this repository in academic works or any other purpose, please use the f
     author = {Elkabetz, Roy},
     title = {{tnsu: A python package for Tensor Networks Simple-Update simulations}},
     url = {https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update},
-    version = {1.0.1},
+    version = {1.0.2},
     year = {2022}
 }
 ```

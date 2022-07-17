@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e1dc6d16-191a-469b-b70c-ac0397f7bbbc" name="Default Changelist" comment="" />
+    <list default="true" id="e1dc6d16-191a-469b-b70c-ac0397f7bbbc" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/AFH_peps_state.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/AFH_peps_state.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/Quantum_Ising_Model_Phase_Transition.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/Quantum_Ising_Model_Phase_Transition.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/Triangular_2d_lattice_BLBQ_Spin_1_simulation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/Triangular_2d_lattice_BLBQ_Spin_1_simulation.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/ipeps_energy_simulations.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/ipeps_energy_simulations.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/setup.cfg" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,6 +42,7 @@
       <updated>1658080557618</updated>
       <workItem from="1658080563777" duration="172000" />
       <workItem from="1658080742057" duration="640000" />
+      <workItem from="1658082914083" duration="4575000" />
     </task>
     <servers />
   </component>
