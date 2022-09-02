@@ -218,7 +218,7 @@ Roy Elkabetz - [elkabetzroy@gmail.com](mailto:elkabetzroy@gmail.com)
 ## Citation
 
 To cite this repository in academic works or for any other purpose, please use the following BibTeX citation:
-```Latex
+```
 @misc{tnsu,
     author = "Elkabetz, Roy",
     title = "Python Package for Universal Tensor-Networks Simple-Update Simulations",
