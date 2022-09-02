@@ -25,7 +25,7 @@ where finally,
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/ITE_local_gate.png?raw=true" width="200" height="">
 
-When performing the ITE scheme, the TN virtual bond dimension increases, therefore, after every few ITE iterations we need to truncate the bond dimensions so the number of parameters in the tensor network state would stay bounded. The truncation step is implemented via a [Singular Value Decomposition (SVD)](https://en.wikipedia.org/wiki/Singular_value_decomposition) step. A full step-by-step illustrated description of the Simple Update algorithm (which is based on the ITE scheme) is depicted below. 
+When performing the ITE scheme, the TN virtual bond dimension increases. Therefore, after every few ITE iterations, we need to truncate the bond dimensions so the number of parameters in the tensor network state would stay bounded. The truncation step is implemented via a [Singular Value Decomposition (SVD)](https://en.wikipedia.org/wiki/Singular_value_decomposition) step. A full step-by-step illustrated description of the Simple Update algorithm (which is based on the ITE scheme) is depicted below. 
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/simple_update_algorithm.png?raw=true" width="1000" height="">
 
@@ -38,11 +38,11 @@ The [`src.tnsu`](/src/tnsu) folder contains the source code for this project
 
 | #   | file                                         | Subject             | 
 |:----:|------------------------------------------------|:-----------------:|
-| 1   | `tensor_network.py`                   | a Tensor Network class object which tracks the tensors, weights and their connectivity| 
-| 2   | `simple_update.py`         | a Tensor Network Simple-Update algorithm class, which gets as an input a `TensorNetwork` object and perform a simple-update run on it using Imaginary Time Evolution. | 
+| 1   | `tensor_network.py`                   | a Tensor Network class object which tracks the tensors, weights, and their connectivity| 
+| 2   | `simple_update.py`         | a Tensor Network Simple-Update algorithm class, which gets as an input a `TensorNetwork` object and performs a simple-update run on it using Imaginary Time Evolution. | 
 | 3  | `structure_matrix_constructor.py`         | Contains a dictionary of common iPEPS structure matrices and also functionality construction of 2D square and rectangular lattices structure matrices (**still in progress**).
 | 4  | `examples.py`         | Few scripts for loading a tensor network state from memory and a full Antiferromagnetic Heisenberg model PEPS experiment.|
-| 5  | `ncon.py`         | A module for tensors contraction in python copied from the [ncon](https://github.com/mhauru/ncon) github repository.|
+| 5  | `ncon.py`         | A module for tensors contraction in python copied from the [ncon](https://github.com/mhauru/ncon) GitHub repository.|
 | 6  | `utils.py`         | A general utility module.|
 
 
@@ -118,13 +118,13 @@ and run the algorithm
 star_su.run()
 ```
 
-It is also possible to compute a single and double site expectation values like energy, magnetizatoin etc, with the following
+It is also possible to compute single and double-site expectation values like energy, magnetization etc, with the following
 ```python
 energy_per_site = star_su.energy_per_site()
 z_magnetization_per_site = star_su.expectation_per_site(operator=pauli_z / 2)
 ```
 
-or manually calculating single and double site reduced-density matrices and expectations following the next few lines of code
+or manually calculating single and double-site reduced-density matrices and expectations following the next few lines of code
 ```python
 tensor = 0
 edge = 1
@@ -136,9 +136,9 @@ star_su.tensor_pair_expectation(common_edge=edge, operator=tensor_pair_operator)
 ```
 
 ### Example 2: The Trivial Simple-Update Algorithm
-The trivial SU algorithm is equivalent to the SU algorithm without the ITE and truncation steps; it only consists of consecutive SVD steps over each TN edge (the same as contracting ITE gate with zero time-step). The trivial-SU algorithm's fixed point corresponds to a canonical representation of the tensor network representations we started with. A tensor network canonical representation is strongly related to the Schmidt Decomposition operation over all the tensor network's edges, where for a tensor networks with no loops (tree-like topology) each weight vector in the canonical representation corresponds to the Schmidt values of partitioning the network into two distinct networks along that edge. When the given tensor network has loops in it, it is no longer possible to partition the network along a single edge into to distinguished parts. Therefore, the weight vectors are no longer equal to the Schmidt values but rather become some general approximation of the tensors' environments in the network. A very interesting property of the trivial simple update algorithm is that it is identical to the [Belief Propagation (BP)](https://en.wikipedia.org/wiki/Belief_propagation) algorithm. The Belief Propagation (BP) algorithm is a famous iterative-message-passing algorithm in the world of Probabilistic Graphical Models (PGM), where it is used as an approximated inference tool. For a detailed description about the duality between the trivial-Simple-Update and the Belief Propagation algorithm see Refs [3][4].
+The trivial SU algorithm is equivalent to the SU algorithm without the ITE and truncation steps; it only consists of consecutive SVD steps over each TN edge (the same as contracting the ITE gate with zero time-step). The trivial-SU algorithm's fixed point corresponds to a canonical representation of the tensor network representations we started with. A tensor network canonical representation is strongly related to the Schmidt Decomposition operation over all the tensor network's edges, where for a tensor network with no loops (tree-like topology), each weight vector in the canonical representation corresponds to the Schmidt values of partitioning the network into two distinct networks along that edge. When the given tensor network has loops in it, it is no longer possible to partition the network along a single edge into distinguished parts. Therefore, the weight vectors are no longer equal to the Schmidt values but rather become some general approximation of the tensors' environments in the network. A very interesting property of the trivial simple update algorithm is that it is identical to the [Belief Propagation (BP)](https://en.wikipedia.org/wiki/Belief_propagation) algorithm. The Belief Propagation (BP) algorithm is a famous iterative-message-passing algorithm in the world of Probabilistic Graphical Models (PGM), which is used as an approximated inference tool. For a detailed description of the duality between the trivial-Simple-Update and the Belief Propagation algorithm, see Refs [3][4].
 
-In order to implement the trivial-SU algorithm we can initialize the simple update class with zero time step as follows
+In order to implement the trivial-SU algorithm, we can initialize the simple update class with zero time step as follows
 ```python
 su.SimpleUpdate(tensor_network=tensornet, 
                 dts=[0], 
@@ -153,13 +153,13 @@ su.SimpleUpdate(tensor_network=tensornet,
                 log_energy=False,
                 print_process=False)
 ```
-then, the algorithm will run 1000 iteration or until the maximal L2 distance between temporal consecutive weight vectors will be smaller then 1e-6.
+then, the algorithm will run 1000 iterations or until the maximal L2 distance between temporal consecutive weight vectors is smaller than 1e-6.
 
 
 There are more fully-written examples in the [`notebooks`](/notebooks) folder.
 
 ### List of Notebooks
-The notebooks below are not part of the package, they can be found in the `tnsu` github repository under `/notebooks`. You can run them locally with jupyter notebook or in google colab (which is preferable in case you don't want to burn your laptop's mother-board :) )
+The notebooks below are not part of the package, they can be found in the `tnsu` GitHub repository under `/notebooks`. You can run them locally with Jupiter notebook or in google colab (which is preferable in case you don't want to burn your laptop's mother-board :) )
 
 | #   | file            | Subject                                         | Colab             | Nbviewer               |
 |:----:|:--------------:|:------------------------------------------------:|:-----------------:|:---------------------:|
@@ -171,17 +171,17 @@ The notebooks below are not part of the package, they can be found in the `tnsu`
 ## Simulations
 ### Spin-1/2 Antiferromagnetic Heisenberg (AFH) model
 
-Below are some result of ground-state energy per-site simulated with the Simple Update algorithm over AFH Chain, Star, PEPS and Cube tensor networks. The AFH Hamiltonian is given by
+Below are some results of ground-state energy per-site simulated with the Simple Update algorithm over AFH Chain, Star, PEPS, and Cube tensor networks. The AFH Hamiltonian is given by
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/hamiltonian_eq.png?raw=true" width="" height="60">
 
-In the case of the Star tensor network lattice the AFH Hamiltonian is composite of two parts which corresponds to different type of edges (see [1]).
-The Chain, Star, PEPS and Cube infinite tensor networks are illustrated in the next figure.
+In the case of the Star tensor network lattice, the AFH Hamiltonian consists of two parts that correspond to different types of edges (see [1]).
+The Chain, Star, PEPS, and Cube infinite tensor networks are illustrated in the next figure.
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/Tensor_Networks_diagrams.png?raw=true" width="1000" height=""> 
 
 
-Here are the ground-state energy per-site vs inverse virtual bond-dimension simulations for the tensor networks diagrams above
+Here is the ground-state energy per-site vs. inverse virtual bond-dimension simulations for the tensor networks diagrams above
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/chain_star_peps_cube_plots.png?raw=true" width="1000" height="">
 
@@ -190,17 +190,17 @@ Next, we simulated the quantum Ising model on a 2D lattice with a transverse mag
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/ising_transverse_field.png?raw=true" width="" height="100">
 
-In the plots below one can see the simulated x, z magnetization (per-site) along with the simulated energy (per-site). We see that the SU algorithm is able to extract the phase transition of the model around h=3.2.
+In the plots below, one can see the simulated x and z magnetization (per site) along with the simulated energy (per site). We see that the SU algorithm is able to extract the phase transition of the model around h=3.2.
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/Ising_model.png?raw=true" width="1000" height="">
 
 ### Spin-1 Simulation of a Bilinear-Biquadratic Heisenberg model on a star 2D lattice
 
-Finally we simulated the BLBQ Hamiltonian which is given by the next equation
+Finally, we simulated the BLBQ Hamiltonian, which is given by the next equation
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/BLBQ_hamiltonian.png?raw=true" width="300" height="">
 
-notice that for 0 radian angle, this model coincides with the original AFH model. The energy, magnetization and Q-norm as a function of the angle for different bond dimension are plotted below. We can see that the simple-update algorithm is having a hard time to trace all the phase transitions of this model. However, we notice that for larger bond dimensions it seems like it captures the general behavior of the model's phase transition. For a comprehensive explanation and results (for triangular lattice see Ref [2])
+notice that for the 0-radian angle, this model coincides with the original AFH model. The energy, magnetization, and Q-norm as a function of the angle for a different bond dimension are plotted below. We can see that the simple-update algorithm is having a hard time tracing all the phase transitions of this model. However, we notice that for larger bond dimensions, it seems like it captures the general behavior of the model's phase transition. For a comprehensive explanation and results (for triangular lattice, see Ref [2])
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/BLBQ_model_simulation_star.png?raw=true" width="1000" height="">
 
@@ -217,14 +217,15 @@ Roy Elkabetz - [elkabetzroy@gmail.com](mailto:elkabetzroy@gmail.com)
 
 ## Citation
 
-To cite this repository in academic works or any other purpose, please use the following BibTeX citation:
+To cite this repository in academic works or for any other purpose, please use the following BibTeX citation:
 ```Latex
-@software{tnsu,
+@misc{tnsu,
     author = {Elkabetz, Roy},
-    title = {{tnsu: A python package for Tensor Networks Simple-Update simulations}},
-    url = {https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update},
-    version = {1.0.2},
-    year = {2022}
+    title = {{Python Package for Universal Tensor-Networks Simple-Update Simulations}},
+    howpublished = \url{https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update},
+    url = {https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/tnsu__A_python_package_for_Tensor_Networks_Simple_Update_simulations.pdf},
+    year = {2022},
+    type = {Python package}
 }
 ```
 
