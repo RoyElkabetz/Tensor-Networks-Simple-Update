@@ -218,14 +218,14 @@ Roy Elkabetz - [elkabetzroy@gmail.com](mailto:elkabetzroy@gmail.com)
 ## Citation
 
 To cite this repository in academic works or for any other purpose, please use the following BibTeX citation:
-```Latex
+```
 @misc{tnsu,
-    author = {Elkabetz, Roy},
-    title = {{Python Package for Universal Tensor-Networks Simple-Update Simulations}},
-    howpublished = \url{https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update},
-    url = {https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/tnsu__A_python_package_for_Tensor_Networks_Simple_Update_simulations.pdf},
-    year = {2022},
-    type = {Python package}
+    author = "Elkabetz, Roy",
+    title = "Python Package for Universal Tensor-Networks Simple-Update Simulations",
+    howpublished = "\url{https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update}",
+    url = "https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/tnsu__A_python_package_for_Tensor_Networks_Simple_Update_simulations.pdf",
+    year = "2022",
+    type = "Python package"
 }
 ```
 
