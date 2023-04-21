@@ -191,8 +191,8 @@ class SimpleUpdate:
             pj = self.rank_n_rank_3(tj['tensor'])
 
             # perform RQ decomposition of pi, pj to obtain ri, qi and rj, qj sub-tensors respectively.
-            ri, qi = linalg.rq(np.reshape(pi, [pi.shape[0] * pi.shape[1], pi.shape[2]]))
-            rj, qj = linalg.rq(np.reshape(pj, [pj.shape[0] * pj.shape[1], pj.shape[2]]))
+            ri, qi = linalg.rq(np.reshape(pi, [pi.shape[0] * pi.shape[1], pi.shape[2]]), mode="economic")
+            rj, qj = linalg.rq(np.reshape(pj, [pj.shape[0] * pj.shape[1], pj.shape[2]]), mode="economic")
 
             # reshape ri and rj into rank 3 tensors with shape (spin_dim, ek_dim, q_(right/left).shape[0]).
             i_physical_dim = ti['tensor'].shape[0]
