@@ -8,3 +8,4 @@ def test_alg1():
     assert abs(energies[0] - -0.5354082561993647) < 1e-13
 
 
+
