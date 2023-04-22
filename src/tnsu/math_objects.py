@@ -12,9 +12,9 @@ def spin_operators(spin: float = 0.5):
     n = int(2*spin + 1)
     assert spin > 0, f"the spin shoud be positive half integer, instead got {spin}."
     assert (n - (2*spin + 1)) == 0, f"spin should be a half integer (i.e., 0.5, 1, 1.5, ...), instead got {spin}."
-    sx = np.zeros((n, n), dtype=np.complex)
-    sy = np.zeros((n, n), dtype=np.complex)
-    sz = np.zeros((n, n), dtype=np.complex)
+    sx = np.zeros((n, n), dtype=complex)
+    sy = np.zeros((n, n), dtype=complex)
+    sz = np.zeros((n, n), dtype=complex)
 
     for i in range(n):
         for j in range(n):
