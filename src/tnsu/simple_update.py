@@ -1,10 +1,11 @@
 from tnsu.tensor_network import TensorNetwork
 from scipy import linalg
 from tnsu.utils import l2
-import tnsu.ncon as ncon
+import ncon
 import numpy as np
 import copy as cp
 import time
+import itertools
 
 
 class SimpleUpdate:
@@ -552,7 +553,13 @@ class SimpleUpdate:
         tensors_list = [ti['tensor'], np.conj(np.copy(ti['tensor'])), tj['tensor'], np.conj(
             np.copy(tj['tensor'])), np.diag(common_weight), np.diag(common_weight)]
         indices_list = [ti_idx, ti_conj_idx, tj_idx, tj_conj_idx, common_edge_idx, common_edge_conj_idx]
-        rdm = ncon.ncon(tensors_list, indices_list)  # (i, j, i', j')
+
+        # creating a contraction order
+        contraction_order = [item for item in itertools.chain.from_iterable([ti_idx, tj_idx]) if 0 < item < t] \
+                            + common_edge_idx + common_edge_conj_idx
+        contraction_forder = [ti_idx[0], tj_idx[0], ti_conj_idx[0], tj_conj_idx[0]]
+
+        rdm = ncon.ncon(tensors_list, indices_list, order=contraction_order, forder=contraction_forder) # (i, j, i', j')
 
         # reshape and normalize
         rdm /= np.trace(np.reshape(rdm, (rdm.shape[0] * rdm.shape[1], rdm.shape[2] * rdm.shape[3])))
