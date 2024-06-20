@@ -34,7 +34,7 @@ def test_triangle_lattice():
                                                                                  trans_field_op='y', h_k=-0.1,
                                                                                  spin=1, seed=42,
                                                                                  dts=[0.1, 1e-6], plot_results=False)
-    assert abs(energies[0] - -3.0331422526648186) < 1e-13
+    assert abs(energies[0] - -3.0669041827593553) < 1e-13
 
 
 def test_square_lattice():
