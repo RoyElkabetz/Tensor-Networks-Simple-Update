@@ -15,6 +15,10 @@ def infinite_structure_matrix_dict(name: str):
     structure_matrix = {'chain': np.array([[1, 2],
                                            [1, 2]]),
 
+                        'kagome': np.array([[1, 2, 3, 4, 0, 0],
+                                            [0, 4, 0, 2, 1, 3],
+                                            [3, 0, 1, 0, 4, 2]]),
+
                         'peps': np.array([[1, 2, 3, 4, 0, 0, 0, 0],
                                           [1, 2, 0, 0, 3, 4, 0, 0],
                                           [0, 0, 1, 2, 0, 0, 3, 4],
