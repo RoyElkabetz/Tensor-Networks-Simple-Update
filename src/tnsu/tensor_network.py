@@ -5,24 +5,47 @@ import os
 
 class TensorNetwork:
     """A Tensor-Network object. Used in the field of Quantum Information and Quantum Computation"""
+
     def __init__(self, structure_matrix: np.array = None, tensors: list = None, weights: list = None,
                  spin_dim: int = 2, virtual_dim: int = 3, dir_path='./networks',
-                 network_name='tensor_network'):
+                 network_name='tensor_network', random_init_real_loc: float = 1.,
+                 random_init_real_scale: float = 1., random_init_imag_loc: float = None,
+                 random_init_imag_scale: float = None):
         """
         :param structure_matrix: A 2D numpy array of integers > 0, corresponds to the interconnections between tensors
          and weights in the Tensor Network.
         :param tensors: A list of numpy arrays of dimension k + 1. The last k dimensions (which potentially can be
         different for any tensor in the list) corresponds to the virtual dimension of the Tensor Network, while the
         first dimension corresponds to the physical dimension of the Tensor Network (Spin dimension). Each array
-        corresponds to a Tensor in the the Tensor Network
+        corresponds to a Tensor in the Tensor Network
         :param weights: A list of 1D numpy arrays corresponds to the simple update weights between the tensors of the
         Tensor Network.
         :param spin_dim: Relevant only in tensors==None. Then spin_dim is the size of the 0 dimension of all generated
         random tensors.
         :param virtual_dim: The virtual_dim is the size of all the generated weight vectors.
         :param dir_path: directory path for loading and saving networks.
-        :param network_name: name of the network. Also needed when loading a network.
+        :param network_name: Name of the network. Also needed when loading a network.
+        :param random_init_real_loc: Loc value for tensors' real random part values initialization, Gaussian(loc, scale).
+        :param random_init_real_scale: Scale value for tensors' real part random values initialization, Gaussian(loc, scale).
+        :param random_init_imag_loc: Loc value for tensors' imaginary random values initialization, 1j * Gaussian(loc, scale).
+        :param random_init_imag_scale: Loc value for tensors' imaginary random values initialization, 1j * Gaussian(loc, scale).
         """
+
+        # Handle tensors random initialization parameters
+        assert (((random_init_real_loc is not None) and (random_init_real_scale is not None)) or
+                ((random_init_imag_loc is not None) and (random_init_imag_scale is not None))) == True, \
+            f"'real' or 'imag' loc and scale values for tensors' random initialization must be float values, " \
+            f"instead got: {random_init_real_loc=}, {random_init_real_scale=}, {random_init_imag_loc=}, " \
+            f"{random_init_imag_scale=}."
+
+        real_init = random_init_real_loc is not None
+        imag_init = random_init_imag_loc is not None
+        if real_init:
+            assert random_init_real_scale > 0, f"random_init_real_scale should be positive, " \
+                                               f"instead got {random_init_real_scale=}"
+        if imag_init:
+            assert random_init_imag_scale > 0, f"random_init_imag_scale should be positive, " \
+                                               f"instead got {random_init_imag_scale=}"
 
         if structure_matrix is not None:
             assert structure_matrix is not None, 'a structure matrix is required as an argument input.'
@@ -56,7 +79,7 @@ class TensorNetwork:
                         weight_dim = tensors[i].shape[structure_matrix[i, j]]
                         weights[j] = np.ones(weight_dim, dtype=np.float) / weight_dim
 
-            # generate a random (gaussian(1, 1)) tensors list in case didn't get one
+            # generate a random gaussian tensors list in case didn't get one as input
             else:
                 tensors = [0] * n
                 for i in range(n):
@@ -71,7 +94,22 @@ class TensorNetwork:
                                 tensor_shape[structure_matrix[i, j]] = len(weights[j])
                             else:
                                 tensor_shape[structure_matrix[i, j]] = virtual_dim
-                    tensors[i] = np.random.normal(loc=np.ones(tensor_shape), scale=1.0)
+                    if real_init and not imag_init:
+                        tensors[i] = np.random.normal(
+                            loc=random_init_real_loc * np.ones(tensor_shape),
+                            scale=random_init_real_scale)
+                    elif imag_init and not real_init:
+                        tensors[i] = 1j * np.random.normal(
+                            loc=random_init_imag_loc * np.ones(tensor_shape),
+                            scale=random_init_imag_scale)
+                    elif real_init and imag_init:
+                        tensors[i] = np.random.normal(
+                            loc=random_init_real_loc * np.ones(tensor_shape),
+                            scale=random_init_real_scale) + 1j * np.random.normal(
+                            loc=random_init_imag_loc * np.ones(tensor_shape),
+                            scale=random_init_imag_scale)
+                    else:
+                        raise TypeError
 
                 # generate a weights list in case didn't get one
                 if weights is None:
