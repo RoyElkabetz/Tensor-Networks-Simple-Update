@@ -1,4 +1,4 @@
-from tnsu.tensor_network import TensorNetwork
+from tnsu.tensor_network import TensorNetwork, _EdgesDict
 from scipy import linalg
 from tnsu.utils import l2
 import ncon
@@ -6,6 +6,15 @@ import numpy as np
 import copy as cp
 import time
 import itertools
+from typing import TypedDict
+
+
+# For easier annotation and code-hints:
+class _TensorDict(TypedDict):
+    tensor : np.ndarray
+    index : int
+    dim : int 
+
 
 
 class SimpleUpdate:
@@ -46,7 +55,7 @@ class SimpleUpdate:
         """
 
         # Unpacking the tensor network
-        self.tensor_network = tensor_network
+        self.tensor_network : TensorNetwork = tensor_network
 
         # Simple Update variables
         self.j_ij = j_ij
@@ -251,7 +260,7 @@ class SimpleUpdate:
             tensors[tj['index']] = tj['tensor'] / self.tensor_norm(tj['tensor'])
             weights[ek] = lambda_k_tilde / np.sum(lambda_k_tilde)
 
-    def get_tensors(self, edge):
+    def get_tensors(self, edge) -> tuple[_TensorDict, _TensorDict]:
         """
         Get tensors along an edge
         :param edge: A tensor network edge index
@@ -279,71 +288,13 @@ class SimpleUpdate:
         tensor_dims = self.structure_matrix[tensor_idx, tensor_edges]
         return {'edges': tensor_edges, 'dims': tensor_dims}
 
-    def get_edges(self, tensor_idx):
+    def get_edges(self, tensor_idx:int) -> _EdgesDict:
         """
         Gets all edges and dimension of a tensor
         :param tensor_idx: the tensor index
         :return: dictionary of edges and dimensions
         """
-        tensor_edges = np.nonzero(self.structure_matrix[tensor_idx, :])[0]
-        tensor_dims = self.structure_matrix[tensor_idx, tensor_edges]
-        return {'edges': tensor_edges, 'dims': tensor_dims}
-
-    def absorb_weights(self, tensor, edges_dims):
-        """
-        Absorb all local weights into a tensor
-        :param tensor: the tensor
-        :param edges_dims: an edge-dimension dict
-        :return: the new tensor
-        """
-        edges = edges_dims['edges']
-        dims = edges_dims['dims']
-        for i, edge in enumerate(edges):
-            tensor = np.einsum(tensor, np.arange(len(tensor.shape)), self.weights[edge], [dims[i]],
-                               np.arange(len(tensor.shape)))
-        return tensor
-
-    def absorb_sqrt_weights(self, tensor, edges_dims):
-        """
-        Absorb all local sqrt(weights) into a tensor
-        :param tensor: the tensor
-        :param edges_dims: an edge-dimension dict
-        :return: the new tensor
-        """
-        edges = edges_dims['edges']
-        dims = edges_dims['dims']
-        for i, edge in enumerate(edges):
-            tensor = np.einsum(tensor, np.arange(len(tensor.shape)), np.sqrt(self.weights[edge]), [dims[i]],
-                               np.arange(len(tensor.shape)))
-        return tensor
-
-    def absorb_sqrt_inverse_weights(self, tensor, edges_dims):
-        """
-        Absorb all local sqrt(weights)^(-1) into a tensor
-        :param tensor: the tensor
-        :param edges_dims: an edge-dimension dict
-        :return: the new tensor
-        """
-        edges = edges_dims['edges']
-        dims = edges_dims['dims']
-        for i, edge in enumerate(edges):
-            tensor = np.einsum(tensor, np.arange(len(tensor.shape)), np.power(np.sqrt(self.weights[edge]), -1),
-                               [dims[i]], np.arange(len(tensor.shape)))
-        return tensor
-
-    def absorb_inverse_weights(self, tensor, edges_dims):
-        """
-        Absorb all local inverse weights (weight^-1) into a tensor
-        :param tensor: the tensor
-        :param edges_dims: an edge-dimension dict
-        :return: the new tensor
-        """
-        edges = edges_dims['edges']
-        dims = edges_dims['dims']
-        for i, edge in enumerate(edges):
-            tensor = np.einsum(tensor, np.arange(len(tensor.shape)),
-                               np.power(self.weights[edge], -1), [dims[i]], np.arange(len(tensor.shape)))
-        return tensor
+        return self.tensor_network.get_edges(tensor_idx=tensor_idx)
 
     @staticmethod
     def tensor_dim_permute(tensor):
@@ -642,35 +593,9 @@ class SimpleUpdate:
         for tensor_idx, _ in enumerate(self.tensors):
             expectation += self.tensor_expectation(tensor_idx, operator)
         return np.real(expectation) / len(self.tensors)
+    
+    def absorb_weights(self, tensor:np.ndarray, edges_dims:dict) -> np.ndarray:
+        return self.tensor_network.absorb_weights(tensor=tensor, edges_dims=edges_dims)
 
-    def absorb_all_weights(self):
-        """
-        Absorbs all the sqrt(weights) into their neighboring tensors.
-        :return: None
-        """
-        n, m = self.structure_matrix.shape
-        for tensor_idx in range(n):
-            tensor = self.tensors[tensor_idx]
-            edges_dims = self.get_edges(tensor_idx=tensor_idx)
-            tensor = self.absorb_sqrt_weights(tensor=tensor, edges_dims=edges_dims)
-            self.tensors[tensor_idx] = tensor
-
-    def absorb_all_inverse_weights(self):
-        """
-        Absorbs all the sqrt(weights)^(-1) into their neighboring tensors.
-        :return: None
-        """
-        n, m = self.structure_matrix.shape
-        for tensor_idx in range(n):
-            tensor = self.tensors[tensor_idx]
-            edges_dims = self.get_edges(tensor_idx=tensor_idx)
-            tensor = self.absorb_sqrt_inverse_weights(tensor=tensor, edges_dims=edges_dims)
-            self.tensors[tensor_idx] = tensor
-
-    def get_tensor_network_state(self) -> list[np.ndarray]:
-        """
-        Returns a copy of the tensor network with all sqrt(weights) absobed into their 
-        negihboring tensors. This tensor-network is a PEPS represnting the state of the system.
-        :returns: list[np.ndarray]: A list of tensors. The order 
-        """
-        pass
+    def absorb_inverse_weights(self, tensor:np.ndarray, edges_dims:dict) -> np.ndarray:
+        return self.tensor_network.absorb_inverse_weights(tensor=tensor, edges_dims=edges_dims)

@@ -140,11 +140,12 @@ def afh_peps_ground_state_experiment(size: int = 4, bc: str = 'obc', d_max_: lis
             plot_convergence_curve(afh_tn_su)
 
         # save the tensor network
+        final_network = afh_tn.get_tensor_network_state()
         if save_network:
-            afh_tn.save_network()
+            final_network.save_network()
 
         # add to networks list
-        networks.append(afh_tn)
+        networks.append(final_network)
 
     return networks, energies
 
