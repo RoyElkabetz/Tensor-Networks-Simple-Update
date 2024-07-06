@@ -46,9 +46,6 @@ class SimpleUpdate:
         """
 
         # Unpacking the tensor network
-        self.tensors = tensor_network.tensors
-        self.weights = tensor_network.weights
-        self.structure_matrix = tensor_network.structure_matrix
         self.tensor_network = tensor_network
 
         # Simple Update variables
@@ -78,6 +75,19 @@ class SimpleUpdate:
         self.log_energy = log_energy
         self.print_process = print_process
         self.converged = False
+
+    @property
+    def tensors(self) -> list[np.ndarray]:
+        return self.tensor_network.tensors
+
+    @property
+    def weights(self) -> list[np.ndarray]:
+        return self.tensor_network.weights
+    
+    @property
+    def structure_matrix(self) -> list[np.ndarray]:
+        return self.tensor_network.structure_matrix
+
 
     def run(self):
         """
@@ -656,3 +666,11 @@ class SimpleUpdate:
             edges_dims = self.get_edges(tensor_idx=tensor_idx)
             tensor = self.absorb_sqrt_inverse_weights(tensor=tensor, edges_dims=edges_dims)
             self.tensors[tensor_idx] = tensor
+
+    def get_tensor_network_state(self) -> list[np.ndarray]:
+        """
+        Returns a copy of the tensor network with all sqrt(weights) absobed into their 
+        negihboring tensors. This tensor-network is a PEPS represnting the state of the system.
+        :returns: list[np.ndarray]: A list of tensors. The order 
+        """
+        pass
