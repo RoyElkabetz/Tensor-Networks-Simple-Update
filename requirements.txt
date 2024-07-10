@@ -2,6 +2,5 @@ matplotlib
 numpy
 pyparsing
 python-dateutil
-scipy==1.11
 tqdm
 ncon --global-option="--user"
