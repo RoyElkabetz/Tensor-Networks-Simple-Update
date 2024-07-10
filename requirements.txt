@@ -1,13 +1,7 @@
-cycler
-fonttools
-kiwisolver
 matplotlib
 numpy
-packaging
-Pillow
 pyparsing
 python-dateutil
-scipy
-six
+scipy==1.13.1
 tqdm
 ncon --global-option="--user"
