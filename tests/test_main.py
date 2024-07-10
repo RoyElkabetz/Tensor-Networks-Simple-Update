@@ -1,3 +1,13 @@
+if __name__ == "__main__":
+    import sys, pathlib
+    ## Import src:
+    base_folder = pathlib.Path(__file__).parent.parent
+    src_folder = str(base_folder/"src")
+    if src_folder not in sys.path:
+        sys.path.append(src_folder)
+
+from typing import Generator, Callable
+
 from tnsu.structure_matrix_constructor import infinite_structure_matrix_dict
 import tnsu.simple_update as su
 from tnsu.math_objects import spin_operators as so
@@ -51,3 +61,18 @@ def test_square_lattice():
 
 
 
+def _all_test() -> Generator[Callable[[None], None], None, None]:
+    yield test_load_tensor_network
+    yield test_triangle_lattice
+    yield test_square_lattice
+
+
+if __name__ == "__main__":
+    print("Running all tests:")
+    ## Run all tests:
+    for i, test in enumerate(_all_test()):
+        name = test.__name__
+        print(f"    Test {i}: {name!r}")
+        test()
+    ## No error? All good!
+    print(f"All {i+1} tests passes without errors.")

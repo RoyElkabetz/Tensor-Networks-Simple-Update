@@ -1,6 +1,6 @@
 import numpy as np
 from tnsu.utils import plot_convergence_curve
-from tnsu.tensor_network import TensorNetwork
+from tnsu.tensor_network import TensorNetwork, DEFAULT_NETWORKS_FOLDER
 import tnsu.simple_update as su
 import tnsu.structure_matrix_constructor as smg
 import tnsu.math_objects as mo
@@ -15,7 +15,7 @@ def load_a_tensor_network_from_memory(network_name='AFH_10x10_obc_D_4'):
     net_names = ['AFH_10x10_obc_D_4', 'AFH_20x20_obc_D_4', 'AFH_20x20_pbc_D_4']
     assert network_name in net_names, f'There is no network "{network_name}" in memory. ' \
                                       f'Please choose from:\n {net_names}'
-    dir_path = ''.join([s + '/' for s in __file__.split('/')[:-1]]) + 'networks'
+    dir_path = DEFAULT_NETWORKS_FOLDER
     return load_a_tensor_network_state(network_name, dir_path)
 
 

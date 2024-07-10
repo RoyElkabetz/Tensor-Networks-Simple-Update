@@ -4,6 +4,9 @@ import os
 import copy as cp
 
 from typing import TypedDict
+import pathlib
+
+DEFAULT_NETWORKS_FOLDER = str(pathlib.Path(__file__).parent/"networks")
 
 class _EdgesDict(TypedDict):
     edges : np.ndarray
@@ -13,7 +16,7 @@ class TensorNetwork:
     """A Tensor-Network object. Used in the field of Quantum Information and Quantum Computation"""
 
     def __init__(self, structure_matrix: np.array = None, tensors: list = None, weights: list = None,
-                 spin_dim: int = 2, virtual_dim: int = 3, dir_path='./networks',
+                 spin_dim: int = 2, virtual_dim: int = 3, dir_path:str|None=None,
                  network_name='tensor_network', random_init_real_loc: float = 1.,
                  random_init_real_scale: float = 1., random_init_imag_loc: float = None,
                  random_init_imag_scale: float = None):
@@ -155,7 +158,7 @@ class TensorNetwork:
         self.tensors = tensors
         self.weights = weights
         self.structure_matrix = structure_matrix
-        self.dir_path = dir_path
+        self.dir_path = dir_path if dir_path is not None else DEFAULT_NETWORKS_FOLDER
         self.network_name = network_name
         self.su_logger = None
         self.state_dict = None
