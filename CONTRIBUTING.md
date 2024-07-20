@@ -13,10 +13,11 @@ We use github to host code, to track issues and feature requests, as well as acc
 ## All Code Changes Happen Through Pull Requests
 Pull requests are the best way to propose changes to the codebase. We actively welcome your pull requests:
 
-1. Fork the repo and create your branch from `dev` (not `main`). 
-2. If you've added code that should be tested, add tests to `tests/test_main.py`.
-3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes by install and run `pytest`.
+1. Fork the repo and create your branch from `dev` (not `main`).
+2. Install locally using `requirements-dev.txt`.
+3. If you've added code that should be tested, add tests to `tests/test_main.py`.
+4. If you've changed APIs, update the documentation.
+5. Ensure the test suite passes by install and run `pytest`.
 6. Issue that pull request!
 
 ## Any contributions you make will be under the MIT Software License
