@@ -1,7 +1,7 @@
 # Tensor Networks Simple-Update (SU) Algorithm
 > This python package contains an implementation of the Simple-Update Tensor Network algorithm as described in the paper - A universal tensor network algorithm for any infinite lattice by Saeed S. Jahromi and Roman Orus [1].
 
- 
+
 ### Installation
 ```bash
 pip3 install tnsu
@@ -25,7 +25,7 @@ where finally,
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/ITE_local_gate.png?raw=true" width="200" height="">
 
-When performing the ITE scheme, the TN virtual bond dimension increases. Therefore, after every few ITE iterations, we need to truncate the bond dimensions so the number of parameters in the tensor network state would stay bounded. The truncation step is implemented via a [Singular Value Decomposition (SVD)](https://en.wikipedia.org/wiki/Singular_value_decomposition) step. A full step-by-step illustrated description of the Simple Update algorithm (which is based on the ITE scheme) is depicted below. 
+When performing the ITE scheme, the TN virtual bond dimension increases. Therefore, after every few ITE iterations, we need to truncate the bond dimensions so the number of parameters in the tensor network state would stay bounded. The truncation step is implemented via a [Singular Value Decomposition (SVD)](https://en.wikipedia.org/wiki/Singular_value_decomposition) step. A full step-by-step illustrated description of the Simple Update algorithm (which is based on the ITE scheme) is depicted below.
 
 <img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/simple_update_algorithm.png?raw=true" width="1000" height="">
 
@@ -36,10 +36,10 @@ For a more comprehensive explanation of the algorithm, the interested reader sho
 
 The [`src.tnsu`](/src/tnsu) folder contains the source code for this project
 
-| #   | file                                         | Subject             | 
+| #   | file                                         | Subject             |
 |:----:|------------------------------------------------|:-----------------:|
-| 1   | `tensor_network.py`                   | a Tensor Network class object which tracks the tensors, weights, and their connectivity| 
-| 2   | `simple_update.py`         | a Tensor Network Simple-Update algorithm class, which gets as an input a `TensorNetwork` object and performs a simple-update run on it using Imaginary Time Evolution. | 
+| 1   | `tensor_network.py`                   | a Tensor Network class object which tracks the tensors, weights, and their connectivity|
+| 2   | `simple_update.py`         | a Tensor Network Simple-Update algorithm class, which gets as an input a `TensorNetwork` object and performs a simple-update run on it using Imaginary Time Evolution. |
 | 3  | `structure_matrix_constructor.py`         | Contains a dictionary of common iPEPS structure matrices and also functionality construction of 2D square and rectangular lattices structure matrices (**still in progress**).
 | 4  | `examples.py`         | Few scripts for loading a tensor network state from memory and a full Antiferromagnetic Heisenberg model PEPS experiment.|
 | 5  | `ncon.py`         | A module for tensors contraction in python copied from the [ncon](https://github.com/mhauru/ncon) GitHub repository.|
@@ -69,7 +69,7 @@ Next we initialize a random Tensor Network with a virtual bond dimension of size
 tensornet = TensorNetwork(structure_matrix=smat, virtual_size=2, spin_dim=2)
 ```
 
-Then, set up the spin 1/2 operators and the simple update class parameters 
+Then, set up the spin 1/2 operators and the simple update class parameters
 ```python
 # pauli matrices
 pauli_x = np.array([[0, 1],
@@ -84,7 +84,7 @@ dts = [0.1, 0.01, 0.001, 0.0001, 0.00001]
 # Local spin operators
 s = [pauli_x / 2., pauli_y / 2., pauli_z / 2.]
 
-# The Hamiltonian's 2-body interaction constants 
+# The Hamiltonian's 2-body interaction constants
 j_ij = [1., 1., 1., 1., 1., 1.]
 
 # The Hamiltonian's 1-body field constant
@@ -99,16 +99,16 @@ d_max = 2
 
 Now, we initialize the simple update class
 ```python
-star_su = su.SimpleUpdate(tensor_network=tensornet, 
-                          dts=dts, 
-                          j_ij=j_ij, 
-                          h_k=h_k, 
-                          s_i=s, 
-                          s_j=s, 
-                          s_k=s_k, 
-                          d_max=d_max, 
-                          max_iterations=200, 
-                          convergence_error=1e-6, 
+star_su = su.SimpleUpdate(tensor_network=tensornet,
+                          dts=dts,
+                          j_ij=j_ij,
+                          h_k=h_k,
+                          s_i=s,
+                          s_j=s,
+                          s_k=s_k,
+                          d_max=d_max,
+                          max_iterations=200,
+                          convergence_error=1e-6,
                           log_energy=False,
                           print_process=False)
 ```
@@ -140,16 +140,16 @@ The trivial SU algorithm is equivalent to the SU algorithm without the ITE and t
 
 In order to implement the trivial-SU algorithm, we can initialize the simple update class with zero time step as follows
 ```python
-su.SimpleUpdate(tensor_network=tensornet, 
-                dts=[0], 
-                j_ij=j_ij, 
-                h_k=0, 
-                s_i=s, 
-                s_j=s, 
-                s_k=s_k, 
-                d_max=d_max, 
-                max_iterations=1000, 
-                convergence_error=1e-6, 
+su.SimpleUpdate(tensor_network=tensornet,
+                dts=[0],
+                j_ij=j_ij,
+                h_k=0,
+                s_i=s,
+                s_j=s,
+                s_k=s_k,
+                d_max=d_max,
+                max_iterations=1000,
+                convergence_error=1e-6,
                 log_energy=False,
                 print_process=False)
 ```
@@ -178,7 +178,7 @@ Below are some results of ground-state energy per-site simulated with the Simple
 In the case of the Star tensor network lattice, the AFH Hamiltonian consists of two parts that correspond to different types of edges (see [1]).
 The Chain, Star, PEPS, and Cube infinite tensor networks are illustrated in the next figure.
 
-<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/Tensor_Networks_diagrams.png?raw=true" width="1000" height=""> 
+<img src="https://github.com/RoyElkabetz/Tensor-Networks-Simple-Update/blob/main/assets/Tensor_Networks_diagrams.png?raw=true" width="1000" height="">
 
 
 Here is the ground-state energy per-site vs. inverse virtual bond-dimension simulations for the tensor networks diagrams above
@@ -228,4 +228,3 @@ To cite this repository in academic works or for any other purpose, please use t
     type = "Python package"
 }
 ```
-
