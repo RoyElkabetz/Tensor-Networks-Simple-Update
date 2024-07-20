@@ -5,6 +5,7 @@ import copy as cp
 
 from typing import TypedDict, Optional
 import pathlib
+from tnsu.structure_matrix_constructor import is_valid
 
 DEFAULT_NETWORKS_FOLDER = str(pathlib.Path(__file__).parent / "networks")
 
@@ -73,17 +74,9 @@ class TensorNetwork:
         assert len(structure_matrix.shape) == 2, (
             f"The given structure_matrix have {len(structure_matrix.shape)} " f"dimensions, instead of 2."
         )
+
+        assert is_valid(structure_matrix), "Got an invalid structure matrix."
         n, m = structure_matrix.shape
-        for i in range(n):
-            row = structure_matrix[i, :]
-            row = row[row > 0]
-            assert len(set(row)) == len(row), (
-                f"Error in structure_matrix given. There are two different weights "
-                f"connected to the same dimension in tensor [{i}]."
-            )
-        for j in range(m):
-            column = structure_matrix[:, j]
-            assert np.sum(column > 0) == 2, f"Weight vector [{j}] is not connected to two tensors."
 
         # Handle the tensors
         if tensors is not None:

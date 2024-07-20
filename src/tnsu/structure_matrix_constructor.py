@@ -143,3 +143,25 @@ def rectangular_peps_obc(height: int, width: int):
         new_row = new_row[order]
         structure_matrix[i, np.nonzero(structure_matrix[i, :])[0]] = new_row
     return structure_matrix
+
+
+def is_valid(structure_matrix: np.ndarray) -> bool:
+    n, m = structure_matrix.shape
+    if len(structure_matrix.shape) != 2:
+        print(f"structure_matrix must be a matrix, " f"instead got a {len(structure_matrix.shape)} dimension tensor.")
+        return False
+    for i in range(n):
+        row = structure_matrix[i, :]
+        row = row[row > 0]
+        if len(set(row)) != len(row):
+            print(
+                f"Error in structure_matrix given. There are two different weights "
+                f"connected to the same dimension in tensor [{i}]."
+            )
+            return False
+    for j in range(m):
+        column = structure_matrix[:, j]
+        if np.sum(column > 0) != 2:
+            print(f"Weight vector [{j}] is not connected to two tensors.")
+            return False
+    return True
