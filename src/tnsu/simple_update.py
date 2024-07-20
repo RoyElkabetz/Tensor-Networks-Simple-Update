@@ -3,18 +3,10 @@ from scipy import linalg
 from tnsu.utils import l2
 import ncon
 import numpy as np
+from numpy import ndarray
 import copy as cp
 import time
 import itertools
-from typing import TypedDict
-
-
-# For easier annotation and code-hints:
-class _TensorDict(TypedDict):
-    tensor : np.ndarray
-    index : int
-    dim : int 
-
 
 
 class SimpleUpdate:
@@ -24,10 +16,23 @@ class SimpleUpdate:
      "Universal tensor-network algorithm for any infinite lattice (2019)" - Jahromi Saeed and Orus Roman
     DOI:	10.1103/PhysRevB.99.195105
     """
-    def __init__(self, tensor_network: TensorNetwork, j_ij: list, h_k: float, s_i: list, s_j: list,
-                 s_k: list, dts: list, d_max: int = 2, max_iterations: int = 1000,
-                 convergence_error: float = 1e-6, log_energy: bool = False, print_process: bool = True,
-                 hamiltonian: np.array = None):
+
+    def __init__(
+        self,
+        tensor_network: TensorNetwork,
+        j_ij: list,
+        h_k: float,
+        s_i: list,
+        s_j: list,
+        s_k: list,
+        dts: list,
+        d_max: int = 2,
+        max_iterations: int = 1000,
+        convergence_error: float = 1e-6,
+        log_energy: bool = False,
+        print_process: bool = True,
+        hamiltonian: np.array = None,
+    ):
         """
         The default Hamiltonian (H) implement in this algorithm is given by
                                         H = J_ij sum_{<i,j>} S_i * S_j + h_k sum_{k} S_k
@@ -55,7 +60,7 @@ class SimpleUpdate:
         """
 
         # Unpacking the tensor network
-        self.tensor_network : TensorNetwork = tensor_network
+        self.tensor_network: TensorNetwork = tensor_network
 
         # Simple Update variables
         self.j_ij = j_ij
@@ -72,15 +77,17 @@ class SimpleUpdate:
         self.hamiltonian = hamiltonian
 
         # Utility variables
-        self.logger = {'error': [],
-                       'dt': [],
-                       'iteration': [],
-                       'energy': [],
-                       'j_ij': j_ij,
-                       'h_k': h_k,
-                       'd_max': d_max,
-                       'max_iterations': max_iterations,
-                       'convergence_error': convergence_error}
+        self.logger = {
+            "error": [],
+            "dt": [],
+            "iteration": [],
+            "energy": [],
+            "j_ij": j_ij,
+            "h_k": h_k,
+            "d_max": d_max,
+            "max_iterations": max_iterations,
+            "convergence_error": convergence_error,
+        }
         self.log_energy = log_energy
         self.print_process = print_process
         self.converged = False
@@ -92,11 +99,10 @@ class SimpleUpdate:
     @property
     def weights(self) -> list[np.ndarray]:
         return self.tensor_network.weights
-    
+
     @property
     def structure_matrix(self) -> list[np.ndarray]:
         return self.tensor_network.structure_matrix
-
 
     def run(self):
         """
@@ -128,40 +134,64 @@ class SimpleUpdate:
                     elapsed = time.time() - start_time
                     total_time += elapsed
                     energy = self.energy_per_site()
-                    self.logger['error'].append(error)
-                    self.logger['dt'].append(dt)
-                    self.logger['iteration'].append(simple_update_step)
+                    self.logger["error"].append(error)
+                    self.logger["dt"].append(dt)
+                    self.logger["iteration"].append(simple_update_step)
                     if self.log_energy:
-                        self.logger['energy'].append(energy)
+                        self.logger["energy"].append(energy)
                         if self.print_process:
-                            print('| D max: {:2d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
-                                  '{:13.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | tot time:'
-                                  '{:7.1f} min' .format(self.d_max, dt, i, self.max_iterations, error,
-                                                        np.round(energy, 10), elapsed, total_time // 60 +
-                                                        (total_time % 60) / 60))
+                            print(
+                                "| D max: {:2d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: "
+                                "{:13.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | tot time:"
+                                "{:7.1f} min".format(
+                                    self.d_max,
+                                    dt,
+                                    i,
+                                    self.max_iterations,
+                                    error,
+                                    np.round(energy, 10),
+                                    elapsed,
+                                    total_time // 60 + (total_time % 60) / 60,
+                                )
+                            )
                     else:
                         if self.print_process:
-                            print('| D max: {:2d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: '
-                                  '{:13.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | tot time:'
-                                  '{:7.1f} min'.format(self.d_max, dt, i, self.max_iterations, error,
-                                                       np.round(energy, 10), elapsed, total_time // 60 +
-                                                       (total_time % 60) / 60))
+                            print(
+                                "| D max: {:2d} | dt: {:8.6f} | iteration: {:5d}/{:5d} | convergence error: "
+                                "{:13.10f} | energy per-site: {: 16.11f} | iteration time: {:5.1f} sec | tot time:"
+                                "{:7.1f} min".format(
+                                    self.d_max,
+                                    dt,
+                                    i,
+                                    self.max_iterations,
+                                    error,
+                                    np.round(energy, 10),
+                                    elapsed,
+                                    total_time // 60 + (total_time % 60) / 60,
+                                )
+                            )
                     start_time = time.time()
 
                     # check for convergence criteria after performing ITE with all dts
                     if error <= self.convergence_error and dt == self.dts[-1]:
                         self.converged = True
                         self.tensor_network.su_logger = self.logger
-                        print('==> Simple Update converged. final error is {:4.10f} < {:4.10f}.'.format(
-                            error, self.convergence_error))
+                        print(
+                            "==> Simple Update converged. final error is {:4.10f} < {:4.10f}.".format(
+                                error, self.convergence_error
+                            )
+                        )
                         return
 
                     # check convergence for the current dt
                     if error <= self.convergence_error:
                         break
         self.tensor_network.su_logger = self.logger
-        print('==> Simple Update did not converged. final error is {:4.10f} > {:4.10f}.'.format(
-            error, self.convergence_error))
+        print(
+            "==> Simple Update did not converged. final error is {:4.10f} > {:4.10f}.".format(
+                error, self.convergence_error
+            )
+        )
 
     def compute_convergence_error(self):
         """
@@ -187,7 +217,6 @@ class SimpleUpdate:
 
         # Iterate over all the tensor network edges (weights)
         for ek in range(m):
-
             # get the edge weight vector.
             lambda_k = weights[ek]
 
@@ -195,72 +224,80 @@ class SimpleUpdate:
             ti, tj = self.get_tensors(ek)
 
             # collect (ti, tj)'s edges and dimensions without the ek common edge and its dimension.
-            i_edges_dims = self.get_other_edges(ti['index'], ek)
-            j_edges_dims = self.get_other_edges(tj['index'], ek)
+            i_edges_dims = self.get_other_edges(ti["index"], ek)
+            j_edges_dims = self.get_other_edges(tj["index"], ek)
 
             # absorb the environment's (lambda weights) into tensors.
-            ti['tensor'] = self.absorb_weights(ti['tensor'], i_edges_dims)
-            tj['tensor'] = self.absorb_weights(tj['tensor'], j_edges_dims)
+            ti["tensor"] = self.absorb_weights(ti["tensor"], i_edges_dims)
+            tj["tensor"] = self.absorb_weights(tj["tensor"], j_edges_dims)
 
             # permuting the indices associated with edge ek tensors ti, tj with their 1st dimension (for convenience).
             ti = self.tensor_dim_permute(ti)
             tj = self.tensor_dim_permute(tj)
 
             # group all virtual indices em != ek to form pi, pj "mps" tensors.
-            pi = self.rank_n_rank_3(ti['tensor'])
-            pj = self.rank_n_rank_3(tj['tensor'])
+            pi = self.rank_n_rank_3(ti["tensor"])
+            pj = self.rank_n_rank_3(tj["tensor"])
 
             # perform RQ decomposition of pi, pj to obtain ri, qi and rj, qj sub-tensors respectively.
-            ri, qi = linalg.rq(np.reshape(pi, [pi.shape[0] * pi.shape[1], pi.shape[2]]), mode="economic")
-            rj, qj = linalg.rq(np.reshape(pj, [pj.shape[0] * pj.shape[1], pj.shape[2]]), mode="economic")
+            ri, qi = linalg.rq(
+                np.reshape(pi, [pi.shape[0] * pi.shape[1], pi.shape[2]]),
+                mode="economic",
+            )
+            rj, qj = linalg.rq(
+                np.reshape(pj, [pj.shape[0] * pj.shape[1], pj.shape[2]]),
+                mode="economic",
+            )
 
             # reshape ri and rj into rank 3 tensors with shape (spin_dim, ek_dim, q_(right/left).shape[0]).
-            i_physical_dim = ti['tensor'].shape[0]
-            j_physical_dim = tj['tensor'].shape[0]
+            i_physical_dim = ti["tensor"].shape[0]
+            j_physical_dim = tj["tensor"].shape[0]
             ri = self.rank_2_rank_3(ri, i_physical_dim)  # (i, ek, qi)
             rj = self.rank_2_rank_3(rj, j_physical_dim)  # (j, ek, qj)
 
             # contract the time-evolution gate with ri, rj, and lambda_k to form a theta tensor.
-            i_neighbors = len(i_edges_dims['edges']) + 1
-            j_neighbors = len(j_edges_dims['edges']) + 1
+            i_neighbors = len(i_edges_dims["edges"]) + 1
+            j_neighbors = len(j_edges_dims["edges"]) + 1
             theta = self.time_evolution(ri, rj, i_neighbors, j_neighbors, lambda_k, ek)
             # notice that: theta.shape = (qi, i'_spin_dim, j'_spin_dim, qj)
 
             # obtain ri', rj' and lambda'_k tensors by applying an SVD to theta.
-            ri_tilde, lambda_k_tilde, rj_tilde = self.truncation_svd(theta, keep_s='yes')
+            ri_tilde, lambda_k_tilde, rj_tilde = self.truncation_svd(theta, keep_s="yes")
 
             # reshaping ri_tilde and rj_tilde back to rank 3 tensor.
             ri_tilde = np.reshape(ri_tilde, (qi.shape[0], i_physical_dim, ri_tilde.shape[1]))  # (qi,i'_spin_dim,d_max)
-            ri_tilde = np.transpose(ri_tilde, [1, 2, 0])                                       # (i'_spin_dim,d_max,qi)
+            ri_tilde = np.transpose(ri_tilde, [1, 2, 0])  # (i'_spin_dim,d_max,qi)
             rj_tilde = np.reshape(rj_tilde, (rj_tilde.shape[0], j_physical_dim, qj.shape[0]))  # (d_max,j'_spin_dim,qj)
-            rj_tilde = np.transpose(rj_tilde, [1, 0, 2])                                       # (j'_spin_dim,d_max,qj)
+            rj_tilde = np.transpose(rj_tilde, [1, 0, 2])  # (j'_spin_dim,d_max,qj)
 
             # compose back the ri', rj', sub-tensors to qi, qj, respectively, to form updated tensors p'i, p'j.
-            pi_prime = np.einsum('ijk,kl->ijl', ri_tilde, qi)
-            pl_prime = np.einsum('ijk,kl->ijl', rj_tilde, qj)
+            pi_prime = np.einsum("ijk,kl->ijl", ri_tilde, qi)
+            pl_prime = np.einsum("ijk,kl->ijl", rj_tilde, qj)
 
             # reshape pi_prime and pj_prime to rank-(z + 1) shape like the original tensors ti, tj.
-            ti_new_shape = np.array(ti['tensor'].shape)
+            ti_new_shape = np.array(ti["tensor"].shape)
             ti_new_shape[1] = len(lambda_k_tilde)
-            tj_new_shape = np.array(tj['tensor'].shape)
+            tj_new_shape = np.array(tj["tensor"].shape)
             tj_new_shape[1] = len(lambda_k_tilde)
-            ti['tensor'] = self.rank_3_rank_n(pi_prime, ti_new_shape)
-            tj['tensor'] = self.rank_3_rank_n(pl_prime, tj_new_shape)
+            ti["tensor"] = self.rank_3_rank_n(pi_prime, ti_new_shape)
+            tj["tensor"] = self.rank_3_rank_n(pl_prime, tj_new_shape)
 
             # permuting back the legs of ti and tj.
             ti = self.tensor_dim_permute(ti)
             tj = self.tensor_dim_permute(tj)
 
             # remove bond matrices lambda_m from virtual legs m != ek to obtain the updated ti, tj tensors.
-            ti['tensor'] = self.absorb_inverse_weights(ti['tensor'], i_edges_dims)
-            tj['tensor'] = self.absorb_inverse_weights(tj['tensor'], j_edges_dims)
+            ti["tensor"] = self.absorb_inverse_weights(ti["tensor"], i_edges_dims)
+            tj["tensor"] = self.absorb_inverse_weights(tj["tensor"], j_edges_dims)
 
             # normalize and save the updated ti, tj and lambda_k.
-            tensors[ti['index']] = ti['tensor'] / self.tensor_norm(ti['tensor'])
-            tensors[tj['index']] = tj['tensor'] / self.tensor_norm(tj['tensor'])
+            tensors[ti["index"]] = ti["tensor"] / self.tensor_norm(ti["tensor"])
+            tensors[tj["index"]] = tj["tensor"] / self.tensor_norm(tj["tensor"])
             weights[ek] = lambda_k_tilde / np.sum(lambda_k_tilde)
 
-    def get_tensors(self, edge) -> tuple[_TensorDict, _TensorDict]:
+    def get_tensors(
+        self, edge: int
+    ) -> tuple[dict[str, ndarray | list[ndarray]], dict[str, ndarray | list[ndarray]],]:
         """
         Get tensors along an edge
         :param edge: A tensor network edge index
@@ -268,12 +305,16 @@ class SimpleUpdate:
         """
         which_tensors = np.nonzero(self.structure_matrix[:, edge])[0]
         tensor_dim_of_edge = self.structure_matrix[which_tensors, edge]
-        ti = {'tensor': cp.copy(self.tensors[which_tensors[0]]),
-              'index': which_tensors[0],
-              'dim': tensor_dim_of_edge[0]}
-        tj = {'tensor': cp.copy(self.tensors[which_tensors[1]]),
-              'index': which_tensors[1],
-              'dim': tensor_dim_of_edge[1]}
+        ti = {
+            "tensor": cp.copy(self.tensors[which_tensors[0]]),
+            "index": which_tensors[0],
+            "dim": tensor_dim_of_edge[0],
+        }
+        tj = {
+            "tensor": cp.copy(self.tensors[which_tensors[1]]),
+            "index": which_tensors[1],
+            "dim": tensor_dim_of_edge[1],
+        }
         return ti, tj
 
     def get_other_edges(self, tensor_idx, edge_to_delete):
@@ -286,9 +327,9 @@ class SimpleUpdate:
         tensor_edges = np.nonzero(self.structure_matrix[tensor_idx, :])[0]
         tensor_edges = np.delete(tensor_edges, np.where(tensor_edges == edge_to_delete))
         tensor_dims = self.structure_matrix[tensor_idx, tensor_edges]
-        return {'edges': tensor_edges, 'dims': tensor_dims}
+        return {"edges": tensor_edges, "dims": tensor_dims}
 
-    def get_edges(self, tensor_idx:int) -> _EdgesDict:
+    def get_edges(self, tensor_idx: int) -> _EdgesDict:
         """
         Gets all edges and dimension of a tensor
         :param tensor_idx: the tensor index
@@ -303,9 +344,9 @@ class SimpleUpdate:
         :param tensor: a tensor dictionary (like the get_tensors function returns)
         :return: the permuted tensor
         """
-        permutation = np.arange(len(tensor['tensor'].shape))
-        permutation[[1, tensor['dim']]] = permutation[[tensor['dim'], 1]]
-        tensor['tensor'] = np.transpose(tensor['tensor'], permutation)
+        permutation = np.arange(len(tensor["tensor"].shape))
+        permutation[[1, tensor["dim"]]] = permutation[[tensor["dim"], 1]]
+        tensor["tensor"] = np.transpose(tensor["tensor"], permutation)
         return tensor
 
     @staticmethod
@@ -323,7 +364,7 @@ class SimpleUpdate:
         elif len(shape) == 2:
             new_shape.append(1)
         else:
-            raise ValueError(f'Tensor has to have a number of dimension >= 2, instead has {len(shape)} dimensions.')
+            raise ValueError(f"Tensor has to have a number of dimension >= 2, instead has {len(shape)} dimensions.")
         new_tensor = np.reshape(tensor, new_shape)
         return new_tensor
 
@@ -362,16 +403,16 @@ class SimpleUpdate:
         if keep_s is not None:
             u, s, vh = linalg.svd(theta.reshape(i_dim, j_dim), full_matrices=False)
             if self.d_max is not None:
-                u = u[:, 0:self.d_max]
-                s = s[0:self.d_max]
-                vh = vh[0:self.d_max, :]
+                u = u[:, 0 : self.d_max]
+                s = s[0 : self.d_max]
+                vh = vh[0 : self.d_max, :]
             return u, s, vh
         else:
             u, s, vh = np.linalg.svd(theta.reshape(i_dim, j_dim), full_matrices=False)
             if self.d_max is not None:
-                u = u[:, 0:self.d_max]
-                s = s[0:self.d_max]
-                vh = vh[0:self.d_max, :]
+                u = u[:, 0 : self.d_max]
+                s = s[0 : self.d_max]
+                vh = vh[0 : self.d_max, :]
             u = np.einsum(u, [0, 1], np.sqrt(s), [1], [0, 1])
             vh = np.einsum(np.sqrt(s), [0], vh, [0, 1], [0, 1])
         return u, vh
@@ -408,7 +449,8 @@ class SimpleUpdate:
 
             # Construct the Hamiltonian (normalize the field operators according to the number of neighbors)
             hamiltonian = self.j_ij[ek] * interaction_hamiltonian + self.h_k * (
-                    i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors)  # (i * j, i' * j')
+                i_field_hamiltonian / i_neighbors + j_field_hamiltonian / j_neighbors
+            )  # (i * j, i' * j')
             return hamiltonian
 
     def time_evolution(self, ri, rj, i_neighbors, j_neighbors, lambda_k, ek):
@@ -425,7 +467,10 @@ class SimpleUpdate:
         i_spin_dim = self.s_i[0].shape[0]
         j_spin_dim = self.s_j[0].shape[0]
         hamiltonian = self.get_hamiltonian(i_neighbors, j_neighbors, ek)
-        unitary_gate = np.reshape(linalg.expm(-self.dt * hamiltonian), (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
+        unitary_gate = np.reshape(
+            linalg.expm(-self.dt * hamiltonian),
+            (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim),
+        )
         # notice: unitary.shape = (i_spin_dim, j_spin_dim, i'_spin_dim, j'_spin_dim)
 
         weight_matrix = np.diag(lambda_k)
@@ -486,41 +531,62 @@ class SimpleUpdate:
         # collect the tensors along the given edge and absorb their weights
         common_weight = self.weights[common_edge]
         ti, tj = self.get_tensors(common_edge)
-        i_edges_dims = self.get_other_edges(ti['index'], common_edge)
-        j_edges_dims = self.get_other_edges(tj['index'], common_edge)
-        ti['tensor'] = self.absorb_weights(ti['tensor'], i_edges_dims)
-        tj['tensor'] = self.absorb_weights(tj['tensor'], j_edges_dims)
+        i_edges_dims = self.get_other_edges(ti["index"], common_edge)
+        j_edges_dims = self.get_other_edges(tj["index"], common_edge)
+        ti["tensor"] = self.absorb_weights(ti["tensor"], i_edges_dims)
+        tj["tensor"] = self.absorb_weights(tj["tensor"], j_edges_dims)
 
         # set indices lists for ncon tensor contraction package
         t = 1000
         common_edge_idx = [t, t + 1]
         common_edge_conj_idx = [t + 2, t + 3]
 
-        ti_idx = np.arange(len(ti['tensor'].shape))
-        ti_idx[ti['dim']] = common_edge_idx[0]
+        ti_idx = np.arange(len(ti["tensor"].shape))
+        ti_idx[ti["dim"]] = common_edge_idx[0]
         ti_idx[0] = -1  # i
-        ti_conj_idx = np.arange(len(ti['tensor'].shape))
-        ti_conj_idx[ti['dim']] = common_edge_conj_idx[0]
+        ti_conj_idx = np.arange(len(ti["tensor"].shape))
+        ti_conj_idx[ti["dim"]] = common_edge_conj_idx[0]
         ti_conj_idx[0] = -3  # i'
 
-        tj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
-        tj_idx[tj['dim']] = common_edge_idx[1]
+        tj_idx = np.arange(len(tj["tensor"].shape)) + len(ti["tensor"].shape)
+        tj_idx[tj["dim"]] = common_edge_idx[1]
         tj_idx[0] = -2  # j
-        tj_conj_idx = np.arange(len(tj['tensor'].shape)) + len(ti['tensor'].shape)
-        tj_conj_idx[tj['dim']] = common_edge_conj_idx[1]
+        tj_conj_idx = np.arange(len(tj["tensor"].shape)) + len(ti["tensor"].shape)
+        tj_conj_idx[tj["dim"]] = common_edge_conj_idx[1]
         tj_conj_idx[0] = -4  # j'
 
         # use ncon package for contraction
-        tensors_list = [ti['tensor'], np.conj(np.copy(ti['tensor'])), tj['tensor'], np.conj(
-            np.copy(tj['tensor'])), np.diag(common_weight), np.diag(common_weight)]
-        indices_list = [ti_idx, ti_conj_idx, tj_idx, tj_conj_idx, common_edge_idx, common_edge_conj_idx]
+        tensors_list = [
+            ti["tensor"],
+            np.conj(np.copy(ti["tensor"])),
+            tj["tensor"],
+            np.conj(np.copy(tj["tensor"])),
+            np.diag(common_weight),
+            np.diag(common_weight),
+        ]
+        indices_list = [
+            ti_idx,
+            ti_conj_idx,
+            tj_idx,
+            tj_conj_idx,
+            common_edge_idx,
+            common_edge_conj_idx,
+        ]
 
         # creating a contraction order
-        contraction_order = [item for item in itertools.chain.from_iterable([ti_idx, tj_idx]) if 0 < item < t] \
-                            + common_edge_idx + common_edge_conj_idx
+        contraction_order = (
+            [item for item in itertools.chain.from_iterable([ti_idx, tj_idx]) if 0 < item < t]
+            + common_edge_idx
+            + common_edge_conj_idx
+        )
         contraction_forder = [ti_idx[0], tj_idx[0], ti_conj_idx[0], tj_conj_idx[0]]
 
-        rdm = ncon.ncon(tensors_list, indices_list, order=contraction_order, forder=contraction_forder) # (i, j, i', j')
+        rdm = ncon.ncon(
+            tensors_list,
+            indices_list,
+            order=contraction_order,
+            forder=contraction_forder,
+        )  # (i, j, i', j')
 
         # reshape and normalize
         rdm /= np.trace(np.reshape(rdm, (rdm.shape[0] * rdm.shape[1], rdm.shape[2] * rdm.shape[3])))
@@ -543,7 +609,7 @@ class SimpleUpdate:
         :param operator: the operator (as a rank 4 matrix)
         :return: a two-body expectation value
         """
-        rdm = self.tensor_pair_rdm(common_edge)   # (i, j, i', j')
+        rdm = self.tensor_pair_rdm(common_edge)  # (i, j, i', j')
         return np.einsum(rdm, [0, 1, 2, 3], operator, [0, 1, 2, 3])
 
     def energy_per_site(self):
@@ -558,10 +624,10 @@ class SimpleUpdate:
         # iterate over all the Tensor Network edges
         for ek, lambda_k in enumerate(self.weights):
             ti, tj = self.get_tensors(ek)
-            i_edges_dims = self.get_edges(ti['index'])
-            j_edges_dims = self.get_edges(tj['index'])
-            i_neighbors = len(i_edges_dims['edges'])
-            j_neighbors = len(j_edges_dims['edges'])
+            i_edges_dims = self.get_edges(ti["index"])
+            j_edges_dims = self.get_edges(tj["index"])
+            i_neighbors = len(i_edges_dims["edges"])
+            j_neighbors = len(j_edges_dims["edges"])
             hamiltonian = self.get_hamiltonian(i_neighbors, j_neighbors, ek)
             hamiltonian = np.reshape(hamiltonian, (i_spin_dim, j_spin_dim, i_spin_dim, j_spin_dim))
             energy += self.tensor_pair_expectation(ek, hamiltonian)
@@ -593,9 +659,9 @@ class SimpleUpdate:
         for tensor_idx, _ in enumerate(self.tensors):
             expectation += self.tensor_expectation(tensor_idx, operator)
         return np.real(expectation) / len(self.tensors)
-    
-    def absorb_weights(self, tensor:np.ndarray, edges_dims:dict) -> np.ndarray:
+
+    def absorb_weights(self, tensor: np.ndarray, edges_dims: dict) -> np.ndarray:
         return self.tensor_network.absorb_weights(tensor=tensor, edges_dims=edges_dims)
 
-    def absorb_inverse_weights(self, tensor:np.ndarray, edges_dims:dict) -> np.ndarray:
+    def absorb_inverse_weights(self, tensor: np.ndarray, edges_dims: dict) -> np.ndarray:
         return self.tensor_network.absorb_inverse_weights(tensor=tensor, edges_dims=edges_dims)
