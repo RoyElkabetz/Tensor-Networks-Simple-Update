@@ -5,6 +5,7 @@ import copy as cp
 
 from typing import TypedDict, Optional
 import pathlib
+from tnsu.structure_matrix_constructor import is_valid
 
 DEFAULT_NETWORKS_FOLDER = str(pathlib.Path(__file__).parent / "networks")
 
@@ -15,7 +16,7 @@ class _EdgesDict(TypedDict):
 
 
 class TensorNetwork:
-    """A Tensor-Network object. Used in the field of Quantum Information and Quantum Computation"""
+    """A Tensor-Network object as used in the field of Quantum Information and Quantum Computation"""
 
     def __init__(
         self,
@@ -69,115 +70,50 @@ class TensorNetwork:
             f"Spin dimension should be an integer larger than 0. " f"Instead got {spin_dim}."
         )
 
-        # verify the structure matrix is legit
-        assert len(structure_matrix.shape) == 2, (
-            f"The given structure_matrix have {len(structure_matrix.shape)} " f"dimensions, instead of 2."
-        )
-        n, m = structure_matrix.shape
-        for i in range(n):
-            row = structure_matrix[i, :]
-            row = row[row > 0]
-            assert len(set(row)) == len(row), (
-                f"Error in structure_matrix given. There are two different weights "
-                f"connected to the same dimension in tensor [{i}]."
-            )
-        for j in range(m):
-            column = structure_matrix[:, j]
-            assert np.sum(column > 0) == 2, f"Weight vector [{j}] is not connected to two tensors."
-
-        # Handle the tensors
-        if tensors is not None:
-            assert n == len(tensors), (
-                f"Num of rows in structure_matrix is "
-                f"{n}, while num of tensors is "
-                f"{len(tensors)}. They should be equal, a row for each tensor."
-            )
-            # generate a list of uniform weights in case didn't get one as an input
-            if weights is None:
-                weights = [0] * m
-                for j in range(m):
-                    for i in range(n):
-                        if structure_matrix[i, j] > 0:
-                            break
-                    weight_dim = tensors[i].shape[structure_matrix[i, j]]
-                    weights[j] = np.ones(weight_dim, dtype=np.float) / weight_dim
+        # Verify the structure matrix is legit
+        assert is_valid(structure_matrix), "Got an invalid structure matrix."
 
         # generate a random gaussian tensors list in case didn't get one as input
-        else:
-            tensors = [0] * n
+        n, m = structure_matrix.shape
+        if tensors is None:
+            tensors = []
+            new_tensor = None
             for i in range(n):
-                tensor_shape = [spin_dim] + [0] * np.sum(structure_matrix[i, :] > 0)
-                for j in range(m):
-                    if structure_matrix[i, j] > 0:
-                        assert structure_matrix[i, j] <= len(tensor_shape) - 1, (
-                            f"structure_matrix[{i}, {j}] = "
-                            f"{structure_matrix[i, j]} while "
-                            f"it should have been "
-                            f"<= {len(tensor_shape) - 1}."
-                        )
-                        if weights is not None:
-                            tensor_shape[structure_matrix[i, j]] = len(weights[j])
-                        else:
-                            tensor_shape[structure_matrix[i, j]] = virtual_dim
+                tensor_shape = [spin_dim] + [virtual_dim] * int(np.sum(structure_matrix[i, :] > 0))
+
+                # initialize with random real values
                 if real_init and not imag_init:
-                    tensors[i] = np.random.normal(
+                    new_tensor = np.random.normal(
                         loc=random_init_real_loc * np.ones(tensor_shape),
                         scale=random_init_real_scale,
                     )
+                # initialize with random imaginary values
                 elif imag_init and not real_init:
-                    tensors[i] = 1j * np.random.normal(
+                    new_tensor = 1j * np.random.normal(
                         loc=random_init_imag_loc * np.ones(tensor_shape),
                         scale=random_init_imag_scale,
                     )
+                # initialize with random complex values
                 elif real_init and imag_init:
-                    tensors[i] = np.random.normal(
+                    new_tensor = np.random.normal(
                         loc=random_init_real_loc * np.ones(tensor_shape),
                         scale=random_init_real_scale,
                     ) + 1j * np.random.normal(
                         loc=random_init_imag_loc * np.ones(tensor_shape),
                         scale=random_init_imag_scale,
                     )
-                else:
-                    raise TypeError
+                tensors.append(new_tensor)
 
-            # generate a weights list in case didn't get one
-            if weights is None:
-                weights = [0] * m
-                for j in range(m):
-                    for i in range(n):
-                        if structure_matrix[i, j] > 0:
-                            break
-                    weight_dim = tensors[i].shape[structure_matrix[i, j]]
-                    weights[j] = np.ones(weight_dim) / weight_dim
-
-        assert m == len(weights), (
-            f"Num of columns in structure_matrix is "
-            f"{m}, while num of weights is "
-            f"{len(weights)}. They should be equal !"
-        )
-
-        # check the connectivity of each tensor in the generated tensor network
-        for i in range(n):
-            # all tensor virtual legs connected
-            assert len(tensors[i].shape) - 1 == np.sum(structure_matrix[i, :] > 0), (
-                f"tensor [{i}] is connected to {len(tensors[i].shape) - 1}  "
-                f"weight vectors but have "
-                f"{np.sum(structure_matrix[i, :] > 0)} virtual dimensions."
-            )
-
-        # verify each neighboring tensors has identical interaction dimension to their shared weights
-        for i in range(n):
+        # generate a list of uniform weights in case didn't get one as an input
+        if weights is None:
+            weights = []
             for j in range(m):
-                tensor_dim = structure_matrix[i, j]
-                if tensor_dim > 0:
-                    assert tensors[i].shape[tensor_dim] == len(weights[j]), (
-                        f"Dimension {tensor_dim} size of "
-                        f"Tensor [{i}] is"
-                        f" {tensors[i].shape[tensor_dim]}, "
-                        f"while size of weight "
-                        f"vector [{j}] is {len(weights[j])}. "
-                        f"They should be equal !"
-                    )
+                for i in range(n):
+                    if structure_matrix[i, j] > 0:
+                        weight_dim = tensors[i].shape[structure_matrix[i, j]]
+                        weights.append(np.ones(weight_dim, dtype=float) / weight_dim)
+                        break  # generate one weight vector per edge
+
         self.virtual_dim = virtual_dim
         self.spin_dim = spin_dim
         self.tensors = tensors
@@ -187,6 +123,56 @@ class TensorNetwork:
         self.network_name = network_name
         self.su_logger = None
         self.state_dict = None
+
+        # Check validation of Tensor Network
+        assert self.is_valid(), "Invalid Tensor Network."
+
+    def is_valid(self):
+        n, m = self.structure_matrix.shape
+
+        # Verify tensors match structure matrix
+        if m != len(self.weights):
+            print(
+                f"Num of columns in structure_matrix is "
+                f"{m}, while num of weights is "
+                f"{len(self.weights)}. They should be equal !"
+            )
+            return False
+        if n != len(self.tensors):
+            print(
+                f"Num of rows in structure_matrix is "
+                f"{n}, while num of tensors is "
+                f"{len(self.tensors)}. They should be equal, a row for each tensor."
+            )
+            return False
+
+        # Check the connectivity of each tensor in the generated tensor network
+        for i in range(n):
+            # all tensor virtual legs connected
+            if len(self.tensors[i].shape) - 1 != np.sum(self.structure_matrix[i, :] > 0):
+                print(
+                    f"tensor [{i}] is connected to {len(self.tensors[i].shape) - 1}  "
+                    f"weight vectors but have "
+                    f"{np.sum(self.structure_matrix[i, :] > 0)} virtual dimensions."
+                )
+                return False
+
+        # Verify each neighboring tensors has identical interaction dimension to their shared weights
+        for i in range(n):
+            for j in range(m):
+                tensor_dim = self.structure_matrix[i, j]
+                if tensor_dim > 0:
+                    if self.tensors[i].shape[tensor_dim] != len(self.weights[j]):
+                        print(
+                            f"Dimension {tensor_dim} size of "
+                            f"Tensor [{i}] is"
+                            f" {self.tensors[i].shape[tensor_dim]}, "
+                            f"while size of weight "
+                            f"vector [{j}] is {len(self.weights[j])}. "
+                            f"They should be equal !"
+                        )
+                        return False
+        return True
 
     def create_state_dict(self):
         """
