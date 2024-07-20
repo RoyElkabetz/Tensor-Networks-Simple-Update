@@ -1,7 +1,7 @@
 import numpy as np
 
 """
-A File for Structure Matrices constructions.
+A module for Structure Matrices construction.
 """
 
 
@@ -146,22 +146,33 @@ def rectangular_peps_obc(height: int, width: int):
 
 
 def is_valid(structure_matrix: np.ndarray) -> bool:
-    n, m = structure_matrix.shape
-    if len(structure_matrix.shape) != 2:
-        print(f"structure_matrix must be a matrix, " f"instead got a {len(structure_matrix.shape)} dimension tensor.")
-        return False
-    for i in range(n):
-        row = structure_matrix[i, :]
-        row = row[row > 0]
-        if len(set(row)) != len(row):
+    try:
+        if len(structure_matrix.shape) != 2:
             print(
-                f"Error in structure_matrix given. There are two different weights "
-                f"connected to the same dimension in tensor [{i}]."
+                f"structure_matrix must be a matrix, " f"instead got a {len(structure_matrix.shape)} dimension tensor."
             )
             return False
-    for j in range(m):
-        column = structure_matrix[:, j]
-        if np.sum(column > 0) != 2:
-            print(f"Weight vector [{j}] is not connected to two tensors.")
-            return False
-    return True
+        n, m = structure_matrix.shape
+        for i in range(n):
+            row = structure_matrix[i, :]
+            row = row[row > 0]
+            sorted_row = np.sort(row)
+            len_row = len(row)
+            expected_row_values = np.arange(1, len_row + 1)
+            if not np.all(sorted_row == expected_row_values):
+                expected_str = "-".join([str(num) for num in expected_row_values])
+                actual_str = "-".join([str(num) for num in sorted_row])
+                print(
+                    f"Error in structure_matrix given. For row [{i}] "
+                    f"expected values are {expected_str}, instead got {actual_str}."
+                )
+                return False
+        for j in range(m):
+            column = structure_matrix[:, j]
+            if np.sum(column > 0) != 2:
+                print(f"Weight vector [{j}] is not connected to two tensors.")
+                return False
+        return True
+    except Exception as e:
+        print(f"Failed with unexpected behavior. {e}")
+        return False

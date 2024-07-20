@@ -89,3 +89,15 @@ def test_spin_operators():
     assert np.sum(np.abs(sx_1 - sx_1_expected)) < 1e-12
     assert np.sum(np.abs(sy_1 - sy_1_expected)) < 1e-12
     assert np.sum(np.abs(sz_1 - sz_1_expected)) < 1e-12
+
+
+def test_structure_matrix_validation():
+    fail_too_many_dimensions = np.array([[[1.0]]])
+    fail_repeated_indices = np.array([[1, 2, 3, 3, 0, 0], [0, 4, 0, 2, 1, 3], [3, 0, 1, 0, 4, 2]])
+    fail_higher_index = np.array([[1, 2, 3, 6, 0, 0], [0, 6, 0, 2, 1, 3], [3, 0, 1, 0, 6, 2]])
+    fail_edge_for_three = np.array([[1, 2, 3, 0, 4, 0], [0, 4, 0, 2, 1, 3], [3, 0, 1, 0, 4, 2]])
+    assert not smc.is_valid(fail_too_many_dimensions)
+    assert not smc.is_valid(fail_repeated_indices)
+    assert not smc.is_valid(fail_higher_index)
+    assert not smc.is_valid(fail_edge_for_three)
+    assert not smc.is_valid(np.inf)
