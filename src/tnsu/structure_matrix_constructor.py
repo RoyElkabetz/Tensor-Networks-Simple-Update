@@ -1,7 +1,7 @@
 import numpy as np
 
 """
-A module for Structure Matrices construction.
+A File for Structure Matrices constructions.
 """
 
 
@@ -143,36 +143,3 @@ def rectangular_peps_obc(height: int, width: int):
         new_row = new_row[order]
         structure_matrix[i, np.nonzero(structure_matrix[i, :])[0]] = new_row
     return structure_matrix
-
-
-def is_valid(structure_matrix: np.ndarray) -> bool:
-    try:
-        if len(structure_matrix.shape) != 2:
-            print(
-                f"structure_matrix must be a matrix, " f"instead got a {len(structure_matrix.shape)} dimension tensor."
-            )
-            return False
-        n, m = structure_matrix.shape
-        for i in range(n):
-            row = structure_matrix[i, :]
-            row = row[row > 0]
-            sorted_row = np.sort(row)
-            len_row = len(row)
-            expected_row_values = np.arange(1, len_row + 1)
-            if not np.all(sorted_row == expected_row_values):
-                expected_str = "-".join([str(num) for num in expected_row_values])
-                actual_str = "-".join([str(num) for num in sorted_row])
-                print(
-                    f"Error in structure_matrix given. For row [{i}] "
-                    f"expected values are {expected_str}, instead got {actual_str}."
-                )
-                return False
-        for j in range(m):
-            column = structure_matrix[:, j]
-            if np.sum(column > 0) != 2:
-                print(f"Weight vector [{j}] is not connected to two tensors.")
-                return False
-        return True
-    except Exception as e:
-        print(f"Failed with unexpected behavior. {e}")
-        return False
