@@ -7,8 +7,8 @@ A module for Structure Matrices construction.
 
 def infinite_structure_matrix_dict(name: str):
     """
-    A dictionary of iPEPS structure matrices as written in the paper "A universal tensor network algorithm for
-    any infinite lattice".
+    A dictionary of iPEPS structure matrices as written in the paper
+    "A universal tensor network algorithm for any infinite lattice".
     :param name: name of the infinite Tensor Network
     :return: a structure matrix
     """

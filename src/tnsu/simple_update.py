@@ -11,8 +11,8 @@ import itertools
 
 class SimpleUpdate:
     """
-    This class is an implementation of the well known Tensor Network algorithm 'Simple Update'. This implementation
-    follows the algorithm steps as described in the paper:
+    This class is an implementation of the well known Tensor Network algorithm 'Simple Update'.
+    This implementation follows the algorithm steps as described in the paper:
      "Universal tensor-network algorithm for any infinite lattice (2019)" - Jahromi Saeed and Orus Roman
     DOI:	10.1103/PhysRevB.99.195105
     """
@@ -34,17 +34,17 @@ class SimpleUpdate:
         hamiltonian: np.array = None,
     ):
         """
-        The default Hamiltonian (H) implement in this algorithm is given by
+        The default Hamiltonian (H) implemented in this algorithm is given by
                                         H = J_ij sum_{<i,j>} S_i * S_j + h_k sum_{k} S_k
         :param tensor_network: A TensorNetwork class object (see tensor_network.py)
         :param j_ij: A list of tensor pairs interaction coefficients. The j_ij indices corresponds to the indices of
                     the TensorNetwork.weights list.
         :param h_k: The "field" constant coefficient
-        :param s_i: A list of the i spin operators for spin pair interaction.
+        :param s_i: A list of the `i` spin operators for spin pair interaction.
                     s_i[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
         :param s_j: A list of the j spin operators for spin pair interaction.
                     s_j[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
-        :param s_k: A list of the i spin operators for the Hamiltonian's field term.
+        :param s_k: A list of the `i` spin operators for the Hamiltonian's field term.
                     s_k[n].shape = (TensorNetwork.spin_dim, TensorNetwork.spin_dim)
         :param d_max: The maximal virtual bond dimension allowed in the simple update experiment.
                       Used in the truncation step after time-evolution.

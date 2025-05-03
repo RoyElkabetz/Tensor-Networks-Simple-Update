@@ -15,6 +15,9 @@ np.random.seed(42)
 
 
 def test_load_tensor_network():
+    """
+    Test load Tensor Network from memory, and get its energy.
+    """
     # Load Tensor Network
     structure_matrix = smc.rectangular_peps_obc(height=10, width=10)
     afh_tn = load_a_tensor_network_from_memory(structure_matrix=structure_matrix, network_name="AFH_10x10_obc_D_4")
@@ -36,21 +39,33 @@ def test_load_tensor_network():
 
 
 def test_afh_chain_spin_half_ground_state_experiment():
+    """
+    Test for ground state energy of an AFH model on a chain.
+    """
     _, energies = afh_chain_spin_half_ground_state_experiment(d_max_=[10], plot_results=False)
     assert abs(energies[0] - -0.44304) < 2e-4
 
 
 def test_afh_star_ground_state_experiment():
+    """
+    Test for ground state energy of an AFH model on a star.
+    """
     _, energies = afh_star_spin_half_ground_state_experiment(d_max_=[3], plot_results=False)
     assert abs(energies[0] - -0.472631) < 1e-6
 
 
 def test_afh_cubic_ground_state_experiment():
+    """
+    Test for ground state energy of an AFH model on a cube.
+    """
     _, energies = afh_cubic_spin_half_ground_state_experiment(d_max_=[2], plot_results=False)
     assert abs(energies[0] - -0.89253) < 3e-2
 
 
 def test_fhf_pyrochlore_spin_half_ground_state_experiment():
+    """
+    Test for ground state energy of fhf-pyrochlore model.
+    """
     _, energies = fhf_pyrochlore_spin_half_ground_state_experiment(
         d_max_=[3], h_k=0.1, transverse_field_op="z", plot_results=False
     )
@@ -58,6 +73,9 @@ def test_fhf_pyrochlore_spin_half_ground_state_experiment():
 
 
 def test_transverse_ising_field_ground_state_experiment():
+    """
+    Test for corrct ground state energy of transverse ising field infinite peps.
+    """
     smat = smc.infinite_structure_matrix_dict("peps")
     _, energies = transverse_ising_field_ground_state_experiment(
         smat=smat, d_max_=[2], plot_results=False, trans_field_op="x", h_k=-4.0
@@ -67,7 +85,7 @@ def test_transverse_ising_field_ground_state_experiment():
 
 def test_spin_operators():
     """
-    Testing the spin_operator generation function
+    Test for spin_operator generation function
     """
     sx_1_2, sy_1_2, sz_1_2 = spin_operators(0.5)
     sx_1, sy_1, sz_1 = spin_operators(1.0)
@@ -92,6 +110,9 @@ def test_spin_operators():
 
 
 def test_structure_matrix_validation():
+    """
+    Test for invalid structure matrices.
+    """
     fail_too_many_dimensions = np.array([[[1.0]]])
     fail_repeated_indices = np.array([[1, 2, 3, 3, 0, 0], [0, 4, 0, 2, 1, 3], [3, 0, 1, 0, 4, 2]])
     fail_higher_index = np.array([[1, 2, 3, 6, 0, 0], [0, 6, 0, 2, 1, 3], [3, 0, 1, 0, 6, 2]])

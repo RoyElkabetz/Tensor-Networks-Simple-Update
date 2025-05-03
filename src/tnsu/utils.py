@@ -11,11 +11,12 @@ def plot_convergence_curve(
     save_figure: bool = False,
 ):
     """
-    Plot the convergence curve and energy of a simple update experiment
-    :param simple_update_object: a SimpleUpdate class object
-    :param figure_name: name of figure for saving
-    :param figure_size: size of figure (x, y)
-    :param floating_point_error: the allowed error in energy
+    Plot the convergence curve and energy of a simple update experiment.
+    :param simple_update_object: a SimpleUpdate class object.
+    :param figure_name: name of figure for saving.
+    :param figure_size: size of figure (x, y).
+    :param floating_point_error: the allowed error in energy.
+    :param save_figure: whether to save the figure.
     :return: None
     """
     plt.rcParams.update({"font.size": 18})

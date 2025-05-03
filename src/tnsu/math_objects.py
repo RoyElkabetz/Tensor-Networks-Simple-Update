@@ -3,9 +3,11 @@ import numpy as np
 
 def spin_operators(spin: float = 0.5):
     """
-    (S_x)_{ab} = 1/2 (\\delta_{a,b+1} + \\delta_{a+1,b}) \\sqrt{(s+1)(a+b-1)-ab}
-    (S_y)_{ab} = i/2 (\\delta_{a,b+1} - \\delta_{a+1,b}) \\sqrt{(s+1)(a+b-1)-ab}
-    (S_z)_{ab} =     (s + 1 - a) \\delta_{a,b}
+    Returns a list of X, Y, Z spin operators according to the given spin half integer
+    parameter 0.5, 1.0, 1.5, etc.
+        (S_x)_{ab} = 1/2 (\\delta_{a,b+1} + \\delta_{a+1,b}) \\sqrt{(s+1)(a+b-1)-ab}
+        (S_y)_{ab} = i/2 (\\delta_{a,b+1} - \\delta_{a+1,b}) \\sqrt{(s+1)(a+b-1)-ab}
+        (S_z)_{ab} =     (s + 1 - a) \\delta_{a,b}
     :param spin: a half integer for spin type
     :retrun: the three spin operators sx, sy, sz
     """
