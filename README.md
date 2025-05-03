@@ -36,14 +36,14 @@ For a more comprehensive explanation of the algorithm, the interested reader sho
 
 The [`src.tnsu`](/src/tnsu) folder contains the source code for this project
 
-| #   | file                                         | Subject             |
-|:----:|------------------------------------------------|:-----------------:|
-| 1   | `tensor_network.py`                   | a Tensor Network class object which tracks the tensors, weights, and their connectivity|
-| 2   | `simple_update.py`         | a Tensor Network Simple-Update algorithm class, which gets as an input a `TensorNetwork` object and performs a simple-update run on it using Imaginary Time Evolution. |
-| 3  | `structure_matrix_constructor.py`         | Contains a dictionary of common iPEPS structure matrices and also functionality construction of 2D square and rectangular lattices structure matrices (**still in progress**).
-| 4  | `examples.py`         | Few scripts for loading a tensor network state from memory and a full Antiferromagnetic Heisenberg model PEPS experiment.|
-| 5  | `ncon.py`         | A module for tensors contraction in python copied from the [ncon](https://github.com/mhauru/ncon) GitHub repository.|
-| 6  | `utils.py`         | A general utility module.|
+| #   | file                               | Subject                                                                                                                                                                        |
+|:----:|:-----------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1   | `tensor_network.py`                | a Tensor Network class object which tracks the tensors, weights, and their connectivity                                                                                        |
+| 2   | `simple_update.py`                 | a Tensor Network Simple-Update algorithm class, which gets as an input a `TensorNetwork` object and performs a simple-update run on it using Imaginary Time Evolution.         |
+| 3  | `structure_matrix_constructor.py`  | Contains a dictionary of common iPEPS structure matrices and also functionality construction of 2D square and rectangular lattices structure matrices (**still in progress**). 
+| 4  | `examples.py`                      | Few scripts for loading a tensor network state from memory and a full Antiferromagnetic Heisenberg model PEPS experiment.                                                      |
+| 5  | `math_objects.py`                  | A module for mathematical needed objects.                                                                                                                                      |
+| 6  | `utils.py`                         | A general utility module.                                                                                                                                                      |
 
 
 
